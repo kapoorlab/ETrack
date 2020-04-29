@@ -46,6 +46,8 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.JTableHeader;
+
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -55,6 +57,7 @@ import org.scijava.ui.UIService;
 
 import bdv.util.BdvOverlay;
 import bdv.util.BdvSource;
+import embryoDetector.Embryoobject;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -67,13 +70,9 @@ import ij.measure.ResultsTable;
 import ij.plugin.PlugIn;
 import ij.plugin.frame.RoiManager;
 import ij.process.ColorProcessor;
-import listeners.AngleListener;
 import listeners.AutoEndListener;
 import listeners.AutoStartListener;
-import listeners.BackGroundListener;
-import listeners.BlackBorderListener;
 import listeners.ClearDisplayListener;
-import listeners.ClearforManual;
 import listeners.ColorListener;
 import listeners.CurrentCurvatureListener;
 import listeners.CurvatureListener;
@@ -127,6 +126,7 @@ import listeners.TrackidListener;
 import listeners.ZListener;
 import listeners.ZlocListener;
 import mpicbg.imglib.util.Util;
+import net.imagej.ImageJ;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
@@ -136,11 +136,13 @@ import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.Type;
 import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
+import pluginTools.InteractiveBud.ValueChange;
 
 public class InteractiveEmbryo extends JPanel implements PlugIn {
 
@@ -286,7 +288,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public int maxSearchradius = 100;
 	public int maxSearchradiusS = 10;
 	public int missedframes = 200;
-
+	public HashMap<String, Integer> AccountedT;
 	public float alphaMin = 0;
 	public float alphaMax = 1;
 	public float betaMin = 0;
@@ -363,105 +365,24 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public int borderpixel = 0;
 	public boolean twochannel;
 
+	public JTableHeader header;
 	public static enum ValueChange {
-		ROI, ALL, THIRDDIMmouse, FOURTHDIMmouse, DISPLAYROI, RADIUS, INSIDE, OUTSIDE, RESULT, RectRoi, SEG, Watershow, CURVERESULT
+		
+		THIRDDIMmouse, All;
+		
 	}
-
+	
 	public void setTime(final int value) {
-
-		fourthDimensionslider = value;
-		fourthDimensionsliderInit = 1;
-		fourthDimension = 1;
-	}
-
-	public int getTimeMax() {
-
-		return thirdDimensionSize;
-	}
-
-	public void setZ(final int value) {
 		thirdDimensionslider = value;
 		thirdDimensionsliderInit = 1;
 		thirdDimension = 1;
 	}
-
-
-	public void setOutsidecut(final int value) {
-
-		outsideCutoff = value;
-	}
-
-	public int getZMax() {
-
-		return fourthDimensionSize;
-	}
-
-	public void setlowprob(final float value) {
-		lowprob = value;
-		lowprob = computeScrollbarPositionFromValue(lowprob, lowprobmin, lowprobmax, scrollbarSize);
-	}
-
-	public double getlowprob(final float value) {
-
-		return lowprob;
-
-	}
-
-	public void setInitialmaxsearchradius(final int value) {
-		maxSearchradius = value;
-		maxSearchradiusInit = computeScrollbarPositionFromValue(maxSearchradius, maxSearchradiusMin, maxSearchradiusMax,
-				scrollbarSize);
-	}
-
-	public void setInitialAlpha(final float value) {
-		alpha = value;
-		alphaInit = computeScrollbarPositionFromValue(alpha, alphaMin, alphaMax, scrollbarSize);
-	}
-
-	public double getInitialAlpha(final float value) {
-
-		return alpha;
-
-	}
-
-	public void setInitialBeta(final float value) {
-		beta = value;
-		betaInit = computeScrollbarPositionFromValue(beta, betaMin, betaMax, scrollbarSize);
-	}
-
-	public double getInitialBeta(final float value) {
-
-		return beta;
-
-	}
-
-	public void sethighprob(final float value) {
-		highprob = value;
-		highprob = computeScrollbarPositionFromValue(highprob, highprobmin, highprobmax, scrollbarSize);
-	}
-
-	public double gethighprob(final float value) {
-
-		return highprob;
-
-	}
-
-	public float computeValueFromScrollbarPosition(final int scrollbarPosition, final float min, final float max,
-			final int scrollbarSize) {
-		return min + (scrollbarPosition / (float) scrollbarSize) * (max - min);
-	}
-
-	public int computeScrollbarPositionFromValue(final float sigma, final float min, final float max,
-			final int scrollbarSize) {
-		return Util.round(((sigma - min) / (max - min)) * scrollbarSize);
-	}
-
-	int decimalplaces = 3;
-
 	
+	
+	public int getTimeMax() {
 
-
-
+		return thirdDimensionSize;
+	}
 
 	public InteractiveEmbryo(RandomAccessibleInterval<FloatType> originalimg,
 			RandomAccessibleInterval<IntType> Segoriginalimg,
@@ -473,7 +394,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		this.Segoriginalimg = Segoriginalimg;
 		this.ndims = originalimg.numDimensions();
 		nf = NumberFormat.getInstance(Locale.ENGLISH);
-		nf.setMaximumFractionDigits(decimalplaces);
+		nf.setMaximumFractionDigits(3);
 		nf.setGroupingUsed(false);
 		this.calibration = calibration;
 		this.timecal = timecal;
@@ -492,7 +413,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		this.Segoriginalimg = Segoriginalimg;
 		this.ndims = originalimg.numDimensions();
 		nf = NumberFormat.getInstance(Locale.ENGLISH);
-		nf.setMaximumFractionDigits(decimalplaces);
+		nf.setMaximumFractionDigits(3);
 		nf.setGroupingUsed(false);
 		this.calibration = calibration;
 		this.timecal = timecal;
@@ -506,163 +427,59 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 
 	public void run(String arg0) {
 
-		displaymin = 0;
-		displaymax = 1;
-
-
-			
-
-		redoing = false;
+		BudLastTime = new HashMap<String, Integer>();
 		AllRefcords = new HashMap<String, RealLocalizable>();
-		pixellist = new HashSet<Integer>();
-		rtAll = new ResultsTable();
+		AllBudcenter = new ArrayList<RealLocalizable>();
+		ChosenBudcenter = new ArrayList<RealLocalizable>();
+		Finalresult = new HashMap<String, Budpointobject>();
+		BudOvalRois = new ArrayList<OvalRoi>();
+		SelectedAllRefcords = new HashMap<String, RealLocalizable>();
+		AccountedT = new HashMap<String, Integer>();
 		jpb = new JProgressBar();
-		Allrois = new ArrayList<Roi>();
+		nf = NumberFormat.getInstance(Locale.ENGLISH);
+		nf.setMaximumFractionDigits(3);
+		nf.setGroupingUsed(false);
 		Clickedpoints = new int[2];
-		HashresultCurvature = new HashMap<Integer, ArrayList<double[]>>();
-		SubHashresultCurvature = new HashMap<Integer, List<RealLocalizable>>();
-		HashresultSegCurvature = new HashMap<Integer, Double>();
-		HashresultSegIntensityA = new HashMap<Integer, Double>();
-		HashresultSegIntensityB = new HashMap<Integer, Double>();
-		HashresultSegPerimeter = new HashMap<Integer, Double>();
-
-		resultDraw = new HashMap<String, Pair<ArrayList<double[]>, ArrayList<Line>>>();
-		resultDrawLine = new HashMap<String, ArrayList<Line>>();
-		Accountedframes = new HashMap<String, Integer>();
-		AccountedZ = new HashMap<String, Integer>();
-
-
-		// minNumInliers = (int) Math.round(timecal / calibration);
-
-
-		if (ndims < 3) {
-
-			thirdDimensionSize = 0;
-			fourthDimensionSize = 0;
-		}
-
+		pixellist = new HashSet<Integer>();
+		Tracklist = new ArrayList<ValuePair<String, Budpointobject>>();
+		BudTracklist = new ArrayList<ValuePair<String, Budobject>>();
+		AllBudpoints = new HashMap<String, ArrayList<Budpointobject>>(); 
+		AllBuds = new HashMap<String, ArrayList<Budobject>>();
+		ij = new ImageJ();
+		ij.ui().showUI();
 		if (ndims == 3) {
 
-			fourthDimension = 1;
 			thirdDimension = 1;
-			fourthDimensionSize = 0;
 
 			thirdDimensionSize = (int) originalimg.dimension(2);
 			AutostartTime = thirdDimension;
 			AutoendTime = thirdDimensionSize;
 			maxframegap = thirdDimensionSize / 4;
 		}
-
-		if (ndims == 4) {
-
-			fourthDimension = 1;
-			thirdDimension = 1;
-
-			thirdDimensionSize = (int) originalimg.dimension(2);
-			fourthDimensionSize = (int) originalimg.dimension(3);
-			AutostartTime = fourthDimension;
-			AutoendTime = fourthDimensionSize;
-			prestack = new ImageStack((int) originalimg.dimension(0), (int) originalimg.dimension(1),
-					java.awt.image.ColorModel.getRGBdefault());
-		}
-
-		if (ndims > 4) {
-
-			System.out.println("Image has wrong dimensionality, upload an XYT/XYZ/XY image");
-			return;
-		}
-
-		if (originalimg == null)
-			originalimg = originalimg;
-		setTime(fourthDimension);
-		setZ(thirdDimension);
-		CurrentView = utility.Slicer.getCurrentView(originalimg, thirdDimension, thirdDimensionSize, fourthDimension,
-				fourthDimensionSize);
-
-	
-		if (originalimg != null) {
-			CurrentView = utility.Slicer.getCurrentView(originalimg, thirdDimension, thirdDimensionSize,
-					fourthDimension, fourthDimensionSize);
-
-		}
-		if (Secoriginalimg != null) {
-
-			CurrentViewSecOrig = utility.Slicer.getCurrentView(Secoriginalimg, thirdDimension, thirdDimensionSize,
-					fourthDimension, fourthDimensionSize);
-		}
-
-		if (Segoriginalimg != null) {
-
-			RandomAccessibleInterval<IntType> CurrentViewInt = utility.Slicer.getCurrentViewInt(Segoriginalimg,
-					thirdDimension, thirdDimensionSize, fourthDimension, fourthDimensionSize);
-			IntType min = new IntType();
-			IntType max = new IntType();
-			computeMinMax(Views.iterable(CurrentViewInt), min, max);
-			// Neglect the background class label
-			int currentLabel = min.get();
-
-
-		}
-
+		setTime(thirdDimension);
+		CurrentView = utility.BudSlicer.getCurrentBudView(originalimg, thirdDimension, thirdDimensionSize);
+		if(SegYelloworiginalimg!=null)
+			CurrentViewYellowInt = utility.BudSlicer.getCurrentBudView(SegYelloworiginalimg, thirdDimension, thirdDimensionSize);
 		imp = ImageJFunctions.show(CurrentView, "Original Image");
-
-		// bdv = BdvFunctions.show( CurrentView, "Cell", Bdv.options().is2D() );
-		clockimp = ImageJFunctions.show(CurrentView);
-
-		imp.setTitle("Active Image" + " " + "time point : " + fourthDimension + " " + " Z: " + thirdDimension);
-		// Create empty Hyperstack
-
-		updatePreview(ValueChange.ALL);
-
-			lowprobslider.setValue(computeScrollbarPositionFromValue(lowprob, lowprobmin, lowprobmax, scrollbarSize));
-			highprobslider
-					.setValue(computeScrollbarPositionFromValue(highprob, highprobmin, highprobmax, scrollbarSize));
-			lowprob = utility.Slicer.computeValueFromScrollbarPosition(lowprobslider.getValue(), lowprobmin, lowprobmax,
-					scrollbarSize);
-			highprob = utility.Slicer.computeValueFromScrollbarPosition(highprobslider.getValue(), highprobmin,
-					highprobmax, scrollbarSize);
-
-			updatePreview(ValueChange.SEG);
-
-
+		imp.setTitle("Active Image" + " " + "time point : " + thirdDimension);
+		
+	
 		Cardframe.repaint();
 		Cardframe.validate();
 		panelFirst.repaint();
 		panelFirst.validate();
-
-		Card(false);
-
-			StartCurvatureComputingCurrent();
 		saveFile = new java.io.File(".");
+		
+		
+		
+		
+		StartDisplayer();
+		Card();
 
 	}
 
 	
 
-	public void CleanMe() {
-
-		table.removeAll();
-		table.repaint();
-		overlay.clear();
-		if (imp != null && mvl != null)
-			imp.getCanvas().removeMouseListener(mvl);
-		if (imp != null && ml != null)
-			imp.getCanvas().removeMouseMotionListener(ml);
-
-		displayCircle.setState(false);
-		displaySegments.setState(false);
-		displayIntermediate = false;
-		displayIntermediateBox = false;
-		overlay.clear();
-		AccountedZ.clear();
-		AutostartTime = Integer.parseInt(startT.getText());
-		if (AutostartTime <= 0)
-			AutostartTime = 1;
-		AutoendTime = Integer.parseInt(endT.getText());
-		for (int z = AutostartTime; z <= AutoendTime; ++z)
-			AccountedZ.put(Integer.toString(z), z);
-
-	}
 
 	public void repaintView(ImagePlus Activeimp, RandomAccessibleInterval<FloatType> Activeimage) {
 		if (Activeimp == null || !Activeimp.isVisible()) {
@@ -686,538 +503,86 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 
 	public void updatePreview(final ValueChange change) {
 		
+		
 
-		uniqueID = Integer.toString(thirdDimension) + Integer.toString(fourthDimension);
-		ZID = Integer.toString(thirdDimension);
-		TID = Integer.toString(fourthDimension);
-		tmpID = Float.toString(thirdDimension) + Float.toString(fourthDimension);
-		overlay = imp.getOverlay();
-		clockoverlay = clockimp.getOverlay();
 		if (overlay == null) {
 
 			overlay = new Overlay();
 			imp.setOverlay(overlay);
-
+			
 		}
-
-		if (clockoverlay != null)
-			clockoverlay.clear();
-		if (clockoverlay == null) {
-
-			clockoverlay = new Overlay();
-			clockimp.setOverlay(clockoverlay);
-
+		
+		if (change == ValueChange.THIRDDIMmouse)
+		{
+			imp.setTitle("Active Image" + " " + "time point : " + thirdDimension);
+			String TID = Integer.toString( thirdDimension);
+			AccountedT.put(TID,  thirdDimension);
+			CurrentView = utility.EmbryoSlicer.getCurrentBudView(originalimg, thirdDimension, thirdDimensionSize);
+			if(SegYelloworiginalimg!=null)
+				CurrentViewYellowInt = utility.BudSlicer.getCurrentBudView(SegYelloworiginalimg, thirdDimension, thirdDimensionSize);
+		repaintView(CurrentView);
+		
+		if(CovistoKalmanPanel.Skeletontime.isEnabled()) {
+			imp.getOverlay().clear();
+			imp.updateAndDraw();
+			//CovistoKalmanPanel.Skeletontime.setEnabled(false);
+			//CovistoKalmanPanel.Timetrack.setEnabled(false);
+			StartDisplayer();
+			
 		}
 		
 
-		if (change == ValueChange.SEG) {
-
-				RandomAccessibleInterval<FloatType> tempview = null;
-
-					tempview = utility.Binarization.CreateBinary(CurrentViewSmooth, lowprob, highprob);
-
-				if (localimp == null || !localimp.isVisible()) {
-					localimp = ImageJFunctions.show(tempview);
-
-				}
-
-				else {
-
-					final float[] pixels = (float[]) localimp.getProcessor().getPixels();
-					final Cursor<FloatType> c = Views.iterable(tempview).cursor();
-
-					for (int i = 0; i < pixels.length; ++i)
-						pixels[i] = c.next().get();
-
-					localimp.updateAndDraw();
-
-				}
-
-					localimp.setTitle(
-							"Seg Image" + " " + "time point : " + fourthDimension + " " + " Z: " + thirdDimension);
-
-			}
-
-		if (change == ValueChange.RESULT) {
-
-			prestack = new ImageStack((int) originalimg.dimension(0), (int) originalimg.dimension(1),
-					java.awt.image.ColorModel.getRGBdefault());
-
-			String ID = (String) table.getValueAt(rowchoice, 0);
-			ArrayList<double[]> resultlist = new ArrayList<double[]>();
-			ArrayList<Line> resultline = new ArrayList<Line>();
-
-			Pair<ArrayList<double[]>, ArrayList<Line>> resultpair;
-		
-			resultpair = new ValuePair<ArrayList<double[]>, ArrayList<Line>>(resultlist, resultline);
-			resultDraw.put(ID, resultpair);
-
-			if (originalimg.numDimensions() > 3) {
-				for (int time = 1; time <= fourthDimensionSize; ++time)
-					prestack.addSlice(resultimp.getImageStack().getProcessor(time).convertToRGB());
-
-				for (double[] current : resultDraw.get(ID).getA()) {
-					Overlay resultoverlay = new Overlay();
-					int time = (int) current[0];
-					int Z = (int) current[1];
-					double IntersectionX = current[2];
-					double IntersectionY = current[3];
-					int radius = 3;
-					ShowResultView showcurrent = new ShowResultView(this, time, Z);
-					showcurrent.shownew();
-
-					cp = (ColorProcessor) (prestack.getProcessor(time).duplicate());
-					cp.reset();
-
-					resultimp.setOverlay(resultoverlay);
-
-					OvalRoi selectedRoi = new OvalRoi(Util.round(IntersectionX - radius),
-							Util.round(IntersectionY - radius), Util.round(2 * radius), Util.round(2 * radius));
-					resultoverlay.add(selectedRoi);
-
-					cp.setColor(colorLineA);
-					cp.setLineWidth(4);
-					cp.draw(selectedRoi);
-
-					if (prestack != null)
-						prestack.setPixels(cp.getPixels(), time);
-
-				}
-			}
-
-			else {
-
-				if (originalimg == null)
-					resultimp = ImageJFunctions.show(originalimg);
-				else
-					resultimp = ImageJFunctions.show(originalimg);
-				Overlay resultoverlay = new Overlay();
-				for (int time = 1; time <= thirdDimensionSize; ++time)
-					prestack.addSlice(resultimp.getImageStack().getProcessor(time).convertToRGB());
-				for (double[] current : resultDraw.get(ID).getA()) {
-					int Z = (int) current[1];
-					double IntersectionX = current[2];
-					double IntersectionY = current[3];
-					int radius = 3;
-
-					String currentID = Integer.toString(Z) + Integer.toString((int) current[0]);
-					ShowResultView showcurrent = new ShowResultView(this, Z);
-					showcurrent.shownew();
-
-					cp = (ColorProcessor) (prestack.getProcessor(Z).duplicate());
-					cp.reset();
-
-					resultimp.setOverlay(resultoverlay);
-
-					OvalRoi selectedRoi = new OvalRoi(Util.round(IntersectionX - radius),
-							Util.round(IntersectionY - radius), Util.round(2 * radius), Util.round(2 * radius));
-					resultoverlay.add(selectedRoi);
-
-					Roiobject currentobject = ZTRois.get(currentID);
-					Line nearestline = null;
-					for (Line currentline : resultDraw.get(ID).getB()) {
-						cp.setColor(colorLineA);
-						cp.setLineWidth(4);
-						Line nearest = kalmanTracker.NearestRoi.getNearestLineRois(currentobject,
-								new double[] { IntersectionX, IntersectionY }, this);
-						if (nearest == currentline) {
-							cp.draw(currentline);
-							nearestline = currentline;
-						}
-
-					}
-					if (nearestline != null)
-						currentobject.resultlineroi.remove(nearestline);
-					for (Line currentline : resultDraw.get(ID).getB()) {
-						cp.setColor(colorLineA);
-						cp.setLineWidth(4);
-						Line nearest = kalmanTracker.NearestRoi.getNearestLineRois(currentobject,
-								new double[] { IntersectionX, IntersectionY }, this);
-						if (nearest == currentline) {
-							cp.draw(currentline);
-						}
-
-					}
-					currentobject.resultlineroi.add(nearestline);
-
-					cp.setColor(colorresult);
-					cp.setLineWidth(4);
-					cp.draw(selectedRoi);
-
-					if (prestack != null)
-						prestack.setPixels(cp.getPixels(), Z);
-
-				}
-
-			}
-			new ImagePlus("TrackID" + table.getValueAt(row, 0), prestack).show();
-			resultimp.close();
-
 		}
-
-		if (change == ValueChange.ROI) {
-			roimanager = RoiManager.getInstance();
-
-			if (roimanager == null) {
-				roimanager = new RoiManager();
-			}
-			IJ.run("Select None");
-			DefaultZTRois.clear();
-			// roimanager.runCommand("show all");
-			Roi[] Rois = roimanager.getRoisAsArray();
-			Roiobject CurrentRoi = new Roiobject(Rois, thirdDimension, fourthDimension, true);
-
-			DefaultZTRois.put(uniqueID, CurrentRoi);
-
-			Accountedframes.put(TID, fourthDimension);
-
-			AccountedZ.put(ZID, thirdDimension);
-
-			ZTRois.put(uniqueID, CurrentRoi);
-
-			Display();
-
-		}
-
-		if (change == ValueChange.THIRDDIMmouse || change == ValueChange.FOURTHDIMmouse) {
-			
-			if (Tracklist.size() > 0 ) {
-
-				ComputeCurvature.CurvedLineage(this);
-
-			}
-
-			if (StripList.size() > 0) {
-
-				for (Map.Entry<String, SimpleWeightedGraph<Intersectionobject, DefaultWeightedEdge>> entryZ : parentdensegraphZ
-						.entrySet()) {
-					TrackModel model = new TrackModel(entryZ.getValue());
-					RandomAccessibleInterval<FloatType> StripImage = new ArrayImgFactory<FloatType>()
-							.create(CurrentView, new FloatType());
-					RandomAccess<FloatType> ranacStrip = StripImage.randomAccess();
-
-					for (final Integer id : model.trackIDs(true)) {
-						String targetid = id + entryZ.getKey();
-
-						for (Map.Entry<String, ArrayList<Pair<Integer, Double>>> item : StripList.entrySet()) {
-							String TrackID = item.getKey();
-							if (TrackID.equals(targetid)) {
-								for (Pair<Integer, Double> singleitem : item.getValue()) {
-
-									String TimeId = Integer.toString(thirdDimension);
-
-									ArrayList<Intersectionobject> currentlist = sortedMappair.get(TrackID + TimeId);
-
-									for (Intersectionobject currentobject : currentlist) {
-
-										ArrayList<double[]> sortedlinelist = currentobject.linelist;
-
-										int i = singleitem.getA();
-
-										if (sortedlinelist.size() > i) {
-											ranacStrip.setPosition(new long[] { (long) sortedlinelist.get(i)[0],
-													(long) sortedlinelist.get(i)[1] });
-
-											HyperSphere<FloatType> hyperSphere = new HyperSphere<FloatType>(StripImage,
-													ranacStrip, 3);
-											HyperSphereCursor<FloatType> localcursor = hyperSphere.localizingCursor();
-
-											while (localcursor.hasNext()) {
-
-												localcursor.fwd();
-
-												ranacStrip.setPosition(localcursor);
-
-												ranacStrip.get().setReal(ranacStrip.get().get() + singleitem.getB());
-											}
-
-										}
-									}
-
-								}
-
-							}
-						}
-
-						if (RMStrackImages == null || !RMStrackImages.isVisible()) {
-
-							RMStrackImages = ImageJFunctions.show(StripImage);
-
-						} else {
-
-							final float[] pixels = (float[]) RMStrackImages.getProcessor().getPixels();
-							final Cursor<FloatType> c = Views.iterable(StripImage).cursor();
-
-							for (int i = 0; i < pixels.length; ++i)
-								pixels[i] = c.next().get();
-
-							RMStrackImages.updateAndDraw();
-
-						}
-
-						RMStrackImages.setTitle("Root Mean square of Curvature" + targetid);
-
-					}
-				}
-
-			}
-
-				updatePreview(ValueChange.SEG);
-
-				if (originalimg != null)
-					CurrentViewSmooth = utility.Slicer.getCurrentView(originalimg, thirdDimension,
-							thirdDimensionSize, fourthDimension, fourthDimensionSize);
-				if (originalimg != null)
-					CurrentView = utility.Slicer.getCurrentView(originalimg, thirdDimension,
-							thirdDimensionSize, fourthDimension, fourthDimensionSize);
-
-				if (originalimg != null)
-					CurrentView = utility.Slicer.getCurrentView(originalimg, thirdDimension, thirdDimensionSize,
-							fourthDimension, fourthDimensionSize);
-
-				if (Secoriginalimg != null)
-
-					CurrentViewSecOrig = utility.Slicer.getCurrentView(Secoriginalimg, thirdDimension,
-							thirdDimensionSize, fourthDimension, fourthDimensionSize);
-
-
-			
-				repaintView(imp, CurrentView);
-
-				DisplayAuto.Display(this);
-			imp.setTitle("Active image" + " " + "time point : " + fourthDimension + " " + " Z: " + thirdDimension);
-
-		}
-
-	}
 
 	
 
-	public void StartCurvatureComputing(File savefile) {
-			ComputeCurvature compute = new ComputeCurvature(this, jpb, batchmode, savefile);
+	
 
-			curvesupermode = true;
+	public void StartDisplayer() {
+			ComputeCurvature display = new ComputeCurvature(this, jpb);
 
-			compute.execute();
 
+			display.execute();
+
+	}
+	
+public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 		
-
-
-	}
-
-	public RandomAccessibleInterval<BitType> CreateBinaryBit(RandomAccessibleInterval<FloatType> source, double lowprob,
-			double highprob) {
-
-		RandomAccessibleInterval<BitType> copyoriginal = new ArrayImgFactory<BitType>().create(source, new BitType());
-
-		final RandomAccess<BitType> ranac = copyoriginal.randomAccess();
-		final Cursor<FloatType> cursor = Views.iterable(source).localizingCursor();
-
-		while (cursor.hasNext()) {
-
-			cursor.fwd();
-
-			ranac.setPosition(cursor);
-			if (cursor.get().getRealDouble() > lowprob && cursor.get().getRealDouble() < highprob) {
-
-				ranac.get().setOne();
-			} else {
-				ranac.get().setZero();
-			}
+		
+		
+		if (imp == null || !imp.isVisible()) {
+			imp = ImageJFunctions.show(Activeimage);
 
 		}
 
-		return copyoriginal;
+		else {
+		
+				final float[] pixels = (float[]) imp.getProcessor().getPixels();
+				
+				final Cursor<FloatType> c = Views.iterable(Activeimage).cursor();
 
-	}
-
-
-
-	public void StartCurvatureComputingCurrent() {
-
-		ComputeCurvatureCurrent compute = new ComputeCurvatureCurrent(this, jpb);
-
-		compute.execute();
-	}
-
-	public void Display() {
-
-		overlay.clear();
-
-		if (ZTRois.size() > 0) {
-
-			for (Map.Entry<String, Roiobject> entry : ZTRois.entrySet()) {
-
-				Roiobject currentobject = entry.getValue();
-
-				if (currentobject.fourthDimension == fourthDimension
-						&& currentobject.thirdDimension == thirdDimension) {
-
-					if (currentobject.roilist != null) {
-						for (int indexx = 0; indexx < currentobject.roilist.length; ++indexx) {
-
-							Roi or = currentobject.roilist[indexx];
-							or.setStrokeColor(confirmedRois);
-							overlay.add(or);
-						}
-					}
-
-					if (currentobject.resultroi != null) {
-
-						for (int i = 0; i < currentobject.resultroi.size(); ++i) {
-
-							EllipseRoi ellipse = currentobject.resultroi.get(i);
-							ellipse.setStrokeColor(colorInChange);
-							overlay.add(ellipse);
-
-						}
-
-					}
-
-					if (currentobject.resultovalroi != null) {
-
-						for (int i = 0; i < currentobject.resultovalroi.size(); ++i) {
-
-							OvalRoi ellipse = currentobject.resultovalroi.get(i);
-							ellipse.setStrokeColor(colorDet);
-							overlay.add(ellipse);
-
-						}
-
-					}
-
-					if (currentobject.resultlineroi != null) {
-
-						for (int i = 0; i < currentobject.resultlineroi.size(); ++i) {
-
-							Line ellipse = currentobject.resultlineroi.get(i);
-							ellipse.setStrokeColor(colorLineA);
-
-							overlay.add(ellipse);
-
-						}
-
-					}
-
-					break;
-				}
-
-			}
-			imp.updateAndDraw();
-
-				DisplayAuto.mark(this);
-				DisplayAuto.select(this);
+				for (int i = 0; i < pixels.length; ++i)
+					pixels[i] = c.next().get();
 
 		}
-	}
-
-	public void DisplayOnly() {
-
-		overlay.clear();
-
-		if (ZTRois.size() > 0) {
-
-			for (Map.Entry<String, Roiobject> entry : ZTRois.entrySet()) {
-
-				Roiobject currentobject = entry.getValue();
-
-				if (currentobject.fourthDimension == fourthDimension
-						&& currentobject.thirdDimension == thirdDimension) {
-
-					for (int indexx = 0; indexx < currentobject.roilist.length; ++indexx) {
-
-						Roi or = currentobject.roilist[indexx];
-
-						if (or == nearestRoiCurr) {
-
-							or.setStrokeColor(colorInChange);
-
-						}
-
-						overlay.add(or);
-					}
-
-					if (currentobject.resultroi != null) {
-
-						for (int i = 0; i < currentobject.resultroi.size(); ++i) {
-
-							Roi ellipse = currentobject.resultroi.get(i);
-							ellipse.setStrokeColor(colorInChange);
-							overlay.add(ellipse);
-
-						}
-
-					}
-					if (currentobject.resultovalroi != null) {
-
-						for (int i = 0; i < currentobject.resultovalroi.size(); ++i) {
-
-							OvalRoi ellipse = currentobject.resultovalroi.get(i);
-							ellipse.setStrokeColor(colorDet);
-							overlay.add(ellipse);
-
-						}
-
-					}
-
-					if (currentobject.resultlineroi != null) {
-
-						for (int i = 0; i < currentobject.resultlineroi.size(); ++i) {
-
-							Line ellipse = currentobject.resultlineroi.get(i);
-							ellipse.setStrokeColor(colorLineA);
-							overlay.add(ellipse);
-
-						}
-
-					}
-					break;
-				}
-
-			}
+			
 			imp.updateAndDraw();
 
 		}
-	}
 
-	public void DisplayDefault() {
+	
 
-		overlay.clear();
-		if (DefaultZTRois.size() > 0) {
+	
 
-			for (Map.Entry<String, Roiobject> entry : DefaultZTRois.entrySet()) {
-
-				Roiobject currentobject = entry.getValue();
-
-				for (int indexx = 0; indexx < currentobject.roilist.length; ++indexx) {
-
-					Roi or = currentobject.roilist[indexx];
-					or.setStrokeColor(defaultRois);
-					overlay.add(or);
-				}
-
-				break;
-
-			}
-			imp.updateAndDraw();
-				DisplayAuto.mark(this);
-				DisplayAuto.select(this);
-
-		}
-	}
-
-	public JFrame Cardframe = new JFrame("Intersection angle or curvature measurment");
+	public JFrame Cardframe = new JFrame("Embryo Deformation Measuring Tool");
 	public JPanel panelCont = new JPanel();
 	public JPanel panelFirst = new JPanel();
 	public JPanel panelSecond = new JPanel();
 	public JPanel Timeselect = new JPanel();
 	public JPanel Zselect = new JPanel();
 	public JPanel Roiselect = new JPanel();
-	public JPanel Probselect = new JPanel();
-	public JPanel Angleselect = new JPanel();
+	public JPanel Curvatureselect = new JPanel();
 	public JPanel KalmanPanel = new JPanel();
-	public JPanel ManualIntervention = new JPanel();
-	public JCheckBox IlastikAuto = new JCheckBox("Show Watershed Image", showWater);
 
 	public TextField inputFieldT, inputtrackField, minperimeterField, maxperimeterField, gaussfield, numsegField,
 			cutoffField, minInlierField, degreeField, secdegreeField;//, resolutionField;
@@ -1238,20 +603,12 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public int smallSizeX = 200;
 	public int smallSizeY = 200;
 
-	public JButton Roibutton = new JButton("Confirm current roi selection");
-	public JButton DisplayRoibutton = new JButton("Display roi selection");
-	public JButton Anglebutton = new JButton("Fit Ellipses and track angles");
 	public JButton Curvaturebutton = new JButton("Measure Local Curvature");
 	public JButton Displaybutton = new JButton("Display Visuals (time)");
-	public JButton CurrentCurvaturebutton = new JButton("Measure Current Curvature");
 	public JButton Savebutton = new JButton("Save Track");
 	public JButton Batchbutton = new JButton("Save Parameters for batch mode and exit");
 	public JButton SaveAllbutton = new JButton("Save All Tracks");
-	public JButton Redobutton = new JButton("Compute/Recompute for current view");
 
-	public JButton Smoothbutton = new JButton("Do Gaussian Smoothing");
-	public JButton Clearmanual = new JButton("Clear Current View");
-	public JButton ManualCompute = new JButton("Manual Computation");
 	public String timestring = "Current T";
 	public String zstring = "Current Z";
 	public String zgenstring = "Current Z / T";
@@ -1274,24 +631,11 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public Label regionText = new Label("Intensity region (px)");
 	public Label outdistText = new Label("Intensity Exterior region (px)");
 
-	public Label secdegreeText = new Label("Choose degree of second polynomial");
 	public Label minInlierText = new Label(mininlierstring + " = " + minNumInliers, Label.CENTER);
 
-	final Label outsideText = new Label("Cutoff distance = " + outsideCutoff, Label.CENTER);
 
-	final Label minperiText = new Label("Minimum ellipse perimeter");
-	final Label maxperiText = new Label("Maximum ellipse perimeter");
 	public final Label maxsizeText = new Label("Maximum region size (px)");
 	public final Label minsizeText = new Label("Minimum region size (px)");
-	final Label numsegText = new Label("Number of segments");
-	final Label lowprobText = new Label("Lower probability level = " + lowprob, Label.CENTER);
-	final Label highporbText = new Label("Higher probability level = " + highprob, Label.CENTER);
-
-	final String lowprobstring = "Lower probability level";
-	final String highprobstring = "Higher probability level";
-
-	final String minperimeterstring = "Minimum ellipse perimeter";
-	final String maxperimeterstring = "Maximum ellipse perimeter";
 
 	public final Insets insets = new Insets(10, 0, 0, 0);
 	public final GridBagLayout layout = new GridBagLayout();
@@ -1328,20 +672,11 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 			new EmptyBorder(c.insets));
 	public JPanel controlprev = new JPanel();
 	JPanel controlnext = new JPanel();
-	final String alphastring = "Weightage for distance based cost";
-	final String cutoffstring = insideText.getName();
-	final String betastring = "Weightage for pixel ratio based cost";
-	final String maxSearchstring = "Maximum search radius";
-	final String maxSearchstringS = "Maximum search radius";
-	final String initialSearchstring = "Initial search radius";
-
 	CheckboxGroup curvaturemode = new CheckboxGroup();
 
-	final Checkbox polymode = new Checkbox("Polynomial Fits", curvaturemode, polynomialfits);
 
 	final Checkbox circlemode = new Checkbox("Track Segment Circle Fits", curvaturemode, circlefits);
 	public final Checkbox distancemode = new Checkbox("Use Distance Method", curvaturemode, distancemethod);
-	//public final Checkbox IntegerSegment = new Checkbox("Different Box Sizes");
 	
 	public final Checkbox Pixelcelltrackcirclemode = new Checkbox("Use Circle Fits", curvaturemode,
 			pixelcelltrackcirclefits);
@@ -1354,10 +689,6 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public JButton ClearDisplay = new JButton("Clear Display");
 	public JButton SelectRim = new JButton("Rim selection for Intensity");
 
-	Label maxSearchText = new Label(maxSearchstring + " = " + maxSearchInit, Label.CENTER);
-	Label maxSearchTextS = new Label(maxSearchstring + " = " + maxSearchInit, Label.CENTER);
-	Label alphaText = new Label(alphastring + " = " + alphaInit, Label.CENTER);
-	Label betaText = new Label(betastring + " = " + betaInit, Label.CENTER);
 	public Label smoothText = new Label("Ratio of functions = " + smoothing, Label.CENTER);
 
 	public Border timeborder = new CompoundBorder(new TitledBorder("Select time"), new EmptyBorder(c.insets));
@@ -1416,10 +747,8 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		Zselect.setLayout(layout);
 		Original.setLayout(layout);
 		Roiselect.setLayout(layout);
-		Probselect.setLayout(layout);
-		Angleselect.setLayout(layout);
+		Curvatureselect.setLayout(layout);
 		KalmanPanel.setLayout(layout);
-		ManualIntervention.setLayout(layout);
 		inputFieldZ = new TextField(textwidth);
 		inputFieldZ.setText(Integer.toString(thirdDimension));
 
@@ -1488,18 +817,8 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		maxSearchradius = (int) utility.ETrackScrollbarUtils.computeValueFromScrollbarPosition(maxSearchS.getValue(),
 				maxSearchradiusMin, maxSearchradiusMax, scrollbarSize);
 
-		alpha = utility.ETrackScrollbarUtils.computeValueFromScrollbarPosition(alphaS.getValue(), alphaMin, alphaMax,
-				scrollbarSize);
-		beta = utility.ETrackScrollbarUtils.computeValueFromScrollbarPosition(betaS.getValue(), betaMin, betaMax,
-				scrollbarSize);
 
-		String[] DrawType = { "Closed Loops", "Semi-Closed Loops" };
 
-		ChooseMethod = new JComboBox<String>(DrawType);
-
-		String[] DrawColor = { "Grey", "Red", "Blue", "Pink" };
-
-		ChooseColor = new JComboBox<String>(DrawColor);
 
 		inputLabelmaxellipse = new Label("Max. number of ellipses");
 		inputtrackLabel = new Label("Enter trackID to save");
@@ -1577,55 +896,39 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 
 	
 
-			Probselect.add(autoTstart, new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0, GridBagConstraints.WEST,
-					GridBagConstraints.HORIZONTAL, new Insets(10, 10, 0, 10), 0, 0));
-			Probselect.add(startT, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-					GridBagConstraints.HORIZONTAL, new Insets(10, 10, 0, 10), 0, 0));
-
-			Probselect.add(autoTend, new GridBagConstraints(0, 4, 3, 1, 0.0, 0.0, GridBagConstraints.WEST,
-					GridBagConstraints.HORIZONTAL, new Insets(10, 10, 0, 10), 0, 0));
-			Probselect.add(endT, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-					GridBagConstraints.HORIZONTAL, new Insets(10, 10, 0, 10), 0, 0));
-
-			Probselect.setBorder(probborder);
-
-			panelFirst.add(Probselect, new GridBagConstraints(5, 0, 5, 1, 0.0, 0.0, GridBagConstraints.CENTER,
-					GridBagConstraints.HORIZONTAL, insets, 0, 0));
-
-
 	
 
 				SliderBoxGUI combominInlier = new SliderBoxGUI(mininlierstring, minInlierslider, minInlierField,
 						minInlierText, scrollbarSize, minNumInliers, minNumInliersmax);
 
-				Angleselect.add(distancemode, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+				Curvatureselect.add(distancemode, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
 						GridBagConstraints.HORIZONTAL, insets, 0, 0));
-				Angleselect.add(Pixelcelltrackcirclemode, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0,
+				Curvatureselect.add(Pixelcelltrackcirclemode, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0,
 						GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
 				
-				Angleselect.add(Combomode, new GridBagConstraints(2, 2, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+				Curvatureselect.add(Combomode, new GridBagConstraints(2, 2, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
 						GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
-				Angleselect.add(combominInlier.BuildDisplay(), new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0,
+				Curvatureselect.add(combominInlier.BuildDisplay(), new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0,
 						GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
 
-				Angleselect.add(regionText, new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+				Curvatureselect.add(regionText, new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
 						GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
-				Angleselect.add(regioninteriorfield, new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0,
+				Curvatureselect.add(regioninteriorfield, new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0,
 						GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
-				Angleselect.add(Curvaturebutton, new GridBagConstraints(2, 4, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+				Curvatureselect.add(Curvaturebutton, new GridBagConstraints(2, 4, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
 						GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
 
-				Angleselect.add(Displaybutton, new GridBagConstraints(2, 5, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+				Curvatureselect.add(Displaybutton, new GridBagConstraints(2, 5, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
 						GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
-				Angleselect.setBorder(circletools);
-				panelFirst.add(Angleselect, new GridBagConstraints(0, 1, 5, 1, 0.0, 0.0, GridBagConstraints.CENTER,
+				Curvatureselect.setBorder(circletools);
+				panelFirst.add(Curvatureselect, new GridBagConstraints(0, 1, 5, 1, 0.0, 0.0, GridBagConstraints.CENTER,
 						GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
 
@@ -1736,35 +1039,24 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		distancemode.addItemListener(new RunCelltrackCirclemodeListener(this));
 		Pixelcelltrackcirclemode.addItemListener(new RunpixelCelltrackCirclemodeListener(this));
 		Combomode.addItemListener(new RunCombomodeListener(this));
-		polymode.addItemListener(new RunPolymodeListener(this));
 
-		gaussfield.addTextListener(new GaussRadiusListener(this));
-		bordercorrection.addTextListener(new BlackBorderListener(this));
 		lostframe.addTextListener(new LostFrameListener(this));
 		interiorfield.addTextListener(new InteriorDistListener(this, false));
 		exteriorfield.addTextListener(new ExteriorDistListener(this));
 
 		regioninteriorfield.addTextListener(new RegionInteriorListener(this, false));
 
-		Batchbutton.addActionListener(new SaveBatchListener(this));
 		ClearDisplay.addActionListener(new ClearDisplayListener(this));
-		SelectRim.addActionListener(new RimLineSelectionListener(this));
-		degreeField.addTextListener(new DegreeListener(this, false));
 		//resolutionField.addTextListener(new ResolutionListener(this, false));
 
 		//radiusField.addTextListener(new LinescanradiusListener(this, false));
 		secdegreeField.addTextListener(new SecDegreeListener(this, false));
-		Smoothbutton.addActionListener(new DoSmoothingListener(this));
 		displayCircle.addItemListener(new DisplayListener(this));
 		displaySegments.addItemListener(new DisplayBoxListener(this));
-		CurrentCurvaturebutton.addActionListener(new CurrentCurvatureListener(this));
 		Curvaturebutton.addActionListener(new CurvatureListener(this));
 		Displaybutton.addActionListener(new DisplayVisualListener(this, true));
-		Anglebutton.addActionListener(new AngleListener(this));
 		startT.addTextListener(new AutoStartListener(this));
 		endT.addTextListener(new AutoEndListener(this));
-		Redobutton.addActionListener(new RedoListener(this));
-		Roibutton.addActionListener(new RoiListener(this));
 		inputFieldZ.addTextListener(new ZlocListener(this, false));
 		cutoffField.addTextListener(new InsideLocListener(this, false));
 		minInlierField.addTextListener(new MinInlierLocListener(this, false));
@@ -1784,14 +1076,6 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		ChooseMethod.addActionListener(new DrawListener(this, ChooseMethod));
 		ChooseColor.addActionListener(new ColorListener(this, ChooseColor));
 
-		IlastikAuto.addItemListener(new IlastikListener(this));
-		lowprobslider.addAdjustmentListener(new LowProbListener(this, lowprobText, lowprobstring, lowprobmin,
-				lowprobmax, scrollbarSize, lowprobslider));
-		highprobslider.addAdjustmentListener(new HighProbListener(this, highporbText, highprobstring, highprobmin,
-				highprobmax, scrollbarSize, highprobslider));
-
-		Clearmanual.addActionListener(new ClearforManual(this));
-		ManualCompute.addActionListener(new ManualInterventionListener(this));
 		maxSearchS.addAdjustmentListener(new ETrackMaxSearchListener(this, maxSearchText, maxSearchstring,
 				maxSearchradiusMin, maxSearchradiusMax, scrollbarSize, maxSearchS));
 
