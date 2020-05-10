@@ -564,7 +564,7 @@ public class EmbryoFileChooser extends JPanel {
 				// Activate curvature measurment super
 			
 				RandomAccessibleInterval<IntType> imagesuper = SimplifiedIO.openImage(impsuper.getOriginalFileInfo().directory + impsuper.getOriginalFileInfo().fileName, new IntType());
-				new InteractiveSimpleEllipseFit(imagebefore, imagebefore, imagesuper,calibration, Wavesize, simple, superpixel, curvesimple, curvesuper, impOrig.getOriginalFileInfo().directory, twochannel, name).run(null);
+				new InteractiveEmbryo(imagebefore, imagesuper,calibration, Wavesize, impOrig.getOriginalFileInfo().directory, twochannel, name).run(null);
 			}
 			
 			
@@ -573,7 +573,7 @@ public class EmbryoFileChooser extends JPanel {
 			
 				RandomAccessibleInterval<IntType> imagesuper = SimplifiedIO.openImage(impsuper.getOriginalFileInfo().directory + impsuper.getOriginalFileInfo().fileName, new IntType());
 				RandomAccessibleInterval<FloatType> secimage = SimplifiedIO.openImage(impSec.getOriginalFileInfo().directory + impSec.getOriginalFileInfo().fileName, new FloatType());
-				new InteractiveSimpleEllipseFit(imagebefore, secimage, imagebefore, imagesuper,calibration, Wavesize, simple, superpixel, curvesimple, curvesuper, impOrig.getOriginalFileInfo().directory, twochannel, name).run(null);
+				new InteractiveEmbryo(imagebefore, secimage, imagesuper,calibration, Wavesize, impOrig.getOriginalFileInfo().directory, twochannel, name).run(null);
 			}
 			
 			close(parent);

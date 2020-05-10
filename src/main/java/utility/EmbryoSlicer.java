@@ -3,7 +3,6 @@ package utility;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
-import curvatureUtils.ExpandBorder;
 import ij.IJ;
 import ij.gui.Roi;
 import mpicbg.imglib.util.Util;
@@ -18,9 +17,9 @@ import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
-import pluginTools.InteractiveSimpleEllipseFit;
+import pluginTools.InteractiveEmbryo;
 
-public class Slicer {
+public class EmbryoSlicer {
 
 	public static RandomAccessibleInterval<FloatType> getCurrentViewLarge(
 			RandomAccessibleInterval<FloatType> originalimg, int thirdDimension) {
@@ -238,7 +237,7 @@ public class Slicer {
 
 	}
 
-	public static void Slice(InteractiveSimpleEllipseFit parent, RandomAccessibleInterval<BitType> current,
+	public static void Slice(InteractiveEmbryo parent, RandomAccessibleInterval<BitType> current,
 			ArrayList<int[]> pointlist, int z, int t) {
 
 		final RandomAccess<BitType> ranac = current.randomAccess();
@@ -264,7 +263,7 @@ public class Slicer {
 		}
 	}
 
-	public static void Paint(InteractiveSimpleEllipseFit parent, RandomAccessibleInterval<BitType> current, String id,
+	public static void Paint(InteractiveEmbryo parent, RandomAccessibleInterval<BitType> current, String id,
 			int z, int t) {
 
 		Roiobject currentobject = parent.ZTRois.get(id);

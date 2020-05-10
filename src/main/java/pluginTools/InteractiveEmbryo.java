@@ -142,7 +142,7 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
-import pluginTools.InteractiveBud.ValueChange;
+import pluginTools.InteractiveEmbryo.ValueChange;
 
 public class InteractiveEmbryo extends JPanel implements PlugIn {
 
@@ -212,15 +212,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 
 	public boolean redoing;
 	public boolean showWater = false;
-	public float lowprobmax = 1.0f;
-	public float highprobmax = 1.0f;
 
-	public float insideCutoffmin = 1;
-	public float outsideCutoffmin = 1;
-	public int smoothslidermin = 0;
-	public int smoothslidermax = 1;
-	public float minNumInliersmin = 0;
-	public float minNumInliersmax = 100;
 	public int KymoDimension = 0;
 	public int AutostartTime, AutoendTime;
 	public float insideCutoffmax = 500;
@@ -427,12 +419,12 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 
 	public void run(String arg0) {
 
-		BudLastTime = new HashMap<String, Integer>();
+		EmbryoLastTime = new HashMap<String, Integer>();
 		AllRefcords = new HashMap<String, RealLocalizable>();
-		AllBudcenter = new ArrayList<RealLocalizable>();
-		ChosenBudcenter = new ArrayList<RealLocalizable>();
-		Finalresult = new HashMap<String, Budpointobject>();
-		BudOvalRois = new ArrayList<OvalRoi>();
+		AllEmbryocenter = new ArrayList<RealLocalizable>();
+		ChosenEmbryocenter = new ArrayList<RealLocalizable>();
+		Finalresult = new HashMap<String, Embryopointobject>();
+		EmbryoOvalRois = new ArrayList<OvalRoi>();
 		SelectedAllRefcords = new HashMap<String, RealLocalizable>();
 		AccountedT = new HashMap<String, Integer>();
 		jpb = new JProgressBar();
@@ -441,10 +433,10 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		nf.setGroupingUsed(false);
 		Clickedpoints = new int[2];
 		pixellist = new HashSet<Integer>();
-		Tracklist = new ArrayList<ValuePair<String, Budpointobject>>();
-		BudTracklist = new ArrayList<ValuePair<String, Budobject>>();
-		AllBudpoints = new HashMap<String, ArrayList<Budpointobject>>(); 
-		AllBuds = new HashMap<String, ArrayList<Budobject>>();
+		Tracklist = new ArrayList<ValuePair<String, Embryopointobject>>();
+		EmbryoTracklist = new ArrayList<ValuePair<String, Embryoobject>>();
+		AllEmbryopoints = new HashMap<String, ArrayList<Embryopointobject>>(); 
+		AllEmbryos = new HashMap<String, ArrayList<Embryoobject>>();
 		ij = new ImageJ();
 		ij.ui().showUI();
 		if (ndims == 3) {
@@ -457,9 +449,9 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 			maxframegap = thirdDimensionSize / 4;
 		}
 		setTime(thirdDimension);
-		CurrentView = utility.BudSlicer.getCurrentBudView(originalimg, thirdDimension, thirdDimensionSize);
+		CurrentView = utility.EmbryoSlicer.getCurrentEmbryoView(originalimg, thirdDimension, thirdDimensionSize);
 		if(SegYelloworiginalimg!=null)
-			CurrentViewYellowInt = utility.BudSlicer.getCurrentBudView(SegYelloworiginalimg, thirdDimension, thirdDimensionSize);
+			CurrentViewYellowInt = utility.EmbryoSlicer.getCurrentEmbryoView(SegYelloworiginalimg, thirdDimension, thirdDimensionSize);
 		imp = ImageJFunctions.show(CurrentView, "Original Image");
 		imp.setTitle("Active Image" + " " + "time point : " + thirdDimension);
 		
@@ -517,9 +509,9 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 			imp.setTitle("Active Image" + " " + "time point : " + thirdDimension);
 			String TID = Integer.toString( thirdDimension);
 			AccountedT.put(TID,  thirdDimension);
-			CurrentView = utility.EmbryoSlicer.getCurrentBudView(originalimg, thirdDimension, thirdDimensionSize);
+			CurrentView = utility.EmbryoSlicer.getCurrentEmbryoView(originalimg, thirdDimension, thirdDimensionSize);
 			if(SegYelloworiginalimg!=null)
-				CurrentViewYellowInt = utility.BudSlicer.getCurrentBudView(SegYelloworiginalimg, thirdDimension, thirdDimensionSize);
+				CurrentViewYellowInt = utility.EmbryoSlicer.getCurrentEmbryoView(SegYelloworiginalimg, thirdDimension, thirdDimensionSize);
 		repaintView(CurrentView);
 		
 		if(CovistoKalmanPanel.Skeletontime.isEnabled()) {
