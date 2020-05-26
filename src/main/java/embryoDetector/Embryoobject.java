@@ -19,83 +19,123 @@ import net.imglib2.RealLocalizable;
 public class Embryoobject extends AbstractEuclideanSpace implements RealLocalizable, Comparable<Embryoobject> {
 	
 	
-	public final double[] Location;
-	public final ArrayList<double[]> linelist;
+	public final long[] Location;
+	public final ArrayList<RealLocalizable> pointlist;
 	public final double perimeter;
 	public final int celllabel;
 	public final int t;
-	public final ArrayList<Line> linerois;
-	public final ArrayList<OvalRoi> curvelinerois;
-	public final ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>> LineScanIntensity;
+	public final ArrayList<LineProfileCircle> LineScanIntensity;
+	public final double CircleCurvature;
+	public final double DistCurvature;
+	public final double IntensityA;
+	public final double IntensityB;
 	private final ConcurrentHashMap< String, Double > features = new ConcurrentHashMap< String, Double >();
 	
-	public Embryoobject(final double[] Location, ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>> LineScanIntensity, ArrayList<double[]> linelist, final ArrayList<Line> linerois, final ArrayList<OvalRoi> curvelinerois,
-			 final double perimeter,  final int celllabel,  final int t ) {
+	public Embryoobject(final long[] Location, 
+			ArrayList<LineProfileCircle> LineScanIntensity, 
+			ArrayList<RealLocalizable> pointlist, 
+			final double CircleCurvature,
+			final double DistCurvature,
+			final double IntensityA,
+			final double IntensityB,
+			final double perimeter,  
+			final int celllabel,  final int t ) {
 		
 		
 		super(3);
 		this.Location = Location;
 		this.celllabel = celllabel;
-		this.linelist = linelist;
-		this.linerois = linerois;
-		this.curvelinerois = curvelinerois;
+		this.pointlist = pointlist;
+		this.CircleCurvature = CircleCurvature;
+		this.DistCurvature = DistCurvature;
+		this.IntensityA = IntensityA;
+		this.IntensityB = IntensityB;
 		this.t = t;
 		this.perimeter = perimeter;
 		this.LineScanIntensity = LineScanIntensity;
+
 		putFeature(POSITION_T,  (double) t);
-		putFeature(POSITION_X, Location[0]);
-		putFeature(POSITION_Y, Location[1]);
+		putFeature(POSITION_X, (double)Location[0]);
+		putFeature(POSITION_Y, (double)Location[1]);
+		putFeature(CIRCLECurv, CircleCurvature);
+		putFeature(DISTCurv, DistCurvature);
+		putFeature(INTENSITYA, IntensityA);
+		putFeature(INTENSITYB, IntensityB);
 	}
 
 
-	/** The name of the spot X position feature. */
 	public static final String POSITION_X = "POSITION_X";
 
-	/** The name of the spot Y position feature. */
 	public static final String POSITION_Y = "POSITION_Y";
 	
 	
-	/** The name of the spot T position feature. */
 	public static final String POSITION_T = "POSITION_T";
+	
+	public static final String CIRCLECurv = "CIRCLECurv";
 
+	public static final String DISTCurv = "DISTCurv";
+	
+	
+	public static final String INTENSITYA = "INTENSITYA";
 
-	/** The position features. */
+	public static final String INTENSITYB = "INTENSITYB";
+	
+	
 	public final static String[] POSITION_FEATURES = new String[] { POSITION_X, POSITION_Y };
-	static int numfeatures = 3;
+	
+	static int numfeatures = 7;
+	
 	public final static Collection<String> FEATURES = new ArrayList<>(numfeatures);
 
-	/** The 7 privileged spot feature names. */
 	public final static Map<String, String> FEATURE_NAMES = new HashMap<>(numfeatures);
 
-	/** The 7 privileged spot feature short names. */
 	public final static Map<String, String> FEATURE_SHORT_NAMES = new HashMap<>(numfeatures);
 
-	/** The 7 privileged spot feature dimensions. */
 	public final static Map<String, EmbryoDimension> FEATURE_EmbryoDIMENSIONS = new HashMap<>(numfeatures);
 
-	/** The 7 privileged spot feature isInt flags. */
 	public final static Map<String, Boolean> IS_INT = new HashMap<>(numfeatures);
 
 	static {
 		FEATURES.add(POSITION_X);
 		FEATURES.add(POSITION_Y);
 		FEATURES.add(POSITION_T);
+		FEATURES.add(CIRCLECurv);
+		FEATURES.add(DISTCurv);
+		FEATURES.add(INTENSITYA);
+		FEATURES.add(INTENSITYB);
 
 		FEATURE_NAMES.put(POSITION_X, "X");
 		FEATURE_NAMES.put(POSITION_Y, "Y");
 		FEATURE_NAMES.put(POSITION_T, "T");
-
+		FEATURE_NAMES.put(CIRCLECurv, "CC");
+		FEATURE_NAMES.put(DISTCurv, "DC");
+		FEATURE_NAMES.put(INTENSITYA, "IA");
+		FEATURE_NAMES.put(INTENSITYB, "IB");
+		
 		FEATURE_SHORT_NAMES.put(POSITION_X, "X");
 		FEATURE_SHORT_NAMES.put(POSITION_Y, "Y");
 		FEATURE_SHORT_NAMES.put(POSITION_T, "T");
-
+		FEATURE_SHORT_NAMES.put(CIRCLECurv, "CC");
+		FEATURE_SHORT_NAMES.put(DISTCurv, "DC");
+		FEATURE_SHORT_NAMES.put(INTENSITYA, "IA");
+		FEATURE_SHORT_NAMES.put(INTENSITYB, "IB");
+		
 		FEATURE_EmbryoDIMENSIONS.put(POSITION_X, EmbryoDimension.POSITION);
 		FEATURE_EmbryoDIMENSIONS.put(POSITION_Y, EmbryoDimension.POSITION);
 		FEATURE_EmbryoDIMENSIONS.put(POSITION_T, EmbryoDimension.TIME);
-
+		FEATURE_EmbryoDIMENSIONS.put(CIRCLECurv, EmbryoDimension.CURVATURE);
+		FEATURE_EmbryoDIMENSIONS.put(DISTCurv, EmbryoDimension.DISTCURVATURE);
+		FEATURE_EmbryoDIMENSIONS.put(INTENSITYA, EmbryoDimension.INTENSITY);
+		FEATURE_EmbryoDIMENSIONS.put(INTENSITYB, EmbryoDimension.INTENSITY);
+		
 		IS_INT.put(POSITION_X, Boolean.FALSE);
 		IS_INT.put(POSITION_Y, Boolean.FALSE);
 		IS_INT.put(POSITION_T, Boolean.FALSE);
+		IS_INT.put(CIRCLECurv, Boolean.FALSE);
+		IS_INT.put(DISTCurv, Boolean.FALSE);
+		IS_INT.put(INTENSITYA, Boolean.FALSE);
+		IS_INT.put(INTENSITYB, Boolean.FALSE);
+		
 	}
 
 
@@ -169,8 +209,8 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 	public double squareDistanceTo(Embryoobject target) {
 		// Returns squared distance between the source Blob and the target Blob.
 
-		final double[] sourceLocation = Location;
-		final double[] targetLocation = target.Location;
+		final long[] sourceLocation = Location;
+		final long[] targetLocation = target.Location;
 
 		double distance = 0;
 
@@ -184,8 +224,8 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 	public double DistanceTo(Embryoobject target, final double alpha, final double beta) {
 		// Returns squared distance between the source Blob and the target Blob.
 
-		final double[] sourceLocation = Location;
-		final double[] targetLocation = target.Location;
+		final long[] sourceLocation = Location;
+		final long[] targetLocation = target.Location;
 
 		double distance = 1.0E-5;
 

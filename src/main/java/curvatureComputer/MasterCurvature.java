@@ -15,40 +15,32 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import bdv.util.Bdv;
-import bdvOverlay.BdvOverlayDisplay;
-import curvatureUtils.ClockDisplayer;
-import curvatureUtils.PointExtractor;
-import ellipsoidDetector.Distance;
-import ellipsoidDetector.Intersectionobject;
+import embryoDetector.Circle;
 import embryoDetector.Circleobject;
+import embryoDetector.Embryoobject;
+import embryoDetector.LineProfileCircle;
 import ij.IJ;
 import ij.gui.Line;
 import ij.gui.Overlay;
 import ij.gui.TextRoi;
-import kalmanForSegments.Segmentobject;
 import mpicbg.models.Point;
 import net.imglib2.Cursor;
 import net.imglib2.Localizable;
 import net.imglib2.RandomAccess;
 import net.imglib2.RealLocalizable;
 import net.imglib2.RealPoint;
-import net.imglib2.algorithm.region.BresenhamLine;
+import net.imglib2.algorithm.region.hypersphere.HyperSphere;
+import net.imglib2.algorithm.region.hypersphere.HyperSphereCursor;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
+import net.imglib2.algorithm.region.BresenhamLine;
 import pluginTools.InteractiveEmbryo;
-import pluginTools.InteractiveSimpleEllipseFit;
-import pluginTools.RegressionCurveSegment;
-import ransacPoly.RegressionFunction;
 import utility.Curvatureobject;
 import utility.Listordereing;
 import utility.Roiobject;
-import varun_algorithm_ransac_Ransac.FitLocalEllipsoid;
-import varun_algorithm_ransac_Ransac.RansacFunctionEllipsoid;
-import varun_algorithm_region.hypersphere.HyperSphere;
-import varun_algorithm_region.hypersphere.HyperSphereCursor;
 
 public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> implements CurvatureFinders<T> {
 
@@ -152,11 +144,11 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 	}
 
-	public RegressionCurveSegment CommonLoop(InteractiveEmbryo parent, List<RealLocalizable> Ordered,
-			RealLocalizable centerpoint, int ndims, int celllabel, int t, int z) {
+	public Embryoobject CommonLoop(InteractiveEmbryo parent, List<RealLocalizable> Ordered,
+			RealLocalizable centerpoint, int ndims, int celllabel, int t) {
 
 		// Get the sparse list of points
-		HashMap<Integer, RegressionCurveSegment> Bestdelta = new HashMap<Integer, RegressionCurveSegment>();
+		HashMap<Integer, Embryoobject> Bestdelta = new HashMap<Integer, Embryoobject>();
 
 		int i = parent.increment;
 
@@ -169,8 +161,8 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 					parent.fourthDimensionsliderInit, parent.thirdDimensionSize, parent.scrollbarSize));
 
 
-		RegressionCurveSegment resultpair = getCurvatureLineScan(parent, allorderedtruths, centerpoint, ndims,
-				celllabel, z, t);
+			Embryoobject resultpair = getCurvatureLineScan(parent, allorderedtruths, centerpoint, ndims,
+				celllabel, t);
 
 		// Here counter the segments where the number of inliers was too low
 		Bestdelta.put(0, resultpair);
@@ -196,14 +188,14 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 	 * @param strideindex
 	 * @return
 	 */
-	public RegressionCurveSegment getCurvature(InteractiveEmbryo parent, List<RealLocalizable> truths,
+	public ArrayList<Embryoobject> getCurvature(InteractiveEmbryo parent, List<RealLocalizable> truths,
 			RealLocalizable centerpoint, int ndims, int Label, int z, int t, int strideindex) {
 
 		ArrayList<Curvatureobject> curveobject = new ArrayList<Curvatureobject>();
 
 		ArrayList<double[]> totalinterpolatedCurvature = new ArrayList<double[]>();
 
-		ArrayList<RegressionFunction> totalfunctions = new ArrayList<RegressionFunction>();
+		ArrayList<Embryoobject> totalfunctions = new ArrayList<Embryoobject>();
 
 		double perimeter = 0;
 
@@ -219,15 +211,16 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 			 */
 			Embryoobject localfunction = FitonList(parent, centerpoint, sublist, strideindex);
 
-			perimeter += localfunction.regfunc.Curvaturepoints.get(0)[periindex];
-			totalfunctions.add(localfunction.regfunc);
-			totalinterpolatedCurvature.addAll(localfunction.AllCurvaturepoints);
-			double Curvature = localfunction.AllCurvaturepoints.get(0)[curveindex];
-			double distCurvature = localfunction.AllCurvaturepoints.get(0)[distcurveindex];
-			double IntensityA = localfunction.AllCurvaturepoints.get(0)[intensityAindex];
-			double IntensityB = localfunction.AllCurvaturepoints.get(0)[intensityBindex];
+			perimeter += localfunction.perimeter;
+			double Curvature = localfunction.CircleCurvature;
+			double distCurvature = localfunction.DistCurvature;
+			double IntensityA = localfunction.IntensityA;
+			double IntensityB = localfunction.IntensityB;
+			
 			ArrayList<double[]> curvelist = new ArrayList<double[]>();
 
+			Embryoobject currentEmbryo = new Embryoobject(Location, LineScanIntensity, linelist, linerois, curvelinerois, CircleCurvature, DistCurvature, IntensityA, IntensityB, perimeter, celllabel, strideindex)
+			
 			curvelist.add(new double[] { centerpoint.getDoublePosition(xindex), centerpoint.getDoublePosition(yindex),
 					Curvature, IntensityA, IntensityB, distCurvature });
 			
@@ -354,7 +347,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 		
 	}
 
-	public Pair<Intersectionobject, Intersectionobject> GetAverage(InteractiveSimpleEllipseFit parent,
+	public Pair<Intersectionobject, Intersectionobject> GetAverage(InteractiveEmbryo parent,
 			RealLocalizable centerpoint, ConcurrentHashMap<Integer, RegressionCurveSegment> bestdelta, int count) {
 
 		RegressionCurveSegment resultpair = bestdelta.get(0);
@@ -488,7 +481,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 		return new ValuePair<Intersectionobject, Intersectionobject>(sparsecurrentobject, densecurrentobject);
 	}
 
-	public Pair<Intersectionobject, Intersectionobject> GetSingle(InteractiveSimpleEllipseFit parent,
+	public Pair<Intersectionobject, Intersectionobject> GetSingle(InteractiveEmbryo parent,
 			RealLocalizable centerpoint, ConcurrentHashMap<Integer, RegressionCurveSegment> bestdelta) {
 
 		RegressionCurveSegment resultpair = bestdelta.get(0);
@@ -573,8 +566,8 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 	
 
 	
-	public void MakeSegments(InteractiveSimpleEllipseFit parent, final List<RealLocalizable> truths, int boxSize,
-			int celllabel) {
+	public void MakeSegments(InteractiveEmbryo parent, final List<RealLocalizable> truths, int boxSize,
+			int celllabel, int time) {
 
 		List<RealLocalizable> copytruths = new ArrayList<RealLocalizable>(truths);
 		if (truths.size() < 3)
@@ -585,7 +578,6 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 			int maxpoints = (int) (boxSize/parent.calibration);
 			if (maxpoints <= 2)
 				maxpoints = 3;
-			int biggestsize = maxpoints;
 			int segmentLabel = 1;
 
 			int index = truths.size() - 1;
@@ -613,10 +605,9 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 				sublist = copytruths.subList(startindex, Math.min(endindex, size));
 				parent.Listmap.put(segmentLabel, sublist);
 
-				if (biggestsize >= endindex - startindex)
-					biggestsize = endindex - startindex;
-
-				parent.CellLabelsizemap.put(celllabel, biggestsize);
+			
+                String ID = Integer.toString(celllabel) + Integer.toString(time);
+				parent.CellLabelsizemap.put(ID, truths.size());
 				segmentLabel++;
 
 				startindex = endindex;
@@ -638,10 +629,10 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 	 * @return
 	 */
 
-	public Pair<Double, Double> getIntensity(InteractiveSimpleEllipseFit parent, Localizable point,
+	public Pair<Double, Double> getIntensity(InteractiveEmbryo parent, Localizable point,
 			Localizable centerpoint) {
 
-		RandomAccess<FloatType> ranac = parent.CurrentViewOrig.randomAccess();
+		RandomAccess<FloatType> ranac = parent.CurrentView.randomAccess();
 
 		double Intensity = 0;
 		double IntensitySec = 0;
@@ -656,7 +647,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 		double mindistance = getDistance(point, centerpoint);
 		double[] currentPosition = new double[point.numDimensions()];
 
-		HyperSphere<FloatType> hyperSphere = new HyperSphere<FloatType>(parent.CurrentViewOrig, ranac,
+		HyperSphere<FloatType> hyperSphere = new HyperSphere<FloatType>(parent.CurrentView, ranac,
 				(int) parent.regiondistance);
 		HyperSphereCursor<FloatType> localcursor = hyperSphere.localizingCursor();
 		int Area = 1;
@@ -668,10 +659,10 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 			ranacsec.localize(currentPosition);
 
-			if (currentPosition[0] > parent.CurrentViewOrig.min(0) + parent.regiondistance
-					&& currentPosition[1] > parent.CurrentViewOrig.min(1) + parent.regiondistance
-					&& currentPosition[0] < parent.CurrentViewOrig.max(0) - parent.regiondistance
-					&& currentPosition[1] < parent.CurrentViewOrig.max(1) - parent.regiondistance) {
+			if (currentPosition[0] > parent.CurrentView.min(0) + parent.regiondistance
+					&& currentPosition[1] > parent.CurrentView.min(1) + parent.regiondistance
+					&& currentPosition[0] < parent.CurrentView.max(0) - parent.regiondistance
+					&& currentPosition[1] < parent.CurrentView.max(1) - parent.regiondistance) {
 				double currentdistance = getDistance(localcursor, centerpoint);
 				if ((currentdistance - mindistance) <= parent.regiondistance) {
 					Intensity += localcursor.get().getRealDouble();
@@ -684,21 +675,64 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 		return new ValuePair<Double, Double>(Intensity / Area, IntensitySec / Area);
 	}
 
+	
+	
+	public static Circle LocalCircle(
+			final ArrayList<RealLocalizable> points, int ndims) 
+	{
+		
+
+		final ArrayList<RealLocalizable> remainingPoints = new ArrayList<RealLocalizable>();
+		if (points != null)
+			remainingPoints.addAll(points);
+		int size = points.size();
+		final double[] pointA = new double[ndims];
+		final double[] pointB = new double[ndims];
+		final double[] pointC = new double[ndims];
+		
+		int splitindex;
+		if (size % 2 == 0)
+			splitindex = size / 2;
+		else
+			splitindex = (size - 1) / 2;
+		
+			for (int i = 0; i < ndims; ++i) {
+			pointA[i] = points.get(0).getDoublePosition(i);
+			pointB[i] = points.get(splitindex).getDoublePosition(i);
+			pointC[i] = points.get(size - 1).getDoublePosition(i);
+			
+			}
+			
+		
+		
+		
+		final Circle circle = Circle.FitCircleMb(pointA, pointB, pointC);
+				
+		
+		
+		return circle;
+		
+		
+		
+		
+	}
+	
+	
 	/**
 	 * 
-	 * Fit an ellipse to a bunch of points
+	 * Fit a local circle to a bunch of points
 	 * 
 	 * @param pointlist
 	 * @param ndims
 	 * @return
 	 */
 
-	public Pair<Embryoobject, ClockDisplayer> RansacEllipseBlock(final InteractiveSimpleEllipseFit parent,
+	public Pair<ArrayList<Embryoobject>, ClockDisplayer> BlockCircle(final InteractiveEmbryo parent,
 			final ArrayList<RealLocalizable> pointlist, RealLocalizable centerpoint, int ndims, int strideindex,
-			boolean linescan, final String name) {
+			boolean linescan, final String name, final int celllabel, final int t) {
 
-		final RansacFunctionEllipsoid ellipsesegment = FitLocalEllipsoid.findLocalEllipsoid(pointlist, ndims);
-
+		final Circle localcircle = LocalCircle(pointlist, ndims);
+		ArrayList<Embryoobject> BlockEmbryoobject = new ArrayList<Embryoobject>();
 		double Kappa = 0;
 		double Kappadistance = 0;
 		double perimeter = 0;
@@ -706,11 +740,11 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 		ArrayList<double[]> AllCurvaturepoints = new ArrayList<double[]>();
 
-		double radii = ellipsesegment.function.getRadii();
+		double radii = localcircle.getRadii();
 		double[] newpos = new double[ndims];
 		long[] longnewpos = new long[ndims];
 
-			perimeter = pointlist.size();
+			perimeter = pointlist.size() * parent.calibration;
 		
 		int size = pointlist.size();
 		final double[] pointA = new double[ndims];
@@ -735,6 +769,20 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 		long[] centerloc = new long[] { (long) centerpoint.getDoublePosition(0),
 				(long) centerpoint.getDoublePosition(1) };
 		net.imglib2.Point centpos = new net.imglib2.Point(centerloc);
+		
+		ArrayList<LineProfileCircle> LineScanIntensity = new ArrayList<LineProfileCircle>();
+		ClockDisplayer Clock = new ClockDisplayer("", null);
+		if (strideindex == 0) {
+
+			if (linescan) {
+
+				
+				Pair<ArrayList<LineProfileCircle>,ClockDisplayer> PairLineScanIntensity = getLineScanIntensity(parent, centerloc, localcircle, pointB, ndims, name);
+				LineScanIntensity = PairLineScanIntensity.getA();
+				Clock = PairLineScanIntensity.getB();
+			}
+
+		}
 
 		for (RealLocalizable point : pointlist) {
 
@@ -742,7 +790,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 			Kappa = 1.0 / (radii * parent.calibration);
 			if(parent.combomethod)
-				Kappadistance = getDistance(point, centerpoint);
+				Kappadistance = getDistance(point, centerpoint) * parent.calibration;
 			for (int d = 0; d < newpos.length; ++d)
 				longnewpos[d] = (long) newpos[d];
 			net.imglib2.Point intpoint = new net.imglib2.Point(longnewpos);
@@ -757,147 +805,26 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 			AllCurvaturepoints.add(new double[] { newpos[0], newpos[1], Math.max(0, Kappa), perimeter, Intensity.getA(),
 					Intensity.getB(), Math.max(0, Kappadistance) });
+			Embryoobject currentprofile = new Embryoobject(centerloc, LineScanIntensity, pointlist, Math.max(0, Kappa), Math.max(0, Kappadistance), Intensity.getA(), Intensity.getB(), perimeter, celllabel, t);
+			BlockEmbryoobject.add(currentprofile);
 		}
 		meanIntensity /= size;
 		meanSecIntensity /= size;
 		Curvaturepoints.add(
 				new double[] { pointB[0], pointB[1], Math.max(0, Kappa), perimeter, meanIntensity, meanSecIntensity, Math.max(0, Kappadistance) });
 
-		RegressionFunction finalfunctionransac = new RegressionFunction(ellipsesegment.function, Curvaturepoints);
 
-		
-		ArrayList<LineProfileCircle> LineScanIntensity = new ArrayList<LineProfileCircle>();
-		ClockDisplayer Clock = new ClockDisplayer("", null);
-		if (strideindex == 0) {
-
-			if (linescan) {
-
-				
-				Pair<ArrayList<LineProfileCircle>,ClockDisplayer> PairLineScanIntensity = getLineScanIntensity(parent, centerloc, ellipsesegment, pointB, ndims, name);
-				LineScanIntensity = PairLineScanIntensity.getA();
-				Clock = PairLineScanIntensity.getB();
-			}
-
-		}
-
-		Embryoobject currentprofile = new Embryoobject(finalfunctionransac, LineScanIntensity,
-				AllCurvaturepoints, name);
-
-		return new ValuePair<Embryoobject, ClockDisplayer>(currentprofile, Clock);
-
-	}
-
-	/**
-	 * 
-	 * Fit an ellipse to a bunch of points
-	 * 
-	 * @param pointlist
-	 * @param ndims
-	 * @return
-	 */
-
-	public Embryoobject NoClockRansacEllipseBlock(final InteractiveSimpleEllipseFit parent,
-			final ArrayList<RealLocalizable> pointlist, RealLocalizable centerpoint, int ndims, int strideindex,
-			boolean linescan, final String name) {
-
-		final RansacFunctionEllipsoid ellipsesegment = FitLocalEllipsoid.findLocalEllipsoid(pointlist, ndims);
-
-		double Kappa = 0;
-		double Kappadistance = 0;
-		double perimeter = 0;
-		ArrayList<double[]> Curvaturepoints = new ArrayList<double[]>();
-
-		ArrayList<double[]> AllCurvaturepoints = new ArrayList<double[]>();
-
-		double radii = ellipsesegment.function.getRadii();
-		double[] newpos = new double[ndims];
-		long[] longnewpos = new long[ndims];
-	
-
-			perimeter = pointlist.size();
 
 		
 
-		
-		int size = pointlist.size();
-		final double[] pointA = new double[ndims];
-		final double[] pointB = new double[ndims];
-		final double[] pointC = new double[ndims];
-
-		double meanIntensity = 0;
-		double meanSecIntensity = 0;
-		int splitindex;
-		if (size % 2 == 0)
-			splitindex = size / 2;
-		else
-			splitindex = (size - 1) / 2;
-
-		for (int i = 0; i < ndims; ++i) {
-			pointA[i] = pointlist.get(0).getDoublePosition(i);
-			pointB[i] = pointlist.get(splitindex).getDoublePosition(i);
-			pointC[i] = pointlist.get(size - 1).getDoublePosition(i);
-
-		}
-
-		long[] centerloc = new long[] { (long) centerpoint.getDoublePosition(0),
-				(long) centerpoint.getDoublePosition(1) };
-		net.imglib2.Point centpos = new net.imglib2.Point(centerloc);
-
-		for (RealLocalizable point : pointlist) {
-
-			point.localize(newpos);
-
-			Kappa = 1.0 / (radii * parent.calibration);
-			
-			if(parent.combomethod)
-			Kappadistance = getDistance(point, centerpoint);
-			
-			for (int d = 0; d < newpos.length; ++d)
-				longnewpos[d] = (long) newpos[d];
-			net.imglib2.Point intpoint = new net.imglib2.Point(longnewpos);
-
-			Pair<Double, Double> Intensity = new ValuePair<Double, Double>(0.0, 0.0);
-
-			if (linescan)
-				Intensity = getIntensity(parent, intpoint, centpos);
-
-			// Average the intensity.
-			meanIntensity += Intensity.getA();
-			meanSecIntensity += Intensity.getB();
-
-			AllCurvaturepoints.add(new double[] { newpos[0], newpos[1], Math.max(0, Kappa), perimeter, Intensity.getA(),
-					Intensity.getB(), Math.max(0, Kappadistance) });
-		}
-		meanIntensity /= size;
-		meanSecIntensity /= size;
-		Curvaturepoints.add(
-				new double[] { pointB[0], pointB[1], Math.max(0, Kappa), perimeter, meanIntensity, meanSecIntensity, Kappadistance });
-
-		RegressionFunction finalfunctionransac = new RegressionFunction(ellipsesegment.function, Curvaturepoints);
-
-		
-		ArrayList<LineProfileCircle> LineScanIntensity = new ArrayList<LineProfileCircle>();
-		if (strideindex == 0) {
-
-			if (linescan) {
-
-				
-				Pair<ArrayList<LineProfileCircle>,ClockDisplayer> PairLineScanIntensity = getLineScanIntensity(parent, centerloc, ellipsesegment, pointB, ndims, name);
-				LineScanIntensity = PairLineScanIntensity.getA();
-			}
-
-		}
-
-		Embryoobject currentprofile = new Embryoobject(finalfunctionransac, LineScanIntensity,
-				AllCurvaturepoints, name);
-
-		return currentprofile;
+		return new ValuePair<ArrayList<Embryoobject>, ClockDisplayer>(BlockEmbryoobject, Clock);
 
 	}
 
 	
+	@SuppressWarnings("deprecation")
 	public Pair<ArrayList<LineProfileCircle>,ClockDisplayer> getLineScanIntensity(final InteractiveEmbryo parent,
-			final long[] centerpos, Circleobject ellipsesegment, final double[] pointB, final int ndims,
+			final long[] centerpos, Circle localcircle, final double[] pointB, final int ndims,
 			final String name) {
 
 		int count = 0;
@@ -914,7 +841,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 		RandomAccess<FloatType> ranac = parent.CurrentView.randomAccess();
 
-		LinefunctionCircle NormalLine = new LinefunctionCircle(ellipsesegment.function, intpoint);
+		LinefunctionCircle NormalLine = new LinefunctionCircle(localcircle, intpoint);
 
 		double[] NormalSlopeIntercept = NormalLine.NormalatPoint();
 
@@ -930,6 +857,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 		double[] endNormal = { endNormalX, endNormalY };
 
+		
 		Line line = new Line((int) startNormal[0], (int) startNormal[1], (int) endNormal[0], (int) endNormal[1],
 				parent.imp);
 		parent.overlay.add(line);
@@ -989,7 +917,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 			ranac.setPosition(linecursor);
 			ranacsec.setPosition(ranac);
 
-			HyperSphere<FloatType> hyperSphereOne = new HyperSphere<FloatType>(parent.CurrentViewOrig, ranac,
+			HyperSphere<FloatType> hyperSphereOne = new HyperSphere<FloatType>(parent.CurrentView, ranac,
 					(int) thickness);
 
 			HyperSphereCursor<FloatType> localcursorOne = hyperSphereOne.localizingCursor();
@@ -1005,10 +933,10 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 				ranacsec.localize(currentPosition);
 
-				if (currentPosition[0] > parent.CurrentViewOrig.min(0) + thickness
-						&& currentPosition[1] > parent.CurrentViewOrig.min(1) + thickness
-						&& currentPosition[0] < parent.CurrentViewOrig.max(0) - thickness
-						&& currentPosition[1] < parent.CurrentViewOrig.max(1) - thickness) {
+				if (currentPosition[0] > parent.CurrentView.min(0) + thickness
+						&& currentPosition[1] > parent.CurrentView.min(1) + thickness
+						&& currentPosition[0] < parent.CurrentView.max(0) - thickness
+						&& currentPosition[1] < parent.CurrentView.max(1) - thickness) {
 					Intensity += localcursorOne.get().getRealDouble();
 					IntensitySec += ranacsec.get().getRealDouble();
 					avcount++;

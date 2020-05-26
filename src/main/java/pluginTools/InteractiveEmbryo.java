@@ -164,7 +164,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public int tablesize;
 	public double smoothing = 0;
 	public ConcurrentHashMap<Integer, List<RealLocalizable>> Listmap = new ConcurrentHashMap<Integer, List<RealLocalizable>>();
-	public HashMap<Integer, Integer> CellLabelsizemap = new HashMap<Integer, Integer>();
+	public HashMap<String, Integer> CellLabelsizemap = new HashMap<String, Integer>();
 	public Overlay overlay, clockoverlay;
 	public int numSeg = 1;
 	public ImageJ ij; 
