@@ -20,6 +20,7 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 	
 	
 	public final long[] Location;
+	public final long[] center;
 	public final ArrayList<RealLocalizable> pointlist;
 	public final double perimeter;
 	public final int celllabel;
@@ -32,6 +33,7 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 	private final ConcurrentHashMap< String, Double > features = new ConcurrentHashMap< String, Double >();
 	
 	public Embryoobject(final long[] Location, 
+			final long[] center,
 			ArrayList<LineProfileCircle> LineScanIntensity, 
 			ArrayList<RealLocalizable> pointlist, 
 			final double CircleCurvature,
@@ -44,6 +46,7 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 		
 		super(3);
 		this.Location = Location;
+		this.center = center;
 		this.celllabel = celllabel;
 		this.pointlist = pointlist;
 		this.CircleCurvature = CircleCurvature;
@@ -57,6 +60,8 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 		putFeature(POSITION_T,  (double) t);
 		putFeature(POSITION_X, (double)Location[0]);
 		putFeature(POSITION_Y, (double)Location[1]);
+		putFeature(CENTER_X, (double)Location[0]);
+		putFeature(CENTER_Y, (double)Location[1]);
 		putFeature(CIRCLECurv, CircleCurvature);
 		putFeature(DISTCurv, DistCurvature);
 		putFeature(INTENSITYA, IntensityA);
@@ -67,7 +72,9 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 	public static final String POSITION_X = "POSITION_X";
 
 	public static final String POSITION_Y = "POSITION_Y";
-	
+	public static final String CENTER_X = "CENTER_X";
+
+	public static final String CENTER_Y = "CENTER_Y";
 	
 	public static final String POSITION_T = "POSITION_T";
 	
@@ -81,9 +88,9 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 	public static final String INTENSITYB = "INTENSITYB";
 	
 	
-	public final static String[] POSITION_FEATURES = new String[] { POSITION_X, POSITION_Y };
+	public final static String[] POSITION_FEATURES = new String[] { POSITION_X, POSITION_Y, CENTER_X, CENTER_Y };
 	
-	static int numfeatures = 7;
+	static int numfeatures = 9;
 	
 	public final static Collection<String> FEATURES = new ArrayList<>(numfeatures);
 
@@ -98,6 +105,8 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 	static {
 		FEATURES.add(POSITION_X);
 		FEATURES.add(POSITION_Y);
+		FEATURES.add(CENTER_X);
+		FEATURES.add(CENTER_Y);
 		FEATURES.add(POSITION_T);
 		FEATURES.add(CIRCLECurv);
 		FEATURES.add(DISTCurv);
@@ -106,6 +115,9 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 
 		FEATURE_NAMES.put(POSITION_X, "X");
 		FEATURE_NAMES.put(POSITION_Y, "Y");
+		FEATURE_NAMES.put(CENTER_X, "X");
+		FEATURE_NAMES.put(CENTER_Y, "Y");
+		
 		FEATURE_NAMES.put(POSITION_T, "T");
 		FEATURE_NAMES.put(CIRCLECurv, "CC");
 		FEATURE_NAMES.put(DISTCurv, "DC");
@@ -114,6 +126,9 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 		
 		FEATURE_SHORT_NAMES.put(POSITION_X, "X");
 		FEATURE_SHORT_NAMES.put(POSITION_Y, "Y");
+		FEATURE_SHORT_NAMES.put(CENTER_X, "X");
+		FEATURE_SHORT_NAMES.put(CENTER_Y, "Y");
+		
 		FEATURE_SHORT_NAMES.put(POSITION_T, "T");
 		FEATURE_SHORT_NAMES.put(CIRCLECurv, "CC");
 		FEATURE_SHORT_NAMES.put(DISTCurv, "DC");
@@ -122,6 +137,9 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 		
 		FEATURE_EmbryoDIMENSIONS.put(POSITION_X, EmbryoDimension.POSITION);
 		FEATURE_EmbryoDIMENSIONS.put(POSITION_Y, EmbryoDimension.POSITION);
+		FEATURE_EmbryoDIMENSIONS.put(CENTER_X, EmbryoDimension.POSITION);
+		FEATURE_EmbryoDIMENSIONS.put(CENTER_Y, EmbryoDimension.POSITION);
+		
 		FEATURE_EmbryoDIMENSIONS.put(POSITION_T, EmbryoDimension.TIME);
 		FEATURE_EmbryoDIMENSIONS.put(CIRCLECurv, EmbryoDimension.CURVATURE);
 		FEATURE_EmbryoDIMENSIONS.put(DISTCurv, EmbryoDimension.DISTCURVATURE);
@@ -130,6 +148,9 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 		
 		IS_INT.put(POSITION_X, Boolean.FALSE);
 		IS_INT.put(POSITION_Y, Boolean.FALSE);
+		
+		IS_INT.put(CENTER_X, Boolean.FALSE);
+		IS_INT.put(CENTER_Y, Boolean.FALSE);
 		IS_INT.put(POSITION_T, Boolean.FALSE);
 		IS_INT.put(CIRCLECurv, Boolean.FALSE);
 		IS_INT.put(DISTCurv, Boolean.FALSE);

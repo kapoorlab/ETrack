@@ -32,14 +32,12 @@ public class Curvatureobject extends AbstractEuclideanSpace implements RealLocal
 	public final double distCurvature;
 	public final double perimeter;
 	public final int t;
-	public final int z;
-	public final double[] cord;
-
+	public final long[] cord;
 	public final int Label;
 	public final double Intensity;
 	public final double SecIntensity;
 	
-	public Curvatureobject(final double radiusCurvature, final double distCurvature, final double perimeter, final double Intensity, final double SecIntensity, final int Label, final double[] cord, final int t, final int z) {
+	public Curvatureobject(final double radiusCurvature, final double distCurvature, final double perimeter, final double Intensity, final double SecIntensity, final int Label, final long[] cord, final int t) {
 		super(3);
 		this.radiusCurvature = radiusCurvature;
 		this.distCurvature = distCurvature;
@@ -48,7 +46,6 @@ public class Curvatureobject extends AbstractEuclideanSpace implements RealLocal
 		this.cord = cord;
 		this.Intensity = Intensity;
 		this.t = t;
-		this.z = z;
 		this.ID = IDcounter.incrementAndGet();
 		this.name = "ID" + ID;
 		this.Label = Label;
@@ -104,7 +101,6 @@ public class Curvatureobject extends AbstractEuclideanSpace implements RealLocal
 
 	public static final String Time = "Time";
 	
-	public static final String Z = "Z";
 	
 	public static final String LocationX = "LocationX";
 	

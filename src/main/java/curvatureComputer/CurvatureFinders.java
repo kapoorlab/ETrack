@@ -11,6 +11,7 @@ import net.imglib2.RealLocalizable;
 import net.imglib2.algorithm.OutputAlgorithm;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Pair;
 import pluginTools.InteractiveEmbryo;
 
 public interface CurvatureFinders<T extends RealType<T> & NativeType<T>>
@@ -18,11 +19,12 @@ public interface CurvatureFinders<T extends RealType<T> & NativeType<T>>
 
 	
 	
-	public Embryoobject getLocalcurvature(ArrayList<double[]> Cordlist,
+	public Pair<Embryoobject, ClockDisplayer>  getLocalcurvature(ArrayList<double[]> Cordlist,
 			RealLocalizable centerpoint, int strideindex);
 
 	
-	
+	public Pair<Embryoobject, ClockDisplayer>  getCircleLocalcurvature(ArrayList<double[]> Cordlist,
+			RealLocalizable centerpoint, int strideindex);
 	/*
 	 * 
 	 * InteractiveEmbryo is the parent class of the function
