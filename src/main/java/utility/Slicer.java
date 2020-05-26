@@ -3,6 +3,7 @@ package utility;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
+import curvatureUtils.ExpandBorder;
 import ij.IJ;
 import ij.gui.Roi;
 import mpicbg.imglib.util.Util;
@@ -17,11 +18,11 @@ import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.view.Views;
-import pluginTools.InteractiveEmbryo;
+import pluginTools.InteractiveSimpleEllipseFit;
 
-public class EmbryoSlicer {
+public class Slicer {
 
-	public static RandomAccessibleInterval<FloatType> getCurrentEmbryoViewLarge(
+	public static RandomAccessibleInterval<FloatType> getCurrentViewLarge(
 			RandomAccessibleInterval<FloatType> originalimg, int thirdDimension) {
 
 		final FloatType type = originalimg.randomAccess().get().createVariable();
@@ -35,8 +36,8 @@ public class EmbryoSlicer {
 
 	}
 
-	public static  < T extends NumericType< T > & NativeType< T > > RandomAccessibleInterval<T> getCurrentEmbryoView(RandomAccessibleInterval<T> originalimg,
-			int thirdDimension, int thirdDimensionSize) {
+	public static  < T extends NumericType< T > & NativeType< T > > RandomAccessibleInterval<T> getCurrentView(RandomAccessibleInterval<T> originalimg,
+			int thirdDimension, int thirdDimensionSize, int fourthDimension, int fourthDimensionSize) {
 
 		final T type = originalimg.randomAccess().get().createVariable();
 		long[] dim = { originalimg.dimension(0), originalimg.dimension(1) };
@@ -48,20 +49,25 @@ public class EmbryoSlicer {
 			totalimg = originalimg;
 		}
 
-		if (thirdDimensionSize > 1 ) {
+		if (thirdDimensionSize > 1 && fourthDimensionSize == 0) {
 
 			totalimg = Views.hyperSlice(originalimg, 2, thirdDimension - 1);
 
 		}
 
-	
+		if (fourthDimensionSize > 1) {
+
+			RandomAccessibleInterval<T> pretotalimg = Views.hyperSlice(originalimg, 2, thirdDimension - 1);
+
+			totalimg = Views.hyperSlice(pretotalimg, 2, fourthDimension - 1);
+		}
 
 		return totalimg;
 
 	}
 
-	public static RandomAccessibleInterval<BitType> getCurrentEmbryoViewBit(RandomAccessibleInterval<BitType> originalimg,
-			int thirdDimension, int thirdDimensionSize) {
+	public static RandomAccessibleInterval<BitType> getCurrentViewBit(RandomAccessibleInterval<BitType> originalimg,
+			int thirdDimension, int thirdDimensionSize, int fourthDimension, int fourthDimensionSize) {
 
 		final BitType type = originalimg.randomAccess().get().createVariable();
 		long[] dim = { originalimg.dimension(0), originalimg.dimension(1) };
@@ -72,19 +78,24 @@ public class EmbryoSlicer {
 
 			totalimg = originalimg;
 		}
-		if (thirdDimensionSize > 0 ) {
+		if (thirdDimensionSize > 0 && fourthDimensionSize == 0) {
 
 			totalimg = Views.hyperSlice(originalimg, 2, thirdDimension - 1);
 		}
 
+		if (fourthDimensionSize > 0) {
 
+			RandomAccessibleInterval<BitType> pretotalimg = Views.hyperSlice(originalimg, 2, thirdDimension - 1);
+
+			totalimg = Views.hyperSlice(pretotalimg, 2, fourthDimension - 1);
+		}
 
 		return totalimg;
 
 	}
 
-	public static RandomAccessibleInterval<IntType> getCurrentEmbryoViewInt(RandomAccessibleInterval<IntType> originalimg,
-			int thirdDimension, int thirdDimensionSize) {
+	public static RandomAccessibleInterval<IntType> getCurrentViewInt(RandomAccessibleInterval<IntType> originalimg,
+			int thirdDimension, int thirdDimensionSize, int fourthDimension, int fourthDimensionSize) {
 
 		final IntType type = originalimg.randomAccess().get().createVariable();
 		long[] dim = { originalimg.dimension(0), originalimg.dimension(1) };
@@ -96,13 +107,18 @@ public class EmbryoSlicer {
 			totalimg = originalimg;
 		}
 
-		if (thirdDimensionSize > 0 ) {
+		if (thirdDimensionSize > 0 && fourthDimensionSize == 0) {
 
 			totalimg = Views.hyperSlice(originalimg, 2, thirdDimension - 1);
 
 		}
 
+		if (fourthDimensionSize > 0) {
 
+			RandomAccessibleInterval<IntType> pretotalimg = Views.hyperSlice(originalimg, 2, thirdDimension - 1);
+
+			totalimg = Views.hyperSlice(pretotalimg, 2, fourthDimension - 1);
+		}
 
 		
 		
@@ -110,9 +126,9 @@ public class EmbryoSlicer {
 
 	}
 
-	public static RandomAccessibleInterval<BitType> getCurrentEmbryoViewBitRectangle(
+	public static RandomAccessibleInterval<BitType> getCurrentViewBitRectangle(
 			RandomAccessibleInterval<BitType> originalimg, int thirdDimension, int thirdDimensionSize,
-			 Rectangle rect) {
+			int fourthDimension, int fourthDimensionSize, Rectangle rect) {
 
 		final BitType type = originalimg.randomAccess().get().createVariable();
 		long[] dim = { originalimg.dimension(0), originalimg.dimension(1) };
@@ -132,13 +148,18 @@ public class EmbryoSlicer {
 			totalimg = originalimg;
 		}
 
-		if (thirdDimensionSize > 0 ) {
+		if (thirdDimensionSize > 0 && fourthDimensionSize == 0) {
 
 			totalimg = Views.hyperSlice(originalimg, 2, thirdDimension - 1);
 
 		}
 
+		if (fourthDimensionSize > 0) {
 
+			RandomAccessibleInterval<BitType> pretotalimg = Views.hyperSlice(originalimg, 2, thirdDimension - 1);
+
+			totalimg = Views.hyperSlice(pretotalimg, 2, fourthDimension - 1);
+		}
 
 		RandomAccessibleInterval<BitType> view;
 		if (rect != null)
@@ -161,9 +182,9 @@ public class EmbryoSlicer {
 
 	}
 
-	public static RandomAccessibleInterval<IntType> getCurrentEmbryoViewIntRectangle(
+	public static RandomAccessibleInterval<IntType> getCurrentViewIntRectangle(
 			RandomAccessibleInterval<IntType> originalimg, int thirdDimension, int thirdDimensionSize,
-			Rectangle rect) {
+			int fourthDimension, int fourthDimensionSize, Rectangle rect) {
 
 		final IntType type = originalimg.randomAccess().get().createVariable();
 		long[] dim = { originalimg.dimension(0), originalimg.dimension(1) };
@@ -184,13 +205,18 @@ public class EmbryoSlicer {
 			totalimg = originalimg;
 		}
 
-		if (thirdDimensionSize > 0 ) {
+		if (thirdDimensionSize > 0 && fourthDimensionSize == 0) {
 
 			totalimg = Views.hyperSlice(originalimg, 2, thirdDimension - 1);
 
 		}
 
-	
+		if (fourthDimensionSize > 0) {
+
+			RandomAccessibleInterval<IntType> pretotalimg = Views.hyperSlice(originalimg, 2, thirdDimension - 1);
+
+			totalimg = Views.hyperSlice(pretotalimg, 2, fourthDimension - 1);
+		}
 		RandomAccessibleInterval<IntType> view;
 		if (rect != null)
 
@@ -212,7 +238,7 @@ public class EmbryoSlicer {
 
 	}
 
-	public static void Slice(InteractiveEmbryo parent, RandomAccessibleInterval<BitType> current,
+	public static void Slice(InteractiveSimpleEllipseFit parent, RandomAccessibleInterval<BitType> current,
 			ArrayList<int[]> pointlist, int z, int t) {
 
 		final RandomAccess<BitType> ranac = current.randomAccess();
@@ -238,7 +264,7 @@ public class EmbryoSlicer {
 		}
 	}
 
-	public static void Paint(InteractiveEmbryo parent, RandomAccessibleInterval<BitType> current, String id,
+	public static void Paint(InteractiveSimpleEllipseFit parent, RandomAccessibleInterval<BitType> current, String id,
 			int z, int t) {
 
 		Roiobject currentobject = parent.ZTRois.get(id);

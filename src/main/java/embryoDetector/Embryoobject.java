@@ -21,16 +21,13 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 	
 	public final double[] Location;
 	public final ArrayList<double[]> linelist;
-	private String name;
 	public final double perimeter;
 	public final int celllabel;
 	public final int t;
 	public final ArrayList<Line> linerois;
 	public final ArrayList<OvalRoi> curvelinerois;
 	public final ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>> LineScanIntensity;
-	private final int ID;
 	private final ConcurrentHashMap< String, Double > features = new ConcurrentHashMap< String, Double >();
-	public static AtomicInteger IDcounter = new AtomicInteger( -1 );
 	
 	public Embryoobject(final double[] Location, ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>> LineScanIntensity, ArrayList<double[]> linelist, final ArrayList<Line> linerois, final ArrayList<OvalRoi> curvelinerois,
 			 final double perimeter,  final int celllabel,  final int t ) {
@@ -45,8 +42,6 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 		this.t = t;
 		this.perimeter = perimeter;
 		this.LineScanIntensity = LineScanIntensity;
-		this.ID = IDcounter.incrementAndGet();
-		this.name = "ID" + ID;
 		putFeature(POSITION_T,  (double) t);
 		putFeature(POSITION_X, Location[0]);
 		putFeature(POSITION_Y, Location[1]);
@@ -103,15 +98,7 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 		IS_INT.put(POSITION_T, Boolean.FALSE);
 	}
 
-	public void setName(final String name) {
-		
-		this.name = name;
-	}
-	
-	public int ID() {
-		
-		return ID;
-	}
+
 	
 	public final Double getFeature(final String feature) {
 		
