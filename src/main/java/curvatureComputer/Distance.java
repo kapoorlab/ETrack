@@ -1,6 +1,5 @@
 package curvatureComputer;
 
-import kalmanForSegments.Segmentobject;
 import net.imglib2.RealLocalizable;
 import net.imglib2.util.Pair;
 

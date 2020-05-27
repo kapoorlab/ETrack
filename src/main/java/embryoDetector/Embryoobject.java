@@ -23,8 +23,7 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 	public final long[] center;
 	public final ArrayList<RealLocalizable> pointlist;
 	public final double perimeter;
-	public final int celllabel;
-	public final int t;
+
 	public final ArrayList<LineProfileCircle> LineScanIntensity;
 	public final double CircleCurvature;
 	public final double DistCurvature;
@@ -40,24 +39,20 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 			final double DistCurvature,
 			final double IntensityA,
 			final double IntensityB,
-			final double perimeter,  
-			final int celllabel,  final int t ) {
+			final double perimeter ) {
 		
 		
 		super(3);
 		this.Location = Location;
 		this.center = center;
-		this.celllabel = celllabel;
 		this.pointlist = pointlist;
 		this.CircleCurvature = CircleCurvature;
 		this.DistCurvature = DistCurvature;
 		this.IntensityA = IntensityA;
 		this.IntensityB = IntensityB;
-		this.t = t;
 		this.perimeter = perimeter;
 		this.LineScanIntensity = LineScanIntensity;
 
-		putFeature(POSITION_T,  (double) t);
 		putFeature(POSITION_X, (double)Location[0]);
 		putFeature(POSITION_Y, (double)Location[1]);
 		putFeature(CENTER_X, (double)Location[0]);

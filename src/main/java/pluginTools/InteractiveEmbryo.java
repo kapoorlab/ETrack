@@ -14,6 +14,7 @@ import java.awt.Label;
 import java.awt.Scrollbar;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseListener;
@@ -58,6 +59,7 @@ import org.scijava.ui.UIService;
 import bdv.util.BdvOverlay;
 import bdv.util.BdvSource;
 import comboSliderTextbox.SliderBoxGUI;
+import curvatureComputer.ComputeCurvatureCurrent;
 import embryoDetector.Embryoobject;
 import ij.IJ;
 import ij.ImagePlus;
@@ -143,6 +145,7 @@ import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 import pluginTools.InteractiveEmbryo.ValueChange;
+import utility.Curvatureobject;
 import utility.Roiobject;
 
 public class InteractiveEmbryo extends JPanel implements PlugIn {
@@ -295,7 +298,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public ArrayList<RealLocalizable> AllEmbryocenter;
 	public ArrayList<RealLocalizable> ChosenEmbryocenter;
 	public HashMap<String, RealLocalizable> SelectedAllRefcords;
-	public HashMap<String, ArrayList<Embryoobject>> AllEmbryos;
+	public HashMap<String, ArrayList<Curvatureobject>> AllEmbryos;
 	public int boxsize;
 	public HashMap<String, Integer> EmbryoLastTime;
 	public ArrayList<OvalRoi> EmbryoOvalRois;
@@ -318,8 +321,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public HashMap<Integer, Double> HashresultSegIntensityB;
 	public HashMap<Integer, Double> HashresultSegPerimeter;
 	public Set<Integer> pixellist;
-	ColorProcessor cp = null;
-
+	public HashMap<String, Curvatureobject> Finalcurvatureresult;
 	public boolean isCreated = false;
 	public RoiManager roimanager;
 	public String uniqueID, tmpID, ZID, TID;
@@ -414,7 +416,8 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		Clickedpoints = new int[2];
 		pixellist = new HashSet<Integer>();
 		EmbryoTracklist = new ArrayList<ValuePair<String, Embryoobject>>();
-		AllEmbryos = new HashMap<String, ArrayList<Embryoobject>>();
+		AllEmbryos = new HashMap<String, ArrayList<Curvatureobject>>();
+		Finalcurvatureresult = new HashMap<String, Curvatureobject>();
 		ij = new ImageJ();
 		ij.ui().showUI();
 		if (ndims == 3) {
@@ -508,12 +511,11 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 
 	public void StartDisplayer() {
 		
-		
 	
-			ComputeCurvature display = new ComputeCurvature(this, jpb);
+		ComputeCurvatureCurrent display = new ComputeCurvatureCurrent(this, jpb);
 
 
-			display.execute();
+		display.execute();
 
 	}
 	
@@ -581,32 +583,17 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 	public JButton SaveAllbutton = new JButton("Save All Tracks");
 
 	public String timestring = "Current T";
-	public String zstring = "Current Z";
-	public String zgenstring = "Current Z / T";
 	public String rstring = "Radius";
-	public String insidestring = "Cutoff distance";
-	public String outsidestring = "Cutoff distance";
-	public String smoothsliderstring = "Ratio of functions ";
-	public String mininlierstring = "Box Size(um)";
+	public String minSegDiststring = "Box Size(um)";
 
 	public Label timeText = new Label("Current T = " + 1, Label.CENTER);
-	public Label zText = new Label("Current Z = " + 1, Label.CENTER);
-	public Label zgenText = new Label("Current Z / T = " + 1, Label.CENTER);
-	public Label rText = new Label("Alt+Left Click selects a Roi");
-	public Label contText = new Label("After making all roi selections");
-	public Label insideText = new Label("Cutoff distance  = " + insideCutoff, Label.CENTER);
-	public Label degreeText = new Label("Choose degree of polynomial");
 	public Label resolutionText = new Label("Measurement Resolution (px)");
-	//public Label radiusText = new Label("LineScan radius (px)");
-	//public Label indistText = new Label("LineScan length (px)");
 	public Label regionText = new Label("Intensity region (px)");
 	public Label outdistText = new Label("Intensity Exterior region (px)");
 
-	public Label segmentDistText = new Label(mininlierstring + " = " + minSegmentDist, Label.CENTER);
+	public Label segmentDistText = new Label(minSegDiststring + " = " + minSegmentDist, Label.CENTER);
 
 
-	public final Label maxsizeText = new Label("Maximum region size (px)");
-	public final Label minsizeText = new Label("Minimum region size (px)");
 
 	public final Insets insets = new Insets(10, 0, 0, 0);
 	public final GridBagLayout layout = new GridBagLayout();
@@ -615,18 +602,9 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 	public JScrollPane scrollPane;
 	public JFileChooser chooserA = new JFileChooser();
 	public String choosertitleA;
-	public JScrollBar timeslider = new JScrollBar(Scrollbar.HORIZONTAL, fourthDimensionsliderInit, 10, 0,
+	public JScrollBar timeslider = new JScrollBar(Scrollbar.HORIZONTAL, thirdDimensionsliderInit, 10, 0,
 			scrollbarSize + 10);
-	public JScrollBar zslider = new JScrollBar(Scrollbar.HORIZONTAL, thirdDimensionsliderInit, 10, 0,
-			10 + scrollbarSize);
-	public JScrollBar rslider = new JScrollBar(Scrollbar.HORIZONTAL, radiusInt, 10, 0, 10 + scrollbarSize);
-	public JScrollBar insideslider = new JScrollBar(Scrollbar.HORIZONTAL, 0, 10, 0, 10 + scrollbarSize);
-	public JScrollBar smoothslider = new JScrollBar(Scrollbar.HORIZONTAL, 0, 10, 0, 10 + scrollbarSize);
-	public JScrollBar maxdistslider = new JScrollBar(Scrollbar.HORIZONTAL, 0, 10, 0, 10 + scrollbarSize);
-	public JScrollBar minInlierslider = new JScrollBar(Scrollbar.HORIZONTAL, 0, 10, 0, 10 + scrollbarSize);
-	public JScrollBar outsideslider = new JScrollBar(Scrollbar.HORIZONTAL, 0, 10, 0, 10 + scrollbarSize);
-	public JScrollBar lowprobslider = new JScrollBar(Scrollbar.HORIZONTAL, 0, 10, 0, 10 + scrollbarSize);
-	public JScrollBar highprobslider = new JScrollBar(Scrollbar.HORIZONTAL, 0, 10, 0, 10 + scrollbarSize);
+	
 
 	public JPanel PanelSelectFile = new JPanel();
 	public JPanel PanelBatch = new JPanel();
@@ -655,34 +633,19 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 	public boolean displayIntermediate = true;
 	public boolean displayIntermediateBox = true;
-	public Checkbox displayCircle = new Checkbox("Display Intermediate Circles", displayIntermediateBox);
-	public Checkbox displaySegments = new Checkbox("Display Segments", displayIntermediateBox);
 	public JButton ClearDisplay = new JButton("Clear Display");
-	public JButton SelectRim = new JButton("Rim selection for Intensity");
-
-	public Label smoothText = new Label("Ratio of functions = " + smoothing, Label.CENTER);
 
 	public Border timeborder = new CompoundBorder(new TitledBorder("Select time"), new EmptyBorder(c.insets));
-	public Border zborder = new CompoundBorder(new TitledBorder("Select Z"), new EmptyBorder(c.insets));
-	public Border roitools = new CompoundBorder(new TitledBorder("Roi and ellipse finder tools"),
-			new EmptyBorder(c.insets));
 
-	public Border probborder = new CompoundBorder(new TitledBorder("Automation block"), new EmptyBorder(c.insets));
-	public Border ellipsetools = new CompoundBorder(new TitledBorder("Ransac and Angle computer"),
-			new EmptyBorder(c.insets));
 	public Border circletools = new CompoundBorder(new TitledBorder("Curvature computer"), new EmptyBorder(c.insets));
 
-	public Border Kalmanborder = new CompoundBorder(new TitledBorder("Kalman Filter Search for angle tracking"),
-			new EmptyBorder(c.insets));
 
-	public Border ManualInterventionborder = new CompoundBorder(new TitledBorder("Manual Intervention"),
-			new EmptyBorder(c.insets));
 
 	int textwidth = 5;
 
 	public void Card() {
 
-		segmentDistText = new Label(mininlierstring + " = " + minSegmentDist, Label.CENTER);
+		segmentDistText = new Label(minSegDiststring + " = " + minSegmentDist, Label.CENTER);
 		lostlabel = new Label("Number of frames for loosing the track");
 		lostframe = new TextField(1);
 		lostframe.setText(Integer.toString(maxframegap));
@@ -720,28 +683,16 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 		Roiselect.setLayout(layout);
 		Curvatureselect.setLayout(layout);
 		KalmanPanel.setLayout(layout);
-		inputFieldZ = new TextField(textwidth);
-		inputFieldZ.setText(Integer.toString(thirdDimension));
-
 		inputFieldT = new TextField(textwidth);
-		inputFieldT.setText(Integer.toString(fourthDimension));
+		inputFieldT.setText(Integer.toString(thirdDimension));
 
-		cutoffField = new TextField(textwidth);
-		cutoffField.setText(Double.toString(insideCutoff));
 
 		minInlierField = new TextField(textwidth);
 		minInlierField.setText(Integer.toString(minSegmentDist));
 
-		//SpecialminInlierField = new TextField(textwidth);
-		//SpecialminInlierField.setText(Integer.toString(minSegmentDist));
 
 		inputtrackField = new TextField(textwidth);
 
-		inputFieldIter = new TextField(textwidth);
-		inputFieldIter.setText(Integer.toString(maxtry));
-
-		minperimeterField = new TextField(textwidth);
-		minperimeterField.setText(Integer.toString(minperimeter));
 
 		maxSizeField = new TextField(textwidth);
 		maxSizeField.setText(Integer.toString(maxsize));
@@ -751,33 +702,6 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 		numsegField = new TextField(textwidth);
 		numsegField.setText(Integer.toString(depth));
-
-		maxperimeterField = new TextField(textwidth);
-		maxperimeterField.setText(Integer.toString(maxperimeter));
-
-		gaussfield = new TextField(textwidth);
-		gaussfield.setText(Integer.toString(gaussradius));
-
-		degreeField = new TextField(textwidth);
-		degreeField.setText(Integer.toString(degree));
-
-		//resolutionField = new TextField(textwidth);
-		//resolutionField.setText(Integer.toString(resolution));
-
-		//radiusField = new TextField(textwidth);
-		//radiusField.setText(Integer.toString(linescanradius));
-
-		interiorfield = new TextField(textwidth);
-		interiorfield.setText(Integer.toString(insidedistance));
-
-		regioninteriorfield = new TextField(textwidth);
-		regioninteriorfield.setText(Integer.toString(regiondistance));
-
-		exteriorfield = new TextField(textwidth);
-		exteriorfield.setText(Integer.toString(outsidedistance));
-
-		secdegreeField = new TextField(textwidth);
-		secdegreeField.setText(Integer.toString(secdegree));
 
 		inputLabelIter = new Label("Max. attempts to find ellipses");
 		final JScrollBar maxSearchS = new JScrollBar(Scrollbar.HORIZONTAL, maxSearchInit, 10, 0, 10 + scrollbarSize);
@@ -791,13 +715,9 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 
 
-		inputLabelmaxellipse = new Label("Max. number of ellipses");
 		inputtrackLabel = new Label("Enter trackID to save");
 		inputcellLabel = new Label("Enter CellLabel to save");
-		inputFieldminpercent = new TextField(5);
-		inputFieldminpercent.setText(Float.toString(minpercent));
 
-		inputLabelminpercent = new Label("Min. percent points to lie on ellipse");
 		Object[] colnames;
 		Object[][] rowvalues;
 
@@ -835,41 +755,20 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 		Timeselect.setBorder(timeborder);
 		// panelFirst.add(Timeselect, new GridBagConstraints(0, 0, 5, 1, 0.0, 0.0,
-		// GridBagConstraints.EAST,
-		// GridBagConstraints.HORIZONTAL, insets, 0, 0));
-
-		// Put z slider
-		if (ndims > 3)
-			Zselect.add(zText, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
+		Timeselect.add(timeText, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
 					GridBagConstraints.HORIZONTAL, insets, 0, 0));
-		else
-			Zselect.add(zgenText, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-					GridBagConstraints.HORIZONTAL, insets, 0, 0));
-		Zselect.add(zslider, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, insets, 0, 0));
-
-		Zselect.add(inputFieldZ, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, insets, 0, 0));
-		Zselect.setBorder(zborder);
 		panelFirst.add(Zselect, new GridBagConstraints(0, 0, 5, 1, 0.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
-		if (ndims < 4) {
 
 			timeslider.setEnabled(false);
 			inputFieldT.setEnabled(false);
-		}
-		if (ndims < 3) {
-
-			zslider.setEnabled(false);
-			inputFieldZ.setEnabled(false);
-		}
 
 	
 
 	
 
-				SliderBoxGUI combominInlier = new SliderBoxGUI(mininlierstring, minInlierslider, minInlierField,
+				SliderBoxGUI combominInlier = new SliderBoxGUI(minSegDiststring, minSegDistslider, minInlierField,
 						segmentDistText, scrollbarSize, minSegmentDist, minSegmentDistmax);
 
 				Curvatureselect.add(distancemode, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
@@ -985,28 +884,15 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 		panelFirst.add(Batchbutton, new GridBagConstraints(5, 2, 3, 1, 0.0, 0.0, GridBagConstraints.EAST,
 				GridBagConstraints.HORIZONTAL, insets, 0, 0));
-		timeslider.addAdjustmentListener(new TimeListener(this, timeText, timestring, fourthDimensionsliderInit,
-				fourthDimensionSize, scrollbarSize, timeslider));
-		if (ndims > 3)
-			zslider.addAdjustmentListener(new ZListener(this, zText, zstring, thirdDimensionsliderInit,
-					thirdDimensionSize, scrollbarSize, zslider));
-		else
-			zslider.addAdjustmentListener(new ZListener(this, zgenText, zgenstring, thirdDimensionsliderInit,
-					thirdDimensionSize, scrollbarSize, zslider));
-		rslider.addAdjustmentListener(
-				new RListener(this, rText, rstring, radiusMin, radiusMax, scrollbarSize, rslider));
+		timeslider.addAdjustmentListener(new TimeListener(this, timeText, timestring, thirdDimensionsliderInit,
+				thirdDimensionSize, scrollbarSize, timeslider));
 
-
-		minInlierslider.addAdjustmentListener(new MinInlierListener(this, segmentDistText, mininlierstring,
-				minSegmentDist, scrollbarSize, minInlierslider));
+		minSegDistslider.addAdjustmentListener(new MinInlierListener(this, segmentDistText, minSegDiststring,
+				minSegmentDist, scrollbarSize, minSegDistslider));
 
 		distancemode.addItemListener(new RunCelltrackCirclemodeListener(this));
 		Pixelcelltrackcirclemode.addItemListener(new RunpixelCelltrackCirclemodeListener(this));
 		Combomode.addItemListener(new RunCombomodeListener(this));
-
-		lostframe.addTextListener(new LostFrameListener(this));
-		interiorfield.addTextListener(new InteriorDistListener(this, false));
-		exteriorfield.addTextListener(new ExteriorDistListener(this));
 
 		regioninteriorfield.addTextListener(new RegionInteriorListener(this, false));
 
@@ -1015,8 +901,6 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 		//radiusField.addTextListener(new LinescanradiusListener(this, false));
 		secdegreeField.addTextListener(new SecDegreeListener(this, false));
-		displayCircle.addItemListener(new DisplayListener(this));
-		displaySegments.addItemListener(new DisplayBoxListener(this));
 		Curvaturebutton.addActionListener(new CurvatureListener(this));
 		Displaybutton.addActionListener(new DisplayVisualListener(this, true));
 		startT.addTextListener(new AutoStartListener(this));
@@ -1050,38 +934,36 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 		Cardframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		Cardframe.pack();
-		if (!hide)
-			Cardframe.setVisible(true);
+		
+		imp.getCanvas().addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.getKeyCode() == 27)
+					EscapePressed = true;
+				
+			}
+			
+			
+			
+			
+			
+		});
 
 	}
 
-	public static <T extends Comparable<T> & Type<T>> void computeMinMax(final Iterable<T> input, final T min,
-			final T max) {
-		// create a cursor for the image (the order does not matter)
-		final Iterator<T> iterator = input.iterator();
-
-		// initialize min and max with the first image value
-		T type = iterator.next();
-
-		min.set(type);
-		max.set(type);
-
-		// loop over the rest of the data and determine min and max value
-		while (iterator.hasNext()) {
-			// we need this type more than once
-			type = iterator.next();
-
-			if (type.compareTo(min) < 0)
-				min.set(type);
-
-			if (type.compareTo(max) > 0)
-				max.set(type);
-		}
-	}
-
-	public static int round(double value) {
-		return (int) (value + 0.5D * Math.signum(value));
-	}
-
+	public Boolean EscapePressed = false;
 
 }

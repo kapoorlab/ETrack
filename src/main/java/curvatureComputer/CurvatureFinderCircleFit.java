@@ -13,6 +13,7 @@ import java.util.concurrent.Future;
 import javax.swing.JProgressBar;
 
 import embryoDetector.Embryoobject;
+import embryoDetector.LineProfileCircle;
 import net.imglib2.Point;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealLocalizable;
@@ -22,7 +23,9 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Pair;
+import net.imglib2.util.ValuePair;
 import pluginTools.InteractiveEmbryo;
+import utility.Curvatureobject;
 import utility.Listordereing;
 
 public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> extends MasterCurvature<T>
@@ -31,12 +34,11 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 	public final InteractiveEmbryo parent;
 	public final JProgressBar jpb;
 	public final int thirdDimension;
-	public final int fourthDimension;
 	public final int percent;
 	public final int celllabel;
 	public final ArrayList<Embryoobject> AllCurveintersection;
 	public final HashMap<Integer, Embryoobject> AlldenseCurveintersection;
-	ConcurrentHashMap<Integer, Embryoobject> Bestdelta = new ConcurrentHashMap<Integer, Embryoobject>();
+	ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> Bestdelta = new ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>>();
 	public final RandomAccessibleInterval<FloatType> ActualRoiimg;
 	private final String BASE_ERROR_MSG = "[CircleFit-]";
 	protected String errorMessage;
@@ -44,7 +46,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 	public CurvatureFinderCircleFit(final InteractiveEmbryo parent,
 			ArrayList<Embryoobject> AllCurveintersection,HashMap<Integer, Embryoobject> AlldenseCurveintersection,
 			final RandomAccessibleInterval<FloatType> ActualRoiimg, final JProgressBar jpb, final int percent,
-			final int celllabel, final int thirdDimension, final int fourthDimension) {
+			final int celllabel, final int thirdDimension) {
 
 		this.parent = parent;
 		this.AllCurveintersection = AllCurveintersection;
@@ -53,11 +55,10 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 		this.ActualRoiimg = ActualRoiimg;
 		this.celllabel = celllabel;
 		this.thirdDimension = thirdDimension;
-		this.fourthDimension = fourthDimension;
 		this.percent = percent;
 	}
 
-	public class ParallelCalls implements Callable< Embryoobject>{
+	public class ParallelCalls implements Callable<ArrayList<Curvatureobject>> {
 
 		
 		public final InteractiveEmbryo parent;
@@ -91,16 +92,12 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 		}
 		
 		@Override
-		public Embryoobject call() throws Exception {
+		public ArrayList<Curvatureobject> call() throws Exception {
 			
-			Embryoobject  result = getCurvature(parent, allorderedcandidates, centerpoint, ndims, celllabel, t, index);
+			ArrayList<Curvatureobject>  result = getCurvature(parent, allorderedcandidates, centerpoint, ndims, celllabel, t, index);
 			
 			
 			return result;
-			
-			
-			
-			
 			
 		}
 	}
@@ -111,7 +108,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 	}
 	
 	@Override
-	public ConcurrentHashMap<Integer, Embryoobject> getResult() {
+	public ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> getResult() {
 
 		return Bestdelta;
 	}
@@ -130,7 +127,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 	public boolean process() {
 		
 		int ndims = ActualRoiimg.numDimensions();
-		String uniqueID = Integer.toString(thirdDimension) + Integer.toString(fourthDimension);
+		String uniqueID = Integer.toString(thirdDimension);
 
 		List<RealLocalizable> candidates = GetCandidatePoints.ListofPoints(parent, ActualRoiimg, jpb, percent,thirdDimension);
 		
@@ -152,12 +149,11 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 		return true;
 	}
 
-	
 
 
-	
+	@Override
 	public void MarsRover(InteractiveEmbryo parent, List<RealLocalizable> Ordered,
-			RealLocalizable centerpoint, List<RealLocalizable> candidates,
+			RealLocalizable centerpoint, 
 			ArrayList<Embryoobject> AllCurveintersection, HashMap<Integer, Embryoobject> AlldenseCurveintersection,
 			int ndims, int celllabel, int t) {
 
@@ -165,19 +161,17 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 	     
 
 		int count = 0;
-		if (parent.minSegmentDist > candidates.size())
-			parent.minSegmentDist = candidates.size();
+
 
 		int i = parent.increment;
-		Embryoobject resultpair = CommonLoop(parent, Ordered, centerpoint, ndims, celllabel, t);
+		Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> resultpair = CommonLoop(parent, Ordered, centerpoint, ndims, celllabel, t);
 		
 		Bestdelta.put(count, resultpair);
 		count++;
 		
-		ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>> zeroline = resultpair.LineScanIntensity;
 		
-		
-		int maxstride = parent.CellLabelsizemap.get(celllabel);
+		String ID = Integer.toString(celllabel) + Integer.toString(t);
+		int maxstride = parent.CellLabelsizemap.get(ID);
 		
 		
 		// Get the sparse list of points, skips parent.resolution pixel points
@@ -185,7 +179,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 		int nThreads = Runtime.getRuntime().availableProcessors();
 		final ExecutorService taskExecutor = Executors.newFixedThreadPool(nThreads);
 		
-		List<Future<Embryoobject>> list = new ArrayList<Future<Embryoobject>>();
+		List<Future<ArrayList<Curvatureobject>>> list = new ArrayList<Future<ArrayList<Curvatureobject>>>();
 		
 		for (int index = 0; index < maxstride; ++index) {
 			List<RealLocalizable> allorderedcandidates = Listordereing.getList(Ordered, i + index);
@@ -196,28 +190,25 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 			
 
 			
-			ParallelCalls call = new ParallelCalls(parent, allorderedcandidates, centerpoint, ndims, celllabel, t, maxstride, index);
-			Future<Embryoobject> Futureresultpair = taskExecutor.submit(call);
+			ParallelCalls call = new ParallelCalls(parent, allorderedcandidates, centerpoint, ndims, celllabel, t, index);
+			Future<ArrayList<Curvatureobject>> Futureresultpair = taskExecutor.submit(call);
 			list.add(Futureresultpair);
 		}
 		
 		taskExecutor.shutdown();
-		for(Future<Embryoobject> fut : list){
+		for(Future<ArrayList<Curvatureobject>> fut : list){
 			
 			
 			
 			
 			try {
 				
-				
-				resultpair = fut.get();
-				Embryoobject newresultpair = new Embryoobject(resultpair.functionlist, resultpair.Curvelist, zeroline);
+				ArrayList<Curvatureobject> Rover = fut.get();
+				Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> newresultpair = new ValuePair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>(Rover, resultpair.getB());
 				
 				Bestdelta.put(count, newresultpair);
 				count++;
 
-				parent.localCurvature = newresultpair.Curvelist;
-				parent.functions = newresultpair.functionlist;
 				
 				
 			} catch (InterruptedException | ExecutionException e) {
@@ -229,13 +220,9 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 		}
 		
 
-		Pair<Embryoobject, Embryoobject> sparseanddensepair = GetAverage(parent, centerpoint, Bestdelta,count);
+		ArrayList<Curvatureobject> sparseanddensepair = GetAverage(parent, centerpoint, Bestdelta,count);
 		
-		AllCurveintersection.add(sparseanddensepair.getA());
-		AlldenseCurveintersection.put(celllabel, sparseanddensepair.getB());
-		
-		
-		parent.AlllocalCurvature.add(parent.localCurvature);
+
 
 	}
 	
@@ -251,36 +238,8 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 	}
 
 	@Override
-	public RegressionLineProfile getLocalcurvature(ArrayList<double[]> Cordlist,
+	public Pair<Embryoobject, ClockDisplayer> getLocalcurvature(ArrayList<double[]> Cordlist,
 			RealLocalizable centerpoint, int strideindex) {
-		double[] x = new double[Cordlist.size()];
-		double[] y = new double[Cordlist.size()];
-
-		ArrayList<Point> pointlist = new ArrayList<Point>();
-		ArrayList<RealLocalizable> list = new ArrayList<RealLocalizable>();
-		
-		for (int index = 0; index < Cordlist.size() - 1; ++index) {
-			
-			x[index] = Cordlist.get(index)[0];
-			y[index] = Cordlist.get(index)[1];
-
-			RealPoint point = new RealPoint(new double[] { x[index], y[index] });
-			list.add(point);
-			pointlist.add(new Point(new double[] { x[index], y[index] }));
-
-		}
-
-		// Here you choose which method is used to detect curvature
-
-		RegressionLineProfile finalfunctionandList = NoClockRansacEllipseBlock(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, false, "");
-
-		
-		return finalfunctionandList;
-	}
-	
-	@Override
-	public Pair<Embryoobject, ClockDisplayer>  getCircleLocalcurvature(ArrayList<double[]> Cordlist,
-			RealLocalizable centerpoint, int strideindex, String name) {
 		double[] x = new double[Cordlist.size()];
 		double[] y = new double[Cordlist.size()];
 
@@ -298,15 +257,41 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 
 		}
 
-		
 		// Here you choose which method is used to detect curvature
-		Pair<RegressionLineProfile, ClockDisplayer> finalfunctionandList = RansacEllipseBlock(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, true, name);
 
-       
-		  
+		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockCircle(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, false);
+
 		
 		return finalfunctionandList;
 	}
+	
+	@Override
+	public Pair<Embryoobject, ClockDisplayer>  getCircleLocalcurvature(ArrayList<double[]> Cordlist,
+			RealLocalizable centerpoint, int strideindex) {
+		double[] x = new double[Cordlist.size()];
+		double[] y = new double[Cordlist.size()];
+
+		ArrayList<Point> pointlist = new ArrayList<Point>();
+		ArrayList<RealLocalizable> list = new ArrayList<RealLocalizable>();
+		
+		for (int index = 0; index < Cordlist.size() - 1; ++index) {
+			
+			x[index] = Cordlist.get(index)[0];
+			y[index] = Cordlist.get(index)[1];
+
+			RealPoint point = new RealPoint(new double[] { x[index], y[index] });
+			list.add(point);
+			pointlist.add(new Point(new long[] { (long) x[index], (long) y[index] }));
+
+		}
+
+		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockCircle(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, false);
+
+		
+		return finalfunctionandList;
+	}
+
+
 
 
 
