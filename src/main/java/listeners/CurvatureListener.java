@@ -11,13 +11,14 @@ import ellipsoidDetector.Intersectionobject;
 import ij.IJ;
 import kalmanForSegments.Segmentobject;
 import net.imglib2.img.display.imagej.ImageJFunctions;
+import pluginTools.InteractiveEmbryo;
 import pluginTools.InteractiveSimpleEllipseFit;
 
 public class CurvatureListener implements ActionListener {
 
-	final InteractiveSimpleEllipseFit parent;
+	final InteractiveEmbryo parent;
 
-	public CurvatureListener(final InteractiveSimpleEllipseFit parent) {
+	public CurvatureListener(final InteractiveEmbryo parent) {
 
 		this.parent = parent;
 	}

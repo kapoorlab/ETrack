@@ -14,23 +14,18 @@ import java.util.Map;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
-import curvatureUtils.CurvatureTableDisplay;
-import ellipsoidDetector.Intersectionobject;
-import ellipsoidDetector.KymoSaveobject;
-import hashMapSorter.SortCoordinates;
 import ij.IJ;
-import kalmanForSegments.Segmentobject;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Pair;
 import net.imglib2.view.Views;
-import pluginTools.InteractiveSimpleEllipseFit;
+import pluginTools.InteractiveEmbryo;
 import utility.Curvatureobject;
 
 public class SaverAllListener implements ActionListener {
 
-	final InteractiveSimpleEllipseFit parent;
+	final InteractiveEmbryo parent;
 	
 	
 	/**
@@ -47,7 +42,7 @@ public class SaverAllListener implements ActionListener {
 	int perimeterLabel = 5;
 	int DistCurvatureLabel = 6;
 	
-	public SaverAllListener(final InteractiveSimpleEllipseFit parent) {
+	public SaverAllListener(final InteractiveEmbryo parent) {
 
 		this.parent = parent;
 	}
@@ -55,13 +50,10 @@ public class SaverAllListener implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
-		if (!parent.curveautomode && !parent.curvesupermode)
-			OldSave();
-		else {
+	
 		  KymoSave();
 		  DenseSave(); 
 		  
-		}
 	
 	IJ.log("All trackes saved in: " + parent.saveFile.getAbsolutePath());
 	}
@@ -129,7 +121,7 @@ public class SaverAllListener implements ActionListener {
 					RandomAccess<FloatType> Aranac = IntensityAView.randomAccess();
 					RandomAccess<FloatType> Branac = IntensityBView.randomAccess();
 					
-					Iterator<Map.Entry<String, Integer>> itZ = parent.AccountedZ.entrySet().iterator();
+					Iterator<Map.Entry<String, Integer>> itZ = parent.AccountedT.entrySet().iterator();
 					
 					while (itZ.hasNext()) {
 
@@ -261,44 +253,7 @@ public class SaverAllListener implements ActionListener {
 		
 		IJ.log("All trackes saved in: " + parent.saveFile.getAbsolutePath());
 		
-		if (!parent.curveautomode && !parent.curvesupermode) {
-		try {
-			File fichier = new File(
-					parent.saveFile + "//" + parent.addToName + "TrackID" +ID + ".txt");
 
-			FileWriter fw = new FileWriter(fichier);
-			BufferedWriter bw = new BufferedWriter(fw);
-			
-			bw.write(
-					"\tTime (px)\t AngleT \n");
-		for (int index = 0; index< parent.resultAngle.size(); ++index) {
-			
-			
-			if (ID.equals(parent.resultAngle.get(index).getA() )) {
-				
-				// Save result sin file
-			
-				int time = (int) parent.resultAngle.get(index).getB()[0];
-				double angle = parent.resultAngle.get(index).getB()[1];
-				bw.write("\t" + time + "\t" 
-						+ angle + 
-						
-						"\n");
-				
-
-				
-			}
-			
-		}
-			
-		bw.close();
-		fw.close();
-		}
-		catch (IOException te) {
-		}
-		}
-			
-			else {
 				
 				try {
 					File fichier = new File(
@@ -367,57 +322,7 @@ public class SaverAllListener implements ActionListener {
 		
 		
 		
-	}
 	
 	
-	public void NewSave() {
-		
-		parent.saveFile.mkdir();
-   for(int tablepos = 0; tablepos< parent.table.getRowCount(); ++tablepos) {
-			
-			String ID = (String) parent.table.getValueAt(tablepos, 0);
-		
-		
-			try {
-				File fichier = new File(
-						parent.saveFile + "//" + parent.addToName + "SegmentID" +ID + ".txt");
-
-				FileWriter fw = new FileWriter(fichier);
-				BufferedWriter bw = new BufferedWriter(fw);
-				bw.write("\tTrackID:" + "\t" + ID+ "\n");
-				bw.write("\tX-coordinates\tY-coordinates\tTime\tDeformation\tPerimeter\tIntensity\tIntensitySec\n");
-				for (Pair<String, Segmentobject> currentangle : parent.SegmentTracklist) {
-					
-					String currentID = currentangle.getA();
-					if(currentID.equals(ID)) {
-						
-						
-						bw.write("\t"+ parent.nf.format(currentangle.getB().centralpoint.getDoublePosition(0)) +  "\t" +  parent.nf.format(currentangle.getB().centralpoint.getDoublePosition(1))
-								+ "\t" +
-								 currentangle.getB().z
-                                  + "\t" + 
-								parent.nf.format(currentangle.getB().Curvature) + "\t"  + parent.nf.format(currentangle.getB().Perimeter) + "\t"   
-								+ parent.nf.format(currentangle.getB().IntensityA) +
-								
-								"\t" +  parent.nf.format(currentangle.getB().IntensityB) + 
-								"\n");
-						
-						
-					}
-				
-				
-			}
-			
-			
-	    bw.close();
-		fw.close();
-		}
-		catch (IOException te) {
-		}
-		
-		
-		
-	}
-	}
 	
 }

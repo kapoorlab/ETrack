@@ -1,7 +1,6 @@
 package pluginTools;
 
 import javax.swing.JFrame;
-
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.io.Opener;

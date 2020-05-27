@@ -7,21 +7,19 @@ import java.awt.event.AdjustmentListener;
 
 import javax.swing.JScrollBar;
 
-import pluginTools.EllipseTrack;
-import pluginTools.InteractiveSimpleEllipseFit;
-import pluginTools.InteractiveSimpleEllipseFit.ValueChange;
+import pluginTools.InteractiveEmbryo;
 import utility.ShowView;
 
-public class MinInlierListener implements AdjustmentListener {
+public class MinSegDistListener implements AdjustmentListener {
 	final Label label;
 	final String string;
-	InteractiveSimpleEllipseFit parent;
+	InteractiveEmbryo parent;
 	final float min;
 	final int scrollbarSize;
 
 	final JScrollBar deltaScrollbar;
 
-	public MinInlierListener(final InteractiveSimpleEllipseFit parent, final Label label, final String string, final float min,
+	public MinSegDistListener(final InteractiveEmbryo parent, final Label label, final String string, final float min,
 			final int scrollbarSize, final JScrollBar deltaScrollbar) {
 		this.label = label;
 		this.parent = parent;
@@ -38,20 +36,20 @@ public class MinInlierListener implements AdjustmentListener {
 	@Override
 	public void adjustmentValueChanged(AdjustmentEvent e) {
 		
-		float max = parent.minNumInliersmax;
-		parent.minNumInliers =  (int) utility.Slicer.computeValueFromScrollbarPosition(e.getValue(), min, max, scrollbarSize);
+		float max = parent.maxSegDist;
+		parent.minSegDist =  (int) utility.Slicer.computeValueFromScrollbarPosition(e.getValue(), min, max, scrollbarSize);
 	
 		
 		
 		
 		deltaScrollbar
-				.setValue(utility.Slicer.computeScrollbarPositionFromValue(parent.minNumInliers, min, max, scrollbarSize));
+				.setValue(utility.Slicer.computeScrollbarPositionFromValue(parent.minSegDist, min, max, scrollbarSize));
 
-		label.setText(string +  " = "  + parent.nf.format(parent.minNumInliers));
+		label.setText(string +  " = "  + parent.nf.format(parent.minSegDist));
 		
 	 
 		
-		parent.minInlierField.setText(Integer.toString(Math.round(parent.minNumInliers)));
+		parent.minSegDistField.setText(Integer.toString(Math.round(parent.minSegDist)));
 		parent.panelFirst.validate();
 		parent.panelFirst.repaint();
 		

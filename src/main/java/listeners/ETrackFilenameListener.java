@@ -4,15 +4,16 @@ import java.awt.TextComponent;
 import java.awt.event.TextEvent;
 import java.awt.event.TextListener;
 
-import pluginTools.InteractiveSimpleEllipseFit;
+import pluginTools.InteractiveEmbryo;
+
 
 
 public class ETrackFilenameListener  implements TextListener {
 
 	
-	final InteractiveSimpleEllipseFit parent;
+	final InteractiveEmbryo parent;
 	
-	public ETrackFilenameListener(final InteractiveSimpleEllipseFit parent){
+	public ETrackFilenameListener(final InteractiveEmbryo parent){
 		
 		this.parent = parent;
 		

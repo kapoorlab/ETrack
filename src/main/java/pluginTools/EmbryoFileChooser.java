@@ -36,16 +36,10 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import io.scif.img.ImgIOException;
-import io.scif.img.ImgOpener;
 import listeners.ChooseOrigMap;
 import listeners.ChoosesecOrigMap;
 import listeners.ChoosesuperProbMap;
-import listeners.CurveSimplemodeListener;
-import listeners.CurveSupermodeListener;
-import listeners.DoubleChannelBatchListener;
 import listeners.DoubleChannelListener;
-import listeners.SimplemodeListener;
-import listeners.SupermodeListener;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.real.FloatType;
@@ -57,7 +51,7 @@ public class EmbryoFileChooser extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	  public JFrame Cardframe = new JFrame("Curvature and Deformation measuring tool");
+	  public JFrame Cardframe = new JFrame("Deformation measuring Wizard");
 	  public JPanel panelCont = new JPanel();
 	  public ImagePlus impOrig, impsuper, impSec;
 	  public File impAfile, impOrigfile, impsuperfile, impsecfile;
@@ -80,7 +74,7 @@ public class EmbryoFileChooser extends JPanel {
 	  public JComboBox<String> ChoosesuperImage;
 	  public JComboBox<String> ChooseoriginalImage;
 	  public JComboBox<String> ChoosesecImage;
-	  public JButton Done =  new JButton("Finished choosing files, start ETrack");
+	  public JButton Done =  new JButton("Finished choosing files, launch Wizard-of-OZ");
 	  public boolean twochannel = false;
 	  File[] Ch1_AllMovies;
 	  File[] Ch2_AllMovies;

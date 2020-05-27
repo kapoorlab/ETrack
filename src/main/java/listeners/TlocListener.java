@@ -10,17 +10,17 @@ import ij.IJ;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.type.logic.BitType;
-import pluginTools.InteractiveSimpleEllipseFit;
-import pluginTools.InteractiveSimpleEllipseFit.ValueChange;
+import pluginTools.InteractiveEmbryo;
+import pluginTools.InteractiveEmbryo.ValueChange;
 import utility.ShowView;
 
 public class TlocListener implements TextListener {
 	
 	
-	final InteractiveSimpleEllipseFit parent;
+	final InteractiveEmbryo parent;
 	
 	boolean pressed;
-	public TlocListener(final InteractiveSimpleEllipseFit parent, final boolean pressed) {
+	public TlocListener(final InteractiveEmbryo parent, final boolean pressed) {
 		
 		this.parent = parent;
 		this.pressed = pressed;
@@ -54,17 +54,17 @@ public class TlocListener implements TextListener {
 			    	String s = tc.getText();
 			    	if (arg0.getKeyChar() == KeyEvent.VK_ENTER&& !pressed) {
 						pressed = true;
-			    		if (parent.fourthDimension > parent.fourthDimensionSize) {
+			    		if (parent.thirdDimension > parent.thirdDimensionSize) {
 							IJ.log("Max frame number exceeded, moving to last frame instead");
-							parent.fourthDimension = parent.fourthDimensionSize;
+							parent.thirdDimension = parent.thirdDimensionSize;
 						} else
-							parent.fourthDimension = Integer.parseInt(s);
+							parent.thirdDimension = Integer.parseInt(s);
 			    		ShowView show = new ShowView(parent);
 					show.shownewT();
-					parent.timeText.setText("Current T = " + parent.fourthDimension);
-					parent.updatePreview(ValueChange.FOURTHDIMmouse);
+					parent.timeText.setText("Current T = " + parent.thirdDimension);
+					parent.updatePreview(ValueChange.THIRDDIMmouse);
 					
-					parent.timeslider.setValue(utility.Slicer.computeScrollbarPositionFromValue(parent.fourthDimension, parent.fourthDimensionsliderInit, parent.fourthDimensionSize, parent.scrollbarSize));
+					parent.timeslider.setValue(utility.Slicer.computeScrollbarPositionFromValue(parent.thirdDimension, parent.thirdDimensionsliderInit, parent.thirdDimensionSize, parent.scrollbarSize));
 					parent.timeslider.repaint();
 					parent.timeslider.validate();
 					

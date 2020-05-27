@@ -5,8 +5,9 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JScrollBar;
 
-import pluginTools.InteractiveSimpleEllipseFit;
-import pluginTools.InteractiveSimpleEllipseFit.ValueChange;
+import pluginTools.InteractiveEmbryo;
+import pluginTools.InteractiveEmbryo.ValueChange;
+
 
 
 
@@ -19,10 +20,10 @@ import pluginTools.InteractiveSimpleEllipseFit.ValueChange;
  */
 public class EllipseStandardMouseListener implements MouseListener
 {
-	final InteractiveSimpleEllipseFit parent;
+	final InteractiveEmbryo parent;
 	final ValueChange change;
 
-	public EllipseStandardMouseListener( final InteractiveSimpleEllipseFit parent, final ValueChange change)
+	public EllipseStandardMouseListener( final InteractiveEmbryo parent, final ValueChange change)
 	{
 		this.parent = parent;
 		this.change = change;
@@ -45,12 +46,7 @@ public class EllipseStandardMouseListener implements MouseListener
 	public void mousePressed( MouseEvent arg0 ){
 		
 		
-		/*
-		deltascrollbar.setLocation(arg0.getLocationOnScreen());
-		deltascrollbar.repaint();
-		deltascrollbar.validate();
-		System.out.println(arg0.getLocationOnScreen());
-		*/
+	
 	}
 
 	@Override

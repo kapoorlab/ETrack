@@ -1,15 +1,15 @@
 package utility;
 
 import ij.IJ;
-import pluginTools.InteractiveSimpleEllipseFit;
+import pluginTools.InteractiveEmbryo;
 
 public class ShowView {
 
 	
-	final InteractiveSimpleEllipseFit parent;
+	final InteractiveEmbryo parent;
 	
 	
-	public ShowView(final InteractiveSimpleEllipseFit parent) {
+	public ShowView(final InteractiveEmbryo parent) {
 		
 		this.parent = parent;
 		
@@ -24,12 +24,12 @@ public class ShowView {
 			
 			
 			parent.CurrentView = utility.Slicer.getCurrentView(parent.originalimg, (int)parent.thirdDimension,
-					(int)parent.thirdDimensionSize, (int)parent.fourthDimension, (int)parent.fourthDimensionSize);
+					(int)parent.thirdDimensionSize);
 			
 		} else {
 
 			parent.CurrentView = utility.Slicer.getCurrentView(parent.originalimg, (int)parent.thirdDimension,
-					(int)parent.thirdDimensionSize, (int)parent.fourthDimension, (int)parent.fourthDimensionSize);
+					(int)parent.thirdDimensionSize);
 			
 		}
 
@@ -40,18 +40,18 @@ public class ShowView {
 	
 	public void shownewT() {
 
-		if (parent.fourthDimension > parent.fourthDimensionSize) {
+		if (parent.thirdDimension > parent.thirdDimensionSize) {
 			IJ.log("Max time point exceeded, moving to last time point instead");
-			parent.fourthDimension = parent.fourthDimensionSize;
+			parent.thirdDimension = parent.thirdDimensionSize;
 			
 			
 			parent.CurrentView = utility.Slicer.getCurrentView(parent.originalimg,(int) parent.thirdDimension,
-					(int)parent.thirdDimensionSize,(int) parent.fourthDimension, (int)parent.fourthDimensionSize);
+					(int)parent.thirdDimensionSize);
 			
 		} else {
 
 			parent.CurrentView = utility.Slicer.getCurrentView(parent.originalimg,(int) parent.thirdDimension,
-					(int)parent.thirdDimensionSize, (int)parent.fourthDimension, (int)parent.fourthDimensionSize);
+					(int)parent.thirdDimensionSize);
 			
 		}
 

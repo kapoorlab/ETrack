@@ -3,13 +3,13 @@ package listeners;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import pluginTools.InteractiveSimpleEllipseFit;
+import pluginTools.InteractiveEmbryo;
 
-public class RunCombomodeListener implements ItemListener {
+public class CombomodeListener implements ItemListener {
 
-		InteractiveSimpleEllipseFit parent;
+	InteractiveEmbryo parent;
 
-		public RunCombomodeListener(InteractiveSimpleEllipseFit parent) {
+		public CombomodeListener(InteractiveEmbryo parent) {
 			this.parent = parent;
 		}
 
@@ -18,15 +18,15 @@ public class RunCombomodeListener implements ItemListener {
 
 			if (arg0.getStateChange() == ItemEvent.DESELECTED) {
 
-				parent.pixelcelltrackcirclefits = false;
-				parent.distancemethod = false;
+				parent.circlefits = false;
+				parent.distancemethod = true;
 				parent.combomethod = false;
 
 			}
 
 			else if (arg0.getStateChange() == ItemEvent.SELECTED) {
 
-				parent.pixelcelltrackcirclefits = false;
+				parent.circlefits = false;
 				parent.combomethod = true;
 				parent.distancemethod = false;
 				parent.resolution = 1; // Integer.parseInt(parent.resolutionField.getText());

@@ -14,24 +14,19 @@ import java.util.Map;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
-import curvatureUtils.CurvatureTableDisplay;
-import ellipsoidDetector.Intersectionobject;
-import ellipsoidDetector.KymoSaveobject;
-import hashMapSorter.SortCoordinates;
 import ij.IJ;
-import kalmanForSegments.Segmentobject;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Pair;
 import net.imglib2.view.Views;
-import pluginTools.InteractiveSimpleEllipseFit;
+import pluginTools.InteractiveEmbryo;
 import utility.Curvatureobject;
 
 public class SaverListener implements ActionListener {
 
-	final InteractiveSimpleEllipseFit parent;
+	final InteractiveEmbryo parent;
 	
 	
 	/**
@@ -48,7 +43,7 @@ public class SaverListener implements ActionListener {
 	int perimeterLabel = 5;
 	int DistCurvatureLabel = 6;
 
-	public SaverListener(final InteractiveSimpleEllipseFit parent) {
+	public SaverListener(final InteractiveEmbryo parent) {
 
 		this.parent = parent;
 	}
@@ -58,14 +53,10 @@ public class SaverListener implements ActionListener {
 		
 		
 	
-			
-		if (!parent.curveautomode && !parent.curvesupermode)
-			OldSave();
-		else {
+		
 		  KymoSave();
 		  DenseSave(); 
-		  System.out.println("saving");
-		}	
+		  	
 				
 				
 				
@@ -77,89 +68,7 @@ public class SaverListener implements ActionListener {
 	}
 	
 	
-	public void NewSave() {
-		
-		parent.saveFile.mkdir();
-		
-		String ID = parent.selectedID;
-		if (!parent.curveautomode && !parent.curvesupermode) {
-			try {
-				File fichier = new File(
-						 parent.saveFile + "//" + "Co-ordinates" + parent.addToName + "TrackID" +ID + ".txt");
-
-				FileWriter fw = new FileWriter(fichier);
-				BufferedWriter bw = new BufferedWriter(fw);
-				
-				bw.write(
-						"\tTime (px)\t AngleT \n");
-			for (int index = 0; index< parent.resultAngle.size(); ++index) {
-				
-				
-				if (ID.equals(parent.resultAngle.get(index).getA() )) {
-					
-					// Save result sin file
-				
-					int time = (int) parent.resultAngle.get(index).getB()[0];
-					double angle = parent.resultAngle.get(index).getB()[1];
-					bw.write("\t" + time + "\t" + "\t"
-							+ angle + 
-							
-							"\n");
-					
-
-					
-				}
-				
-			}
-				
-			bw.close();
-			fw.close();
-			}
-			catch (IOException te) {
-			}
-			}
-				
-				else {
-		
-			try {
-				File fichier = new File(
-						parent.saveFile + "//" + "Co-ordinates" + parent.addToName + "SegmentID" +ID + ".txt");
-
-				FileWriter fw = new FileWriter(fichier);
-				BufferedWriter bw = new BufferedWriter(fw);
-				bw.write("\tTrackID" + "\t" + "\t" + ID + "\n");
-				bw.write("\tX-coordinates\tY-coordinates\tTime\tDeformation\t Perimeter\t \t Intensity \t \t IntensitySec\n");
-				for (Pair<String, Segmentobject> currentangle : parent.SegmentTracklist) {
-					
-					String currentID = currentangle.getA();
-					
-					if(currentID.equals(ID)) {
-						
-						
-						bw.write("\t"+ parent.nf.format(currentangle.getB().centralpoint.getDoublePosition(XcordLabel)) +  "\t" + "\t" + parent.nf.format(currentangle.getB().centralpoint.getDoublePosition(YcordLabel))
-								+ "\t" + "\t" +
-								"\t" + "\t" + currentangle.getB().z + 
-								parent.nf.format(currentangle.getB().Curvature) + "\t"  + "\t"+  "\t" + "\t" + parent.nf.format(currentangle.getB().Perimeter) + "\t" + "\t"  
-								+ parent.nf.format(currentangle.getB().IntensityA) +
-								
-								"\t" + "\t"  + parent.nf.format(currentangle.getB().IntensityB) + 
-								"\n");
-						
-						
-					}
-				
-				
-			}
-			
-			
-	    bw.close();
-		fw.close();
-		}
-		catch (IOException te) {
-		}
-				}
-		
-	}
+	
 	
 	public void KymoSave() {
 		
@@ -227,7 +136,7 @@ public class SaverListener implements ActionListener {
 				RandomAccess<FloatType> Aranac = IntensityAView.randomAccess();
 				RandomAccess<FloatType> Branac = IntensityBView.randomAccess();
 				
-				Iterator<Map.Entry<String, Integer>> itZ = parent.AccountedZ.entrySet().iterator();
+				Iterator<Map.Entry<String, Integer>> itZ = parent.AccountedT.entrySet().iterator();
 				
 				while (itZ.hasNext()) {
 
@@ -338,44 +247,7 @@ public class SaverListener implements ActionListener {
 		
 		String ID = parent.selectedID;
 		parent.saveFile.mkdir();
-		if (!parent.curveautomode && !parent.curvesupermode) {
-		try {
-			File fichier = new File(
-					parent.saveFile + "//" + parent.addToName + "TrackID" +ID + ".txt");
 
-			FileWriter fw = new FileWriter(fichier);
-			BufferedWriter bw = new BufferedWriter(fw);
-			
-			bw.write(
-					"\tTime (px)\t AngleT \n");
-		for (int index = 0; index< parent.resultAngle.size(); ++index) {
-			
-			
-			if (ID.equals(parent.resultAngle.get(index).getA() )) {
-				
-				// Save result sin file
-			
-				int time = (int) parent.resultAngle.get(index).getB()[0];
-				double angle = parent.resultAngle.get(index).getB()[1];
-				bw.write("\t" + time + "\t" + "\t"
-						+ angle + 
-						
-						"\n");
-				
-
-				
-			}
-			
-		}
-			
-		bw.close();
-		fw.close();
-		}
-		catch (IOException te) {
-		}
-		}
-			
-			else {
 				
 				try {
 					File fichier = new File(
@@ -440,7 +312,6 @@ public class SaverListener implements ActionListener {
 		
 	
 	
-	}
 		
 	}
 	

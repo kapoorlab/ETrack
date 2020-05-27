@@ -76,58 +76,25 @@ import ij.process.ColorProcessor;
 import kalmanGUI.CovistoKalmanPanel;
 import listeners.AutoEndListener;
 import listeners.AutoStartListener;
+import listeners.CirclemodeListener;
 import listeners.ClearDisplayListener;
-import listeners.ColorListener;
+import listeners.CombomodeListener;
 import listeners.CurrentCurvatureListener;
 import listeners.CurvatureListener;
-import listeners.DegreeListener;
-import listeners.DeltasepListener;
-import listeners.DisplayBoxListener;
-import listeners.DisplayListener;
 import listeners.DisplayVisualListener;
-import listeners.DoSmoothingListener;
-import listeners.DrawListener;
+import listeners.DistancemodeListener;
 import listeners.ETrackFilenameListener;
-import listeners.ETrackMaxSearchListener;
-import listeners.ExteriorDistListener;
-import listeners.GaussRadiusListener;
-import listeners.HighProbListener;
-import listeners.IlastikListener;
-import listeners.InsideCutoffListener;
-import listeners.InsideLocListener;
-import listeners.InteriorDistListener;
 import listeners.LinescanradiusListener;
-import listeners.LostFrameListener;
-import listeners.LowProbListener;
-import listeners.ManualInterventionListener;
-import listeners.MaxTryListener;
-import listeners.MaxperimeterListener;
-import listeners.MaxsizeListener;
-import listeners.MinInlierListener;
-import listeners.MinInlierLocListener;
-import listeners.MinpercentListener;
-import listeners.MinperimeterListener;
-import listeners.MinsizeListener;
-import listeners.OutsideCutoffListener;
-import listeners.RedoListener;
+import listeners.MinSegDistListener;
+import listeners.MinSegDistLocListener;
 import listeners.RegionInteriorListener;
 import listeners.ResolutionListener;
-import listeners.RimLineSelectionListener;
-import listeners.RoiListener;
-import listeners.RunCelltrackCirclemodeListener;
-import listeners.RunCombomodeListener;
-import listeners.RunPolymodeListener;
-import listeners.RunpixelCelltrackCirclemodeListener;
 import listeners.SaverAllListener;
 import listeners.SaveDirectory;
 import listeners.SaverListener;
-import listeners.SecDegreeListener;
-import listeners.SmoothSliderListener;
 import listeners.TimeListener;
 import listeners.TlocListener;
 import listeners.TrackidListener;
-import listeners.ZListener;
-import listeners.ZlocListener;
 import net.imagej.ImageJ;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccess;
@@ -407,10 +374,9 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		saveFile = new java.io.File(".");
 		
 		
-		
+		Card();
 		
 		StartDisplayer();
-		Card();
 
 	}
 
@@ -456,14 +422,10 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 			CurrentView = utility.EmbryoSlicer.getCurrentEmbryoView(originalimg, thirdDimension, thirdDimensionSize);
 		repaintView(CurrentView);
 		
-		if(CovistoKalmanPanel.Skeletontime.isEnabled()) {
 			imp.getOverlay().clear();
 			imp.updateAndDraw();
-			//CovistoKalmanPanel.Skeletontime.setEnabled(false);
-			//CovistoKalmanPanel.Timetrack.setEnabled(false);
 			StartDisplayer();
 			
-		}
 		
 
 		}
@@ -522,7 +484,7 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 	public JPanel KalmanPanel = new JPanel();
 
 	public TextField inputFieldT, inputtrackField, minperimeterField, maxperimeterField, gaussfield, numsegField,
-			cutoffField, minInlierField, degreeField, secdegreeField;//, resolutionField;
+			cutoffField, minSegDistField, degreeField, secdegreeField;//, resolutionField;
 			//radiusField,  SpecialminInlierField;
 
 	public TextField inputFieldZ, startT, endT, maxSizeField, minSizeField;
@@ -555,7 +517,7 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 	public Label regionText = new Label("Intensity region (px)");
 	public Label outdistText = new Label("Intensity Exterior region (px)");
 
-	public Label segmentDistText = new Label(minSegDiststring + " = " + minSegDist, Label.CENTER);
+	public Label minSegDistText = new Label(minSegDiststring + " = " + minSegDist, Label.CENTER);
 
 
 
@@ -608,7 +570,7 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 	public void Card() {
 
-		segmentDistText = new Label(minSegDiststring + " = " + minSegDist, Label.CENTER);
+		minSegDistText = new Label(minSegDiststring + " = " + minSegDist, Label.CENTER);
 		lostlabel = new Label("Number of frames for loosing the track");
 		lostframe = new TextField(1);
 		lostframe.setText(Integer.toString(maxframegap));
@@ -647,12 +609,13 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 		inputFieldT.setText(Integer.toString(thirdDimension));
 
 
-		minInlierField = new TextField(textwidth);
-		minInlierField.setText(Integer.toString(minSegDist));
+		minSegDistField = new TextField(textwidth);
+		minSegDistField.setText(Integer.toString(minSegDist));
 
 
 		inputtrackField = new TextField(textwidth);
-
+		regioninteriorfield = new TextField(textwidth);
+		regioninteriorfield.setText(Integer.toString(regiondistance));
 
 		maxSizeField = new TextField(textwidth);
 		maxSizeField.setText(Integer.toString(maxsize));
@@ -726,8 +689,8 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 	
 
-				SliderBoxGUI combominInlier = new SliderBoxGUI(minSegDiststring, minSegDistslider, minInlierField,
-						segmentDistText, scrollbarSize, minSegDist, maxSegDist);
+				SliderBoxGUI combominInlier = new SliderBoxGUI(minSegDiststring, minSegDistslider, minSegDistField,
+						minSegDistText, scrollbarSize, minSegDist, maxSegDist);
 
 				Curvatureselect.add(distancemode, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
 						GridBagConstraints.HORIZONTAL, insets, 0, 0));
@@ -845,45 +808,27 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 		timeslider.addAdjustmentListener(new TimeListener(this, timeText, timestring, thirdDimensionsliderInit,
 				thirdDimensionSize, scrollbarSize, timeslider));
 
-		minSegDistslider.addAdjustmentListener(new MinInlierListener(this, segmentDistText, minSegDiststring,
-				minSegmentDist, scrollbarSize, minSegDistslider));
+		minSegDistslider.addAdjustmentListener(new MinSegDistListener(this, minSegDistText, minSegDiststring,
+				0, scrollbarSize, minSegDistslider));
 
-		distancemode.addItemListener(new RunCelltrackCirclemodeListener(this));
-		Pixelcelltrackcirclemode.addItemListener(new RunpixelCelltrackCirclemodeListener(this));
-		Combomode.addItemListener(new RunCombomodeListener(this));
+		distancemode.addItemListener(new DistancemodeListener(this));
+		circlemode.addItemListener(new CirclemodeListener(this));
+		Combomode.addItemListener(new CombomodeListener(this));
 
 		regioninteriorfield.addTextListener(new RegionInteriorListener(this, false));
 
 		ClearDisplay.addActionListener(new ClearDisplayListener(this));
-		//resolutionField.addTextListener(new ResolutionListener(this, false));
-
-		//radiusField.addTextListener(new LinescanradiusListener(this, false));
-		secdegreeField.addTextListener(new SecDegreeListener(this, false));
 		Curvaturebutton.addActionListener(new CurvatureListener(this));
 		Displaybutton.addActionListener(new DisplayVisualListener(this, true));
 		startT.addTextListener(new AutoStartListener(this));
 		endT.addTextListener(new AutoEndListener(this));
-		inputFieldZ.addTextListener(new ZlocListener(this, false));
-		cutoffField.addTextListener(new InsideLocListener(this, false));
-		minInlierField.addTextListener(new MinInlierLocListener(this, false));
-		minperimeterField.addTextListener(new MinperimeterListener(this));
-		maxSizeField.addTextListener(new MaxsizeListener(this));
-		minSizeField.addTextListener(new MinsizeListener(this));
-		numsegField.addTextListener(new DeltasepListener(this));
-		maxperimeterField.addTextListener(new MaxperimeterListener(this));
+		minSegDistField.addTextListener(new MinSegDistLocListener(this, false));
 		inputFieldT.addTextListener(new TlocListener(this, false));
 		inputtrackField.addTextListener(new TrackidListener(this));
-		inputFieldminpercent.addTextListener(new MinpercentListener(this));
-		inputFieldIter.addTextListener(new MaxTryListener(this));
 		ChooseDirectory.addActionListener(new SaveDirectory(this));
 		inputField.addTextListener(new ETrackFilenameListener(this));
 		Savebutton.addActionListener(new SaverListener(this));
 		SaveAllbutton.addActionListener(new SaverAllListener(this));
-		ChooseMethod.addActionListener(new DrawListener(this, ChooseMethod));
-		ChooseColor.addActionListener(new ColorListener(this, ChooseColor));
-
-		maxSearchS.addAdjustmentListener(new ETrackMaxSearchListener(this, maxSearchText, maxSearchstring,
-				maxSearchradiusMin, maxSearchradiusMax, scrollbarSize, maxSearchS));
 
 		panelFirst.setVisible(true);
 		cl.show(panelCont, "1");
@@ -892,6 +837,7 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 		Cardframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		Cardframe.pack();
+		Cardframe.setVisible(true);
 		
 		imp.getCanvas().addKeyListener(new KeyListener() {
 

@@ -6,15 +6,16 @@ import java.awt.event.KeyListener;
 import java.awt.event.TextEvent;
 import java.awt.event.TextListener;
 
-import pluginTools.InteractiveSimpleEllipseFit;
+import pluginTools.InteractiveEmbryo;
+
 
 public class ResolutionListener implements TextListener {
 
-	final InteractiveSimpleEllipseFit parent;
+	final InteractiveEmbryo parent;
 
 	boolean pressed;
 
-	public ResolutionListener(final InteractiveSimpleEllipseFit parent, final boolean pressed) {
+	public ResolutionListener(final InteractiveEmbryo parent, final boolean pressed) {
 
 		this.parent = parent;
 		this.pressed = pressed;
@@ -50,7 +51,7 @@ public class ResolutionListener implements TextListener {
 				if (arg0.getKeyChar() == KeyEvent.VK_ENTER && !pressed) {
 					pressed = true;
 
-					parent.StartCurvatureComputingCurrent();
+					parent.StartDisplayer();
 					
 
 				}

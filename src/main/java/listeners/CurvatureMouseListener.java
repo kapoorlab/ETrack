@@ -3,7 +3,7 @@ package listeners;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import pluginTools.InteractiveSimpleEllipseFit;
+import pluginTools.InteractiveEmbryo;
 
 /**
  * Updates when mouse is released
@@ -13,9 +13,9 @@ import pluginTools.InteractiveSimpleEllipseFit;
  */
 public class CurvatureMouseListener implements MouseListener
 {
-	final InteractiveSimpleEllipseFit parent;
+	final InteractiveEmbryo parent;
 
-	public CurvatureMouseListener( final InteractiveSimpleEllipseFit parent )
+	public CurvatureMouseListener( final InteractiveEmbryo parent )
 	{
 		this.parent = parent;
 	}
@@ -24,7 +24,7 @@ public class CurvatureMouseListener implements MouseListener
 	public void mouseReleased( MouseEvent arg0 )
 	{
 		
-		parent.StartCurvatureComputingCurrent();
+		parent.StartDisplayer();
 	}
 
 	@Override

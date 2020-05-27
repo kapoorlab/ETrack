@@ -39,7 +39,8 @@ public class DoubleChannelListener implements ItemListener {
 			
 		}
 		
-		
+		parent.Cardframe.pack();
+		parent.Cardframe.setVisible(true);
 		
 		
 	}

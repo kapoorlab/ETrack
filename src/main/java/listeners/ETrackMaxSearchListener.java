@@ -6,20 +6,20 @@ import java.awt.event.AdjustmentListener;
 
 import javax.swing.JScrollBar;
 
-import interactivePreprocessing.InteractiveMethods.ValueChange;
-import pluginTools.InteractiveSimpleEllipseFit;
+import pluginTools.InteractiveEmbryo;
+
 
 public class ETrackMaxSearchListener implements AdjustmentListener {
 	
 	final Label label;
 	final String string;
-	final InteractiveSimpleEllipseFit parent;
+	final InteractiveEmbryo parent;
 	final float min, max;
 	final int scrollbarSize;
 	final JScrollBar scrollbar;
 	
 	
-	public ETrackMaxSearchListener(final InteractiveSimpleEllipseFit parent, final Label label, final String string, final float min, final float max, final int scrollbarSize, final JScrollBar scrollbar) {
+	public ETrackMaxSearchListener(final InteractiveEmbryo parent, final Label label, final String string, final float min, final float max, final int scrollbarSize, final JScrollBar scrollbar) {
 		
 		this.parent = parent;
 		this.label = label;

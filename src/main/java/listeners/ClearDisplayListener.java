@@ -20,7 +20,7 @@ public class ClearDisplayListener implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
-		String uniqueID = Integer.toString(parent.thirdDimension) + Integer.toString(parent.fourthDimension);
+		String uniqueID = Integer.toString(parent.thirdDimension) ;
 		
 		
 		// Remove the current rois

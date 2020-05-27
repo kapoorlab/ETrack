@@ -293,7 +293,7 @@ public class EmbryoTrack {
 		
 
 
-			BlockRepeatCurve(percent, t);
+		ShowEmbryoCurvature(percent, t);
 
 
 	}

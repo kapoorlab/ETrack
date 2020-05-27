@@ -5,24 +5,20 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import curvatureUtils.ParallelResultDisplay;
-import ellipsoidDetector.Intersectionobject;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
-import pluginTools.Binobject;
-import pluginTools.ComputeCurvature;
-import pluginTools.InteractiveSimpleEllipseFit;
+import pluginTools.InteractiveEmbryo;
 
 public class DisplayVisualListener implements ActionListener {
 
 	
 	
-	final InteractiveSimpleEllipseFit parent;
+	final InteractiveEmbryo parent;
 	final boolean show;
 	
-	public  DisplayVisualListener(InteractiveSimpleEllipseFit parent, boolean show) {
+	public  DisplayVisualListener(InteractiveEmbryo parent, boolean show) {
 	      
 		this.parent = parent;
 		this.show = show;
