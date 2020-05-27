@@ -113,63 +113,8 @@ public class Slicer {
 
 	
 
-	
 
-	public static void Slice(InteractiveEmbryo parent, RandomAccessibleInterval<BitType> current,
-			ArrayList<int[]> pointlist, int z, int t) {
 
-		final RandomAccess<BitType> ranac = current.randomAccess();
-		for (int[] point : pointlist) {
-
-			ranac.setPosition(point);
-
-			ranac.get().setOne();
-
-		}
-
-		final Cursor<BitType> cursor = Views.iterable(current).localizingCursor();
-		final RandomAccess<BitType> ranacsec = Views.hyperSlice(Views.hyperSlice(parent.empty, 2, z - 1), 2, t - 1)
-				.randomAccess();
-		while (cursor.hasNext()) {
-
-			cursor.fwd();
-
-			ranacsec.setPosition(cursor.getIntPosition(0), 0);
-			ranacsec.setPosition(cursor.getIntPosition(1), 1);
-
-			ranacsec.get().set(cursor.get());
-		}
-	}
-
-	public static void Paint(InteractiveEmbryo parent, RandomAccessibleInterval<BitType> current, String id,
-			int z, int t) {
-
-		Roiobject currentobject = parent.ZTRois.get(id);
-
-		if (currentobject != null) {
-			ArrayList<int[]> pointlist = new ArrayList<int[]>();
-
-			Roi[] roilist = currentobject.roilist;
-
-			for (int i = 0; i < roilist.length; ++i) {
-
-				Roi currentroi = roilist[i];
-
-				final float[] xCord = currentroi.getInterpolatedPolygon().xpoints;
-				final float[] yCord = currentroi.getInterpolatedPolygon().ypoints;
-
-				int N = xCord.length;
-
-				for (int index = 0; index < N; ++index) {
-
-					pointlist.add(new int[] { Math.round(xCord[index]), Math.round(yCord[index]), z, t });
-				}
-
-			}
-			Slice(parent, current, pointlist, z, t);
-		}
-
-	}
 
 	public static float computeValueFromScrollbarPosition(final int scrollbarPosition, final float min, final float max,
 			final int scrollbarSize) {

@@ -149,7 +149,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 	
 			parent.timeslider.setValue(utility.Slicer.computeScrollbarPositionFromValue(parent.thirdDimension,
-					parent.fourthDimensionsliderInit, parent.thirdDimensionSize, parent.scrollbarSize));
+					parent.thirdDimensionsliderInit, parent.thirdDimensionSize, parent.scrollbarSize));
 
 
 			Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> resultpair = getCurvatureLineScan(parent, allorderedcandidates, centerpoint, ndims,celllabel, t);
@@ -180,7 +180,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 		double perimeter = 0;
 
-		MakeSegments(parent, candidates, parent.minSegmentDist, Label, t);
+		MakeSegments(parent, candidates, parent.minSegDist, Label, t);
 		// Now do the fitting
 		for (Map.Entry<Integer, List<RealLocalizable>> entry : parent.Listmap.entrySet()) {
 
@@ -224,7 +224,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 		double perimeter = 0;
 
 		int segmentlabel = 1;
-		MakeSegments(parent, candidates, parent.minSegmentDist, Label, t);
+		MakeSegments(parent, candidates, parent.minSegDist, Label, t);
 		// set up executor service
 		int nThreads = Runtime.getRuntime().availableProcessors();
 		final ExecutorService taskExecutor = Executors.newFixedThreadPool(nThreads);

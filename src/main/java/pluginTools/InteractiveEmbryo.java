@@ -158,10 +158,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public String usefolder = IJ.getDirectory("imagej");
 	public String addToName = "ETrack_";
 	public final int scrollbarSize = 1000;
-	public int maxError = 3;
-	public int degree = 3;
 	public String inputstring;
-	public int secdegree = 2;
 	public double minellipsepoints = 9;
 	public double mincirclepoints = 3;
 	public int tablesize;
@@ -174,26 +171,22 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public Overlay emptyoverlay;
 	public int thirdDimensionslider = 1;
 	public int thirdDimensionsliderInit = 1;
-	public int fourthDimensionslider = 1;
-	public int fourthDimensionsliderInit = 1;
 	public int rowchoice;
 	public String selectedID;
 	public HashMap<String, ArrayList<Pair<Integer, Double>>> StripList = new HashMap<String, ArrayList<Pair<Integer, Double>>>();
 	public ImagePlus RMStrackImages;
 	// Distance between segments
-	public int minSegmentDist = 60;
+	public int minSegDist = 60;
+	public int maxSegDist = 600;
 	public int depth = 4;
 	public int maxsize = 100;
 	public int minsize = 10;
 
 
 	public ImagePlus clockimp;
-	public boolean polynomialfits = false;
 	public boolean circlefits = false;
 	public boolean distancemethod = false;
 	public boolean combomethod = true;
-	public boolean celltrackcirclefits = false;
-	public boolean pixelcelltrackcirclefits = false;
 
 	public RealLocalizable globalMaxcord;
 
@@ -211,7 +204,6 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public int MAX_SLIDER = 500;
 	public int row;
 	public HashMap<String, Integer> Accountedframes;
-	public HashMap<String, Integer> AccountedZ;
 	public JProgressBar jpb;
 	public JLabel label = new JLabel("Fitting..");
 	public int Progressmin = 0;
@@ -242,27 +234,17 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public JTable table;
 	public ArrayList<Roi> Allrois;
 	public ImagePlus imp;
-	public ImagePlus localimp;
-	public ImagePlus localwaterimp;
-	public ImagePlus resultimp;
-	public ImagePlus emptyimp;
 	public int ndims;
 	public MouseListener ovalml;
 	public double calibration;
 	public double timecal;
-	public int insidedistance = 20;
 	public int regiondistance = 10;
-	public int outsidedistance = 0;
 	public int[] boundarypoint;
 	public int[] midpoint;
 	public int maxSearchradius = 100;
 	public int maxSearchradiusS = 10;
 	public int missedframes = 200;
 	public HashMap<String, Integer> AccountedT;
-	public float alphaMin = 0;
-	public float alphaMax = 1;
-	public float betaMin = 0;
-	public float betaMax = 1;
 	public int increment = 0;
 	public int resolution = 1;
 	public int linescanradius = 0;
@@ -272,23 +254,12 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public float maxSearchradiusMinS = 1;
 	public float maxSearchradiusMaxS = maxSearchradius;
 	public RandomAccessibleInterval<FloatType> CurrentView;
-	public RandomAccessibleInterval<FloatType> CurrentViewSmooth;
 	public RandomAccessibleInterval<FloatType> CurrentViewSecOrig;
-	public RandomAccessibleInterval<FloatType> CurrentResultView;
-	public Color confirmedRois = Color.BLUE;
-	public Color defaultRois = Color.YELLOW;
-	public Color colorChange = Color.GRAY;
-	public Color colorInChange = Color.RED;
 	public int maxlabel;
-	public Color colorOval = Color.CYAN;
-	public Color colorDet = Color.GREEN;
 	public Color colorLineA = Color.YELLOW;
 	public Color colorLineB = Color.YELLOW;
 	public Color colorPoints = Color.RED;
-	public Color colorresult = Color.magenta;
 	public double maxdistance = 10;
-	public float alpha = 0.5f;
-	public float beta = 0.5f;
 	public ImageStack prestack;
 	public MouseAdapter mouseadapter;
 	public int[] Clickedpoints;
@@ -299,7 +270,6 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public ArrayList<RealLocalizable> ChosenEmbryocenter;
 	public HashMap<String, RealLocalizable> SelectedAllRefcords;
 	public HashMap<String, ArrayList<Curvatureobject>> AllEmbryos;
-	public int boxsize;
 	public HashMap<String, Integer> EmbryoLastTime;
 	public ArrayList<OvalRoi> EmbryoOvalRois;
 	public ArrayList<Pair<String, double[]>> resultAngle;
@@ -310,7 +280,6 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public ArrayList<Pair<String, Pair<Integer, Double>>> resultSegIntensityA;
 	public ArrayList<Pair<String, Pair<Integer, Double>>> resultSegIntensityB;
 	public ArrayList<Pair<String, Pair<Integer, Double>>> resultSegPerimeter;
-	public RandomAccessibleInterval<BitType> empty;
 	public HashMap<String, Pair<ArrayList<double[]>, ArrayList<Line>>> resultDraw;
 	public HashMap<String, ArrayList<Line>> resultDrawLine;
 	public KeyListener kl;
@@ -324,22 +293,18 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public HashMap<String, Curvatureobject> Finalcurvatureresult;
 	public boolean isCreated = false;
 	public RoiManager roimanager;
-	public String uniqueID, tmpID, ZID, TID;
-	public int gaussradius = 2;
+	public String uniqueID, TID;
 	public RealLocalizable Refcord;
 	public HashMap<String, RealLocalizable> AllRefcords;
 	public int mindistance = 200;
-	public int alphaInit = 1;
 	public int maxperi = Integer.MIN_VALUE;
-	public int betaInit = 0;
 	public int minSizeInit = 50;
 	public int maxSizeInit = 500;
 	public int maxSearchInit = 1000;
 	public int maxframegap = 10;
-	public int borderpixel = 0;
 	public boolean twochannel;
+	public int insidedistance = 10;
 
-	public JTableHeader header;
 	public static enum ValueChange {
 		
 		THIRDDIMmouse, All;
@@ -434,7 +399,6 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 
 		imp = ImageJFunctions.show(CurrentView, "Original Image");
 		imp.setTitle("Active Image" + " " + "time point : " + thirdDimension);
-		empty = new ArrayImgFactory<BitType>().create(originalimg, new BitType());
 	
 		Cardframe.repaint();
 		Cardframe.validate();
@@ -591,7 +555,7 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 	public Label regionText = new Label("Intensity region (px)");
 	public Label outdistText = new Label("Intensity Exterior region (px)");
 
-	public Label segmentDistText = new Label(minSegDiststring + " = " + minSegmentDist, Label.CENTER);
+	public Label segmentDistText = new Label(minSegDiststring + " = " + minSegDist, Label.CENTER);
 
 
 
@@ -604,7 +568,8 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 	public String choosertitleA;
 	public JScrollBar timeslider = new JScrollBar(Scrollbar.HORIZONTAL, thirdDimensionsliderInit, 10, 0,
 			scrollbarSize + 10);
-	
+	public JScrollBar minSegDistslider= new JScrollBar(Scrollbar.HORIZONTAL, minSegDist, 10, 0,
+			scrollbarSize + 10);
 
 	public JPanel PanelSelectFile = new JPanel();
 	public JPanel PanelBatch = new JPanel();
@@ -624,11 +589,9 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 	CheckboxGroup curvaturemode = new CheckboxGroup();
 
 
-	final Checkbox circlemode = new Checkbox("Track Segment Circle Fits", curvaturemode, circlefits);
+	final Checkbox circlemode = new Checkbox("Use Circle Fits", curvaturemode, circlefits);
 	public final Checkbox distancemode = new Checkbox("Use Distance Method", curvaturemode, distancemethod);
 	
-	public final Checkbox Pixelcelltrackcirclemode = new Checkbox("Use Circle Fits", curvaturemode,
-			pixelcelltrackcirclefits);
 	public final Checkbox Combomode = new Checkbox("Use Combo Circle-Distance Method", curvaturemode, combomethod);
 
 	public boolean displayIntermediate = true;
@@ -645,14 +608,11 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 	public void Card() {
 
-		segmentDistText = new Label(minSegDiststring + " = " + minSegmentDist, Label.CENTER);
+		segmentDistText = new Label(minSegDiststring + " = " + minSegDist, Label.CENTER);
 		lostlabel = new Label("Number of frames for loosing the track");
 		lostframe = new TextField(1);
 		lostframe.setText(Integer.toString(maxframegap));
 
-		blackcorrectionlabel = new Label("Expand border");
-		bordercorrection = new TextField(textwidth);
-		bordercorrection.setText(Float.toString(borderpixel));
 
 		autoTstart = new Label("Start time for automation");
 		startT = new TextField(textwidth);
@@ -688,7 +648,7 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 
 		minInlierField = new TextField(textwidth);
-		minInlierField.setText(Integer.toString(minSegmentDist));
+		minInlierField.setText(Integer.toString(minSegDist));
 
 
 		inputtrackField = new TextField(textwidth);
@@ -706,8 +666,6 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 		inputLabelIter = new Label("Max. attempts to find ellipses");
 		final JScrollBar maxSearchS = new JScrollBar(Scrollbar.HORIZONTAL, maxSearchInit, 10, 0, 10 + scrollbarSize);
 
-		final JScrollBar alphaS = new JScrollBar(Scrollbar.HORIZONTAL, alphaInit, 10, 0, 10 + scrollbarSize);
-		final JScrollBar betaS = new JScrollBar(Scrollbar.HORIZONTAL, betaInit, 10, 0, 10 + scrollbarSize);
 
 		maxSearchradius = (int) utility.ETrackScrollbarUtils.computeValueFromScrollbarPosition(maxSearchS.getValue(),
 				maxSearchradiusMin, maxSearchradiusMax, scrollbarSize);
@@ -769,11 +727,11 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 	
 
 				SliderBoxGUI combominInlier = new SliderBoxGUI(minSegDiststring, minSegDistslider, minInlierField,
-						segmentDistText, scrollbarSize, minSegmentDist, minSegmentDistmax);
+						segmentDistText, scrollbarSize, minSegDist, maxSegDist);
 
 				Curvatureselect.add(distancemode, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
 						GridBagConstraints.HORIZONTAL, insets, 0, 0));
-				Curvatureselect.add(Pixelcelltrackcirclemode, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0,
+				Curvatureselect.add(circlemode, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0,
 						GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
 				
