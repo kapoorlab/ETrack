@@ -14,6 +14,7 @@ import javax.swing.JProgressBar;
 
 import bdv.util.Bdv;
 import curvatureComputer.CurvatureFinderCircleFit.ParallelCalls;
+import embryoDetector.Curvatureobject;
 import embryoDetector.Embryoobject;
 import embryoDetector.LineProfileCircle;
 import net.imglib2.Point;
@@ -26,7 +27,6 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import pluginTools.InteractiveEmbryo;
-import utility.Curvatureobject;
 import utility.Listordereing;
 
 public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> extends MasterCurvature<T>

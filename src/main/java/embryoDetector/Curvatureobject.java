@@ -1,4 +1,4 @@
-package utility;
+package embryoDetector;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,15 +17,8 @@ public class Curvatureobject extends AbstractEuclideanSpace implements RealLocal
 	 * FIELDS
 	 */
 
-	public static AtomicInteger IDcounter = new AtomicInteger( -1 );
 
-	/** Store the individual features, and their values. */
 
-	/** A user-supplied name for this spot. */
-	private String name;
-
-	/** This spot ID. */
-	private final int ID;
 	
 	
 	public final double radiusCurvature;
@@ -46,43 +39,14 @@ public class Curvatureobject extends AbstractEuclideanSpace implements RealLocal
 		this.cord = cord;
 		this.Intensity = Intensity;
 		this.t = t;
-		this.ID = IDcounter.incrementAndGet();
-		this.name = "ID" + ID;
 		this.Label = Label;
 		
 	};
 		
 	
 	
-	/*
-	 * STATIC KEYS
-	 */
-	/**
-	 * Set the name of this Spot.
-	 * 
-	 * @param name
-	 *            the name to use.
-	 */
-	public void setName( final String name )
-	{
-		this.name = name;
-	}
 
-	public int ID()
-	{
-		return ID;
-	}
 
-	@Override
-	public String toString()
-	{
-		String str;
-		if ( null == name || name.equals( "" ) )
-			str = "ID" + ID;
-		else
-			str = name;
-		return str;
-	}
 	/**
 	 * Stores the specified feature value for this spot.
 	 *

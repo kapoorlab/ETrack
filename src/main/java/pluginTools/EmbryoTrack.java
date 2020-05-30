@@ -19,6 +19,7 @@ import kalmanGUI.CovistoKalmanPanel;
 
 import javax.swing.JProgressBar;
 
+import embryoDetector.Curvatureobject;
 import net.imglib2.Cursor;
 import net.imglib2.KDTree;
 import net.imglib2.RandomAccess;
@@ -38,7 +39,6 @@ import net.imglib2.util.Util;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 import pluginTools.InteractiveEmbryo.ValueChange;
-import utility.Curvatureobject;
 
 public class EmbryoTrack {
 

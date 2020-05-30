@@ -17,6 +17,7 @@ import java.util.concurrent.Future;
 import bdv.util.Bdv;
 import embryoDetector.Circle;
 import embryoDetector.Circleobject;
+import embryoDetector.Curvatureobject;
 import embryoDetector.Embryoobject;
 import embryoDetector.LineProfileCircle;
 import ij.IJ;
@@ -38,7 +39,6 @@ import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import net.imglib2.algorithm.region.BresenhamLine;
 import pluginTools.InteractiveEmbryo;
-import utility.Curvatureobject;
 import utility.Listordereing;
 import utility.Roiobject;
 

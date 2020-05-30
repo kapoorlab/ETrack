@@ -30,6 +30,7 @@ import javax.swing.SwingWorker;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
+import embryoDetector.Curvatureobject;
 import ij.ImageStack;
 import ij.gui.Line;
 import net.imglib2.img.display.imagej.ImageJFunctions;
@@ -38,7 +39,6 @@ import net.imglib2.util.ValuePair;
 import pluginTools.EmbryoTrack;
 import pluginTools.InteractiveEmbryo;
 import utility.CreateTable;
-import utility.Curvatureobject;
 import utility.Roiobject;
 
 public class ComputeCurvatureCurrent extends SwingWorker<Void, Void> {

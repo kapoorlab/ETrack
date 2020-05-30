@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 
 import javax.swing.JProgressBar;
 
+import embryoDetector.Curvatureobject;
 import embryoDetector.Embryoobject;
 import embryoDetector.LineProfileCircle;
 import net.imglib2.Point;
@@ -25,7 +26,6 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import pluginTools.InteractiveEmbryo;
-import utility.Curvatureobject;
 import utility.Listordereing;
 
 public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> extends MasterCurvature<T>

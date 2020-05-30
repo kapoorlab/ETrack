@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import embryoDetector.Curvatureobject;
 import embryoDetector.Embryoobject;
 import embryoDetector.LineProfileCircle;
 import net.imglib2.RealLocalizable;
@@ -14,7 +15,6 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Pair;
 import pluginTools.InteractiveEmbryo;
-import utility.Curvatureobject;
 
 public interface CurvatureFinders<T extends RealType<T> & NativeType<T>>
 		extends OutputAlgorithm<ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> > {

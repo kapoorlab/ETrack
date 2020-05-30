@@ -60,6 +60,7 @@ import bdv.util.BdvOverlay;
 import bdv.util.BdvSource;
 import comboSliderTextbox.SliderBoxGUI;
 import curvatureComputer.ComputeCurvatureCurrent;
+import embryoDetector.Curvatureobject;
 import embryoDetector.Embryoobject;
 import ij.IJ;
 import ij.ImagePlus;
@@ -112,7 +113,6 @@ import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 import pluginTools.InteractiveEmbryo.ValueChange;
-import utility.Curvatureobject;
 import utility.Roiobject;
 
 public class InteractiveEmbryo extends JPanel implements PlugIn {
