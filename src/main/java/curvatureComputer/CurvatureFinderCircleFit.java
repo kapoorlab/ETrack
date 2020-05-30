@@ -36,21 +36,21 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 	public final int thirdDimension;
 	public final int percent;
 	public final int celllabel;
-	public final ArrayList<Embryoobject> AllCurveintersection;
-	public final HashMap<Integer, Embryoobject> AlldenseCurveintersection;
+	public final ArrayList<Curvatureobject> AllCurveintersection;
 	ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> Bestdelta = new ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>>();
+	
+	Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> CurvatureAndLineScan;
 	public final RandomAccessibleInterval<FloatType> ActualRoiimg;
 	private final String BASE_ERROR_MSG = "[CircleFit-]";
 	protected String errorMessage;
 
 	public CurvatureFinderCircleFit(final InteractiveEmbryo parent,
-			ArrayList<Embryoobject> AllCurveintersection,HashMap<Integer, Embryoobject> AlldenseCurveintersection,
+			ArrayList<Curvatureobject> AllCurveintersection,
 			final RandomAccessibleInterval<FloatType> ActualRoiimg, final JProgressBar jpb, final int percent,
 			final int celllabel, final int thirdDimension) {
 
 		this.parent = parent;
 		this.AllCurveintersection = AllCurveintersection;
-		this.AlldenseCurveintersection = AlldenseCurveintersection;
 		this.jpb = jpb;
 		this.ActualRoiimg = ActualRoiimg;
 		this.celllabel = celllabel;
@@ -102,21 +102,18 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 		}
 	}
 		
-	public HashMap<Integer, Embryoobject> getMap() {
 
-		return AlldenseCurveintersection;
-	}
 	
 	@Override
-	public ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> getResult() {
+	public Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> getResult() {
 
-		return Bestdelta;
+		return CurvatureAndLineScan;
 	}
 
 	@Override
 	public boolean checkInput() {
-		if (parent.CurrentView.numDimensions() > 4) {
-			errorMessage = BASE_ERROR_MSG + " Can only operate on 4D, make slices of your stack . Got "
+		if (parent.CurrentView.numDimensions() >= 4) {
+			errorMessage = BASE_ERROR_MSG + " Can only operate on 3D, make slices of your stack . Got "
 					+ parent.CurrentView.numDimensions() + "D.";
 			return false;
 		}
@@ -139,8 +136,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 
 		DisplayListOverlay.ArrowDisplay(parent, Ordered, uniqueID);
 
-		MarsRover(parent, Ordered.getB(), centerpoint, AllCurveintersection,
-				AlldenseCurveintersection, ndims, celllabel, thirdDimension);
+		MarsRover(parent, Ordered.getB(), centerpoint,  ndims, celllabel, thirdDimension);
 		
 		
 		
@@ -154,7 +150,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 	@Override
 	public void MarsRover(InteractiveEmbryo parent, List<RealLocalizable> Ordered,
 			RealLocalizable centerpoint, 
-			ArrayList<Embryoobject> AllCurveintersection, HashMap<Integer, Embryoobject> AlldenseCurveintersection,
+			
 			int ndims, int celllabel, int t) {
 
 		// Get the sparse list of points
@@ -220,9 +216,10 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 		}
 		
 
-		ArrayList<Curvatureobject> sparseanddensepair = GetAverage(parent, centerpoint, Bestdelta,count);
+		ArrayList<Curvatureobject> FinalEmbryoCurvature = GetAverage(parent, centerpoint, Bestdelta,count);
 		
 
+		CurvatureAndLineScan = new ValuePair<ArrayList<Curvatureobject>, ConcurrentHashMap<Integer,ArrayList<LineProfileCircle>>>(FinalEmbryoCurvature, resultpair.getB());
 
 	}
 	

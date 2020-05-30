@@ -3,13 +3,12 @@ package pluginTools;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import budDetector.Budregionobject;
-import budDetector.Distance;
 import embryoDetector.Curvatureobject;
 import embryoDetector.Embryoregionobject;
 import net.imglib2.Cursor;
 import net.imglib2.Point;
 import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.type.logic.BitType;
@@ -73,8 +72,10 @@ public class CurvatureEachEmbryo {
 
 			if (label > 0) {
 				
-				Embryoregionobject PairCurrentViewBit = EmbryoCurrentLabelBinaryImage(
+				Embryoregionobject Embryo = EmbryoCurrentLabelBinaryImage(
 						CurrentViewInt, label);
+				
+				
 				
 				
 			}
@@ -120,16 +121,58 @@ public class CurvatureEachEmbryo {
 
 		}
 		
-		double size = Math.sqrt(Distance.DistanceSq(minVal, maxVal));
 
 	
-		Point min = new Point(minVal.length);
 		// Gradient image gives us the bondary points
 		RandomAccessibleInterval<BitType> gradimg = GradientmagnitudeImage(outimg);
 		
-		Budregionobject region = new Budregionobject(gradimg, outimg, min,  size);
+		Embryoregionobject region = new Embryoregionobject(gradimg);
 		return region;
 
+	}
+	
+	public static RandomAccessibleInterval<BitType> GradientmagnitudeImage(RandomAccessibleInterval<BitType> inputimg) {
+
+		RandomAccessibleInterval<BitType> gradientimg = new ArrayImgFactory<BitType>().create(inputimg, new BitType());
+		Cursor<BitType> cursor = Views.iterable(gradientimg).localizingCursor();
+		RandomAccessible<BitType> view = Views.extendBorder(inputimg);
+		RandomAccess<BitType> randomAccess = view.randomAccess();
+
+		// iterate over all pixels
+		while (cursor.hasNext()) {
+			// move the cursor to the next pixel
+			cursor.fwd();
+
+			// compute gradient and its direction in each dimension
+			double gradient = 0;
+
+			for (int d = 0; d < inputimg.numDimensions(); ++d) {
+				// set the randomaccess to the location of the cursor
+				randomAccess.setPosition(cursor);
+
+				// move one pixel back in dimension d
+				randomAccess.bck(d);
+
+				// get the value
+				double Back = randomAccess.get().getRealDouble();
+
+				// move twice forward in dimension d, i.e.
+				// one pixel above the location of the cursor
+				randomAccess.fwd(d);
+				randomAccess.fwd(d);
+
+				// get the value
+				double Fwd = randomAccess.get().getRealDouble();
+
+				gradient += ((Fwd - Back) * (Fwd - Back)) / 4;
+
+			}
+
+			cursor.get().setReal(Math.sqrt(gradient));
+
+		}
+
+		return gradientimg;
 	}
 	
 

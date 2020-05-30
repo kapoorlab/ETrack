@@ -37,8 +37,8 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 	public final int thirdDimension;
 	public final int percent;
 	public final int celllabel;
-	public final ArrayList<Embryoobject> AllCurveintersection;
-	public final HashMap<Integer, Embryoobject> AlldenseCurveintersection;
+	public final ArrayList<Curvatureobject> AllCurveintersection;
+	Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> CurvatureAndLineScan;
 	ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> Bestdelta = new ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>>();
 	public final RandomAccessibleInterval<FloatType> ActualRoiimg;
 	private final String BASE_ERROR_MSG = "[DistanceMethod-]";
@@ -46,13 +46,12 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 
 
 	public CurvatureFinderDistance(final InteractiveEmbryo parent,
-			ArrayList<Embryoobject> AllCurveintersection,HashMap<Integer, Embryoobject> AlldenseCurveintersection,
+			ArrayList<Curvatureobject> AllCurveintersection,
 			final RandomAccessibleInterval<FloatType> ActualRoiimg, final JProgressBar jpb, final int percent,
 			final int celllabel, final int thirdDimension)  {
 
 		this.parent = parent;
 		this.AllCurveintersection = AllCurveintersection;
-		this.AlldenseCurveintersection = AlldenseCurveintersection;
 		this.jpb = jpb;
 		this.ActualRoiimg = ActualRoiimg;
 		this.celllabel = celllabel;
@@ -104,16 +103,13 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 			
 		}
 	}
-	public HashMap<Integer, Embryoobject> getMap() {
 
-		return AlldenseCurveintersection;
-	}
-	
 	@Override
-	public ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> getResult() {
+	public Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> getResult() {
 
-		return Bestdelta;
+		return CurvatureAndLineScan;
 	}
+
 
 	@Override
 	public boolean checkInput() {
@@ -142,8 +138,7 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 
 		DisplayListOverlay.ArrowDisplay(parent, Ordered, uniqueID);
 
-		MarsRover(parent, Ordered.getB(), centerpoint, AllCurveintersection,
-				AlldenseCurveintersection, ndims, celllabel, thirdDimension);
+		MarsRover(parent, Ordered.getB(), centerpoint, ndims, celllabel, thirdDimension);
 		
 		return true;
 	}
@@ -213,7 +208,6 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 	@Override
 	public void MarsRover(InteractiveEmbryo parent, List<RealLocalizable> Ordered,
 			RealLocalizable centerpoint, 
-			ArrayList<Embryoobject> AllCurveintersection, HashMap<Integer, Embryoobject> AlldenseCurveintersection,
 			int ndims, int celllabel, int t) {
 
 		// Get the sparse list of points
