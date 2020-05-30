@@ -421,12 +421,12 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 			AccountedT.put(TID,  thirdDimension);
 			CurrentView = utility.EmbryoSlicer.getCurrentEmbryoView(originalimg, thirdDimension, thirdDimensionSize);
 		repaintView(CurrentView);
-		
+		if(Curvaturebutton.isEnabled()) {
 			imp.getOverlay().clear();
 			imp.updateAndDraw();
 			StartDisplayer();
 			
-		
+		}
 
 		}
 	}
@@ -478,7 +478,6 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 	public JPanel panelFirst = new JPanel();
 	public JPanel panelSecond = new JPanel();
 	public JPanel Timeselect = new JPanel();
-	public JPanel Zselect = new JPanel();
 	public JPanel Roiselect = new JPanel();
 	public JPanel Curvatureselect = new JPanel();
 	public JPanel KalmanPanel = new JPanel();
@@ -600,7 +599,6 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 		Timeselect.setLayout(layout);
 		controlprev.setLayout(layout);
 		controlnext.setLayout(layout);
-		Zselect.setLayout(layout);
 		Original.setLayout(layout);
 		Roiselect.setLayout(layout);
 		Curvatureselect.setLayout(layout);
@@ -642,7 +640,7 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 		Object[] colnames;
 		Object[][] rowvalues;
 
-		colnames = new Object[] { "Track Id", "Location X", "Location Y", "Location Z/T", "Perimeter" };
+		colnames = new Object[] { "Track Id", "Location X", "Location Y", "Location T", "Perimeter" };
 
 		rowvalues = new Object[0][colnames.length];
 
@@ -675,15 +673,12 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 				GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
 		Timeselect.setBorder(timeborder);
-		// panelFirst.add(Timeselect, new GridBagConstraints(0, 0, 5, 1, 0.0, 0.0,
 		Timeselect.add(timeText, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
 					GridBagConstraints.HORIZONTAL, insets, 0, 0));
-		panelFirst.add(Zselect, new GridBagConstraints(0, 0, 5, 1, 0.0, 0.0, GridBagConstraints.WEST,
+		panelFirst.add(Timeselect, new GridBagConstraints(0, 0, 5, 1, 0.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
 
-			timeslider.setEnabled(false);
-			inputFieldT.setEnabled(false);
 
 	
 

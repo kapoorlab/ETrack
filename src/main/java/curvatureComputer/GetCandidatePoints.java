@@ -10,6 +10,7 @@ import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealLocalizable;
 import net.imglib2.RealPoint;
+import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Intervals;
 import net.imglib2.util.Pair;
@@ -21,7 +22,7 @@ public class GetCandidatePoints {
 	
 	static double fcteps = 1.0E-10;
 	
-	public static List<RealLocalizable> ListofPoints(final InteractiveEmbryo parent, final RandomAccessibleInterval<FloatType> ActualRoiimg ,final JProgressBar jpb, int percent, int t) {
+	public static List<RealLocalizable> ListofPoints(final InteractiveEmbryo parent, final RandomAccessibleInterval<BitType> ActualRoiimg ,final JProgressBar jpb, int percent, int t) {
 		
 		parent.Listmap.clear();
 
@@ -59,14 +60,14 @@ public class GetCandidatePoints {
 	}
 
 	public static ArrayList<RealLocalizable> GetCoordinatesBit(
-			RandomAccessibleInterval<FloatType> actualRoiimg) {
+			RandomAccessibleInterval<BitType> actualRoiimg) {
 
 		ArrayList<RealLocalizable> coordinatelist = new ArrayList<RealLocalizable>();
 		int ndims = actualRoiimg.numDimensions();
 
 
 
-		final Cursor<FloatType> center = Views.iterable(actualRoiimg).localizingCursor();
+		final Cursor<BitType> center = Views.iterable(actualRoiimg).localizingCursor();
 
 		
 
@@ -77,7 +78,7 @@ public class GetCandidatePoints {
 			double[] posf = new double[ndims];
 			center.localize(posf);
 			final RealPoint rpos = new RealPoint(posf);
-			if(center.get().get() > 0) {
+			if(center.get().getInteger() > 0) {
 				coordinatelist.add(rpos);
 			}
 			

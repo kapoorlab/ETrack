@@ -21,6 +21,7 @@ import net.imglib2.RealLocalizable;
 import net.imglib2.RealPoint;
 
 import net.imglib2.type.NativeType;
+import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Pair;
@@ -36,21 +37,18 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 	public final int thirdDimension;
 	public final int percent;
 	public final int celllabel;
-	public final ArrayList<Curvatureobject> AllCurveintersection;
 	ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> Bestdelta = new ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>>();
 	
 	Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> CurvatureAndLineScan;
-	public final RandomAccessibleInterval<FloatType> ActualRoiimg;
+	public final RandomAccessibleInterval<BitType> ActualRoiimg;
 	private final String BASE_ERROR_MSG = "[CircleFit-]";
 	protected String errorMessage;
 
 	public CurvatureFinderCircleFit(final InteractiveEmbryo parent,
-			ArrayList<Curvatureobject> AllCurveintersection,
-			final RandomAccessibleInterval<FloatType> ActualRoiimg, final JProgressBar jpb, final int percent,
+			final RandomAccessibleInterval<BitType> ActualRoiimg, final JProgressBar jpb, final int percent,
 			final int celllabel, final int thirdDimension) {
 
 		this.parent = parent;
-		this.AllCurveintersection = AllCurveintersection;
 		this.jpb = jpb;
 		this.ActualRoiimg = ActualRoiimg;
 		this.celllabel = celllabel;

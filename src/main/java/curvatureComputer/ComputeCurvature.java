@@ -85,7 +85,7 @@ import utility.ThreeDRoiobject;
 
 public class ComputeCurvature extends SwingWorker<Void, Void> {
 
-	final InteractiveSimpleEllipseFit parent;
+	final IOn parent;
 	final JProgressBar jpb;
 	final boolean batchmode;
 	final File savefile;

@@ -58,17 +58,20 @@ public class EmbryoTrack {
 
 
 
-	public void ShowEmbryoCurvature(double percent, int t) {
+	public void ShowEmbryoCurvature(double percent, int t) throws Exception {
 
-		parent.updatePreview(ValueChange.THIRDDIMmouse);
+		
+		parent.thirdDimension = t;
 
 		percent++;
 
 	
 		RandomAccessibleInterval<IntType> CurrentViewInt = utility.Slicer.getCurrentViewInt(parent.Segoriginalimg, t,
 				parent.thirdDimensionSize);
-		GetPixelList(CurrentViewInt);
 		
+		
+		GetPixelList(CurrentViewInt);
+	
 		IntType min = new IntType();
 		IntType max = new IntType();
 		computeMinMax(Views.iterable(CurrentViewInt), min, max);
@@ -120,7 +123,7 @@ public class EmbryoTrack {
 						RandomAccessibleInterval<IntType> CurrentViewInt = utility.Slicer.getCurrentViewInt(parent.Segoriginalimg, t,
 								parent.thirdDimensionSize);
 						GetPixelList(CurrentViewInt);
-						
+					
 						IntType min = new IntType();
 						IntType max = new IntType();
 						computeMinMax(Views.iterable(CurrentViewInt), min, max);
@@ -225,6 +228,7 @@ public class EmbryoTrack {
 
 	}
 
+	
 	public  void GetPixelList(RandomAccessibleInterval<IntType> intimg) {
 
 		IntType min = new IntType();
@@ -232,23 +236,38 @@ public class EmbryoTrack {
 		computeMinMax(Views.iterable(intimg), min, max);
 		Cursor<IntType> intCursor = Views.iterable(intimg).cursor();
 		// Neglect the background class label
-		int currentLabel = max.get();
 		parent.pixellist.clear();
 		
 		
 		while (intCursor.hasNext()) {
 			intCursor.fwd();
 			int i = intCursor.get().get();
-			if (i != currentLabel ) {
 
+			if(!parent.pixellist.contains(i) && i > 0)
 				parent.pixellist.add(i);
 
-				currentLabel = i;
 
-			}
 
 		}
 
+	}
+	
+	public Boolean contains(int i) {
+		
+		Iterator<Integer> listiter = parent.pixellist.iterator();
+		Boolean contains = false;
+		while(listiter.hasNext()) {
+			
+			
+			int entry = listiter.next();
+			
+			if(i == entry)
+				contains = true;
+			
+		}
+		
+		return contains;
+		
 	}
 
 	public int GetMaxlabelsseeded(RandomAccessibleInterval<IntType> intimg) {

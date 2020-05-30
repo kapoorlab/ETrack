@@ -19,7 +19,7 @@ public class ShowView {
 	public void shownewZ() {
 
 		if (parent.thirdDimension > parent.thirdDimensionSize) {
-			IJ.log("Max Z stack exceeded, moving to last Z instead");
+			IJ.log("Max T stack exceeded, moving to last T instead");
 			parent.thirdDimension = parent.thirdDimensionSize;
 			
 			

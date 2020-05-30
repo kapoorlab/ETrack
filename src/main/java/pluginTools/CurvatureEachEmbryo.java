@@ -2,7 +2,11 @@ package pluginTools;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
+import javax.swing.JProgressBar;
+
+import curvatureComputer.AnalyzeCurvature;
 import embryoDetector.Curvatureobject;
 import embryoDetector.Embryoregionobject;
 import net.imglib2.Cursor;
@@ -10,7 +14,9 @@ import net.imglib2.Point;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.RealLocalizable;
 import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.view.Views;
@@ -61,9 +67,10 @@ public class CurvatureEachEmbryo {
 		return Embryolist;
 	}
 	
-	public void displayCurvature() {
+	public void displayCurvature() throws Exception {
 		
 		Iterator<Integer> setiter = parent.pixellist.iterator();
+		
 		parent.overlay.clear();
 		
 		while (setiter.hasNext()) {
@@ -71,14 +78,29 @@ public class CurvatureEachEmbryo {
 			int label = setiter.next();
 
 			if (label > 0) {
-				
 				Embryoregionobject Embryo = EmbryoCurrentLabelBinaryImage(
 						CurrentViewInt, label);
 				
-				
-				
+				AnalyzeCurvature CurvatureMe = new AnalyzeCurvature(parent,Embryo.Boundaryimage, t, parent.jpb, percent, label);
+				CurvatureMe.call();
 				
 			}
+			
+		}
+		
+	}
+	
+	public void Common() {
+		
+		if(parent.Curvaturebutton.isEnabled()) {
+			
+			// We are still not making the object, just testing
+			
+		}
+		
+		else {
+			
+			// We are now taking over and making objects
 			
 		}
 		
