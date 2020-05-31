@@ -271,7 +271,6 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public int maxframegap = 10;
 	public boolean twochannel;
 	public int insidedistance = 10;
-
 	public static enum ValueChange {
 		
 		THIRDDIMmouse, All;
@@ -367,6 +366,8 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		imp = ImageJFunctions.show(CurrentView, "Original Image");
 		imp.setTitle("Active Image" + " " + "time point : " + thirdDimension);
 	
+		clockimp = ImageJFunctions.show(CurrentView, "Wizard Clock");
+		clockimp.setTitle("Wizard Clock" );
 		Cardframe.repaint();
 		Cardframe.validate();
 		panelFirst.repaint();
@@ -375,7 +376,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		
 		
 		Card();
-		
+		updatePreview(ValueChange.THIRDDIMmouse);
 		StartDisplayer();
 
 	}
@@ -406,7 +407,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public void updatePreview(final ValueChange change) {
 		
 		
-
+      
 		if (overlay == null) {
 
 			overlay = new Overlay();
@@ -414,8 +415,17 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 			
 		}
 		
+		if (clockoverlay == null) {
+
+			clockoverlay = new Overlay();
+			clockimp.setOverlay(clockoverlay);
+			
+		}
+		
 		if (change == ValueChange.THIRDDIMmouse)
 		{
+			
+			
 			imp.setTitle("Active Image" + " " + "time point : " + thirdDimension);
 			String TID = Integer.toString( thirdDimension);
 			AccountedT.put(TID,  thirdDimension);
@@ -437,7 +447,8 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 
 	public void StartDisplayer() {
 		
-	
+		clockoverlay.clear();
+		clockimp.updateAndDraw();
 		ComputeCurvatureCurrent display = new ComputeCurvatureCurrent(this, jpb);
 
 

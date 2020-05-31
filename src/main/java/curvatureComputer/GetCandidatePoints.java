@@ -7,9 +7,11 @@ import javax.swing.JProgressBar;
 
 import net.imglib2.Cursor;
 import net.imglib2.Interval;
+import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealLocalizable;
 import net.imglib2.RealPoint;
+import net.imglib2.algorithm.neighborhood.DiamondShape;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Intervals;
@@ -17,6 +19,8 @@ import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 import pluginTools.InteractiveEmbryo;
+import skeleton.SkeletonCreator;
+import net.imagej.ops.OpService;
 
 public class GetCandidatePoints {
 	
@@ -29,37 +33,13 @@ public class GetCandidatePoints {
 			utility.ProgressBar.SetProgressBar(jpb, 100 * percent / (parent.pixellist.size()+ fcteps),
 					"Computing Curvature T = " + t + "/" + parent.thirdDimensionSize);
 		
-		List<RealLocalizable> candidates = GetCoordinatesBit(ActualRoiimg);
+		List<RealLocalizable> candidates = GetCoordinatesBit(parent,ActualRoiimg);
 	
 		return candidates;
 	}
-	public static <T extends Comparable<T>> ArrayList<Pair<RealLocalizable, T>> GetCoordinates(
-			RandomAccessibleInterval<T> source, final T threshold) {
 
-		ArrayList<Pair<RealLocalizable, T>> coordinatelist = new ArrayList<Pair<RealLocalizable, T>>();
 
-		Interval interval = Intervals.expand(source, -1);
-		int ndims = source.numDimensions();
-		source = Views.interval(source, interval);
-
-		final Cursor<T> center = Views.iterable(source).localizingCursor();
-
-		while(center.hasNext()) {
-			
-			final T centerValue = center.next();
-			double[] posf = new double[ndims];
-			center.localize(posf);
-			final RealPoint rpos = new RealPoint(posf);
-			if (centerValue.compareTo(threshold) > 0) 
-				coordinatelist.add(new ValuePair<RealLocalizable, T>(rpos, centerValue));
-			
-		}
-		
-
-		return coordinatelist;
-	}
-
-	public static ArrayList<RealLocalizable> GetCoordinatesBit(
+	public static ArrayList<RealLocalizable> GetCoordinatesBit(InteractiveEmbryo parent,
 			RandomAccessibleInterval<BitType> actualRoiimg) {
 
 		ArrayList<RealLocalizable> coordinatelist = new ArrayList<RealLocalizable>();
@@ -67,8 +47,14 @@ public class GetCandidatePoints {
 
 
 
-		final Cursor<BitType> center = Views.iterable(actualRoiimg).localizingCursor();
+		
 
+		// Thin Embryo borders
+				OpService ops = parent.ij.op();
+
+				actualRoiimg = ops.morphology().thinZhangSuen(actualRoiimg);
+				
+				final Cursor<BitType> center = Views.iterable(actualRoiimg).localizingCursor();
 		
 
 		while(center.hasNext()) {

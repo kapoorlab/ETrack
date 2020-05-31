@@ -128,7 +128,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 		
 		// Get mean co-ordinate from the candidate points
 		RealLocalizable centerpoint = Listordereing.getMeanCord(candidates);
-
+ 
 		// Get the sparse and dense list of points
 		Pair<RealLocalizable, List<RealLocalizable>> Ordered = Listordereing.getOrderedList(candidates, parent.resolution);
 
@@ -234,7 +234,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 
 	@Override
 	public Pair<Embryoobject, ClockDisplayer> getLocalcurvature(ArrayList<double[]> Cordlist,
-			RealLocalizable centerpoint, int strideindex) {
+			RealLocalizable centerpoint, int strideindex, String name) {
 		double[] x = new double[Cordlist.size()];
 		double[] y = new double[Cordlist.size()];
 
@@ -254,7 +254,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 
 		// Here you choose which method is used to detect curvature
 
-		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockCircle(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, false);
+		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockCircle(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, false, name);
 
 		
 		return finalfunctionandList;
@@ -262,7 +262,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 	
 	@Override
 	public Pair<Embryoobject, ClockDisplayer>  getCircleLocalcurvature(ArrayList<double[]> Cordlist,
-			RealLocalizable centerpoint, int strideindex) {
+			RealLocalizable centerpoint, int strideindex, String name) {
 		double[] x = new double[Cordlist.size()];
 		double[] y = new double[Cordlist.size()];
 
@@ -280,7 +280,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 
 		}
 
-		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockCircle(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, false);
+		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockCircle(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, false, name);
 
 		
 		return finalfunctionandList;

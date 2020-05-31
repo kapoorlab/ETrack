@@ -149,7 +149,7 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 
 	@Override
 	public Pair<Embryoobject, ClockDisplayer> getLocalcurvature(ArrayList<double[]> Cordlist,
-			RealLocalizable centerpoint, int strideindex) {
+			RealLocalizable centerpoint, int strideindex, String name) {
 		double[] x = new double[Cordlist.size()];
 		double[] y = new double[Cordlist.size()];
 
@@ -165,7 +165,7 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 
 		// Here you choose which method is used to detect curvature
 		
-		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockDistance(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, false);
+		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockDistance(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, false, name);
 
 		
 		
@@ -174,7 +174,7 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 	}
 	@Override
 	public Pair<Embryoobject, ClockDisplayer>  getCircleLocalcurvature(ArrayList<double[]> Cordlist,
-			RealLocalizable centerpoint, int strideindex) {
+			RealLocalizable centerpoint, int strideindex, String name) {
 		double[] x = new double[Cordlist.size()];
 		double[] y = new double[Cordlist.size()];
 
@@ -192,7 +192,7 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 
 		}
 
-		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockCircle(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, false);
+		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockCircle(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, false, name);
 
 		
 		return finalfunctionandList;
@@ -271,7 +271,11 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 		}
 		
 
-		ArrayList<Curvatureobject> sparseanddensepair = GetSingle(parent, centerpoint, Bestdelta);
+        ArrayList<Curvatureobject> FinalEmbryoCurvature = GetAverage(parent, centerpoint, Bestdelta,count);
+		
+
+		CurvatureAndLineScan = new ValuePair<ArrayList<Curvatureobject>, ConcurrentHashMap<Integer,ArrayList<LineProfileCircle>>>(FinalEmbryoCurvature, resultpair.getB());
+
 		
 
 

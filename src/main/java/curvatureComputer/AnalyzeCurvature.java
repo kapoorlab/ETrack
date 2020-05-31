@@ -13,6 +13,7 @@ import embryoDetector.Embryoobject;
 import embryoDetector.LineProfileCircle;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealLocalizable;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Pair;
@@ -51,7 +52,6 @@ public class AnalyzeCurvature implements Callable< HashMap<String,Pair<ArrayList
 		 
 	 
 		 String ID = Integer.toString(celllabel) + Integer.toString(time);
-		
 		if (parent.circlefits) {
 			
 		CurvatureFinderCircleFit<FloatType> curvecircle = new CurvatureFinderCircleFit<FloatType>(parent,  

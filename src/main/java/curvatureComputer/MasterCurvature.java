@@ -61,18 +61,16 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 	 * @return
 	 */
 
-
-
 	public class ParallelCalls implements Callable<Pair<Embryoobject, ClockDisplayer>> {
 
 		public final InteractiveEmbryo parent;
-
+		public final String name;
 		public final RealLocalizable centerpoint;
 		public final List<RealLocalizable> sublist;
 		public final int strideindex;
 
-		public ParallelCalls(InteractiveEmbryo parent, RealLocalizable centerpoint,
-				List<RealLocalizable> sublist, int strideindex) {
+		public ParallelCalls(InteractiveEmbryo parent, RealLocalizable centerpoint, List<RealLocalizable> sublist,
+				int strideindex, String name) {
 
 			this.parent = parent;
 
@@ -82,62 +80,62 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 			this.strideindex = strideindex;
 
+			this.name = name;
 
 		}
 
 		@Override
 		public Pair<Embryoobject, ClockDisplayer> call() throws Exception {
 
-			Pair<Embryoobject, ClockDisplayer> localfunction = FitCircleonList(parent, centerpoint, sublist, strideindex);
+			Pair<Embryoobject, ClockDisplayer> localfunction = FitCircleonList(parent, centerpoint, sublist,
+					strideindex, name);
 
 			return localfunction;
 		}
 
 	}
 
-	public Embryoobject FitonList(InteractiveEmbryo parent, RealLocalizable centerpoint,
-			List<RealLocalizable> sublist, int strideindex) {
+	public Embryoobject FitonList(InteractiveEmbryo parent, RealLocalizable centerpoint, List<RealLocalizable> sublist,
+			int strideindex, String name) {
 
 		ArrayList<double[]> Cordlist = new ArrayList<double[]>();
 
 		for (int i = 0; i < sublist.size(); ++i) {
 
-			Cordlist.add(new double[] { sublist.get(i).getDoublePosition(0),
-					sublist.get(i).getDoublePosition(1) });
+			Cordlist.add(new double[] { sublist.get(i).getDoublePosition(0), sublist.get(i).getDoublePosition(1) });
 		}
 
 		// Interfaces have to implement the curvature getting methods
-		
-		Pair<Embryoobject, ClockDisplayer> resultcurvature = getLocalcurvature(Cordlist, centerpoint, strideindex);
 
+		Pair<Embryoobject, ClockDisplayer> resultcurvature = getLocalcurvature(Cordlist, centerpoint, strideindex,
+				name);
 
 		return resultcurvature.getA();
 
 	}
 
 	public Pair<Embryoobject, ClockDisplayer> FitCircleonList(InteractiveEmbryo parent, RealLocalizable centerpoint,
-			List<RealLocalizable> sublist, int strideindex) {
+			List<RealLocalizable> sublist, int strideindex, String name) {
 
 		ArrayList<double[]> Cordlist = new ArrayList<double[]>();
 
 		for (int i = 0; i < sublist.size(); ++i) {
 
-			Cordlist.add(new double[] { sublist.get(i).getDoublePosition(0),
-					sublist.get(i).getDoublePosition(1) });
+			Cordlist.add(new double[] { sublist.get(i).getDoublePosition(0), sublist.get(i).getDoublePosition(1) });
 		}
-        
-		Pair<Embryoobject, ClockDisplayer> resultcurvature = getCircleLocalcurvature(Cordlist, centerpoint, strideindex);
+
+		Pair<Embryoobject, ClockDisplayer> resultcurvature = getCircleLocalcurvature(Cordlist, centerpoint, strideindex,
+				name);
 
 		// Draw the function
 
 		return resultcurvature;
-		
-      
 
 	}
 
-	public Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> CommonLoop(InteractiveEmbryo parent, List<RealLocalizable> Ordered,
-			RealLocalizable centerpoint, int ndims, int celllabel, int t) {
+	public Pair<ArrayList<Curvatureobject>, ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> CommonLoop(
+			InteractiveEmbryo parent, List<RealLocalizable> Ordered, RealLocalizable centerpoint, int ndims,
+			int celllabel, int t) {
 
 		// Get the sparse list of points
 
@@ -147,12 +145,11 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 		List<RealLocalizable> allorderedcandidates = Listordereing.getList(Ordered, i);
 
-	
-			parent.timeslider.setValue(utility.Slicer.computeScrollbarPositionFromValue(parent.thirdDimension,
-					parent.thirdDimensionsliderInit, parent.thirdDimensionSize, parent.scrollbarSize));
+		parent.timeslider.setValue(utility.Slicer.computeScrollbarPositionFromValue(parent.thirdDimension,
+				parent.thirdDimensionsliderInit, parent.thirdDimensionSize, parent.scrollbarSize));
 
-
-			Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> resultpair = getCurvatureLineScan(parent, allorderedcandidates, centerpoint, ndims,celllabel, t);
+		Pair<ArrayList<Curvatureobject>, ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> resultpair = getCurvatureLineScan(
+				parent, allorderedcandidates, centerpoint, ndims, celllabel, t);
 
 		return resultpair;
 
@@ -177,11 +174,8 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 		ArrayList<Curvatureobject> curveobject = new ArrayList<Curvatureobject>();
 
-
 		double perimeter = 0;
 
-		MakeSegments(parent, candidates, parent.minSegDist, Label, t);
-		// Now do the fitting
 		for (Map.Entry<Integer, List<RealLocalizable>> entry : parent.Listmap.entrySet()) {
 
 			List<RealLocalizable> sublist = entry.getValue();
@@ -190,7 +184,8 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 			 * Main method that fits on segments a function to get the curvature
 			 * 
 			 */
-			Embryoobject localfunction = FitonList(parent, centerpoint, sublist, strideindex);
+			Embryoobject localfunction = FitonList(parent, centerpoint, sublist, strideindex,
+					Integer.toString(entry.getKey()));
 
 			perimeter += localfunction.perimeter;
 			double Curvature = localfunction.CircleCurvature;
@@ -198,25 +193,22 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 			double IntensityA = localfunction.IntensityA;
 			double IntensityB = localfunction.IntensityB;
 			long[] Curvaturepoint = localfunction.Location;
-			
-			Curvatureobject currentobject = new Curvatureobject(Curvature, distCurvature,perimeter, IntensityA,IntensityB, Label,Curvaturepoint,t);
+
+			Curvatureobject currentobject = new Curvatureobject(Curvature, distCurvature, perimeter, IntensityA,
+					IntensityB, Label, Curvaturepoint, t);
 
 			curveobject.add(currentobject);
-			
 
 		}
-
-	
-
 
 		return curveobject;
 
 	}
 
-	public Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> getCurvatureLineScan(InteractiveEmbryo parent, List<RealLocalizable> candidates,
-			RealLocalizable centerpoint, int ndims, int Label, int t) {
+	public Pair<ArrayList<Curvatureobject>, ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> getCurvatureLineScan(
+			InteractiveEmbryo parent, List<RealLocalizable> candidates, RealLocalizable centerpoint, int ndims,
+			int Label, int t) {
 
-	
 		ArrayList<Curvatureobject> curveobject = new ArrayList<Curvatureobject>();
 
 		ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>> Hashtotalscan = new ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>();
@@ -234,28 +226,28 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 		for (Map.Entry<Integer, List<RealLocalizable>> entry : parent.Listmap.entrySet()) {
 
 			List<RealLocalizable> sublist = entry.getValue();
-			/***get
+			/***
+			 * get
 			 * 
 			 * Main method that fits on segments a function to get the curvature
 			 * 
 			 */
 
-			ParallelCalls call = new ParallelCalls(parent, centerpoint, sublist, 0);
+			ParallelCalls call = new ParallelCalls(parent, centerpoint, sublist, 0, Integer.toString(entry.getKey()));
 			Future<Pair<Embryoobject, ClockDisplayer>> Futureresultpair = taskExecutor.submit(call);
 			list.add(Futureresultpair);
 		}
 		taskExecutor.shutdown();
-		
-		
+
 		ArrayList<ClockDisplayer> Masterclock = new ArrayList<ClockDisplayer>();
 		for (Future<Pair<Embryoobject, ClockDisplayer>> fut : list) {
 
 			try {
-				
+
 				Pair<Embryoobject, ClockDisplayer> localfunction = fut.get();
-				
+
 				Masterclock.add(localfunction.getB());
-						
+
 				if (localfunction.getA().LineScanIntensity.size() > 0) {
 
 					Hashtotalscan.put(segmentlabel, localfunction.getA().LineScanIntensity);
@@ -267,28 +259,30 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 					double IntensityA = localfunction.getA().IntensityA;
 					double IntensityB = localfunction.getA().IntensityB;
 					long[] Curvaturepoint = localfunction.getA().Location;
-					
-					Curvatureobject currentobject = new Curvatureobject(Curvature, distCurvature,perimeter, IntensityA,IntensityB, Label,Curvaturepoint,t);
+
+					Curvatureobject currentobject = new Curvatureobject(Curvature, distCurvature, perimeter, IntensityA,
+							IntensityB, Label, Curvaturepoint, t);
 
 					curveobject.add(currentobject);
 				}
-	
-				
+
 			} catch (InterruptedException | ExecutionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 
+		return new ValuePair<ArrayList<Curvatureobject>, ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>(
+				curveobject, Hashtotalscan);
 
-		return new ValuePair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>(curveobject, Hashtotalscan);
-		
 	}
 
-	public ArrayList<Curvatureobject> GetAverage(InteractiveEmbryo parent,
-			RealLocalizable centerpoint, ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> bestdelta, int count) {
+	public ArrayList<Curvatureobject> GetAverage(InteractiveEmbryo parent, RealLocalizable centerpoint,
+			ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>, ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> bestdelta,
+			int count) {
 
-		Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> resultpair = bestdelta.get(0);
+		Pair<ArrayList<Curvatureobject>, ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> resultpair = bestdelta
+				.get(0);
 		ArrayList<Curvatureobject> RefinedCurvature = new ArrayList<Curvatureobject>();
 		ArrayList<Curvatureobject> localCurvature = resultpair.getA();
 
@@ -331,8 +325,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 			frequdeltadist /= CurveXYdist.size();
 			Iterator<Double> Iiter = CurveI.iterator();
-			
-			
+
 			while (Iiter.hasNext()) {
 
 				Double s = Iiter.next();
@@ -349,10 +342,11 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 				intensitySecdelta += s;
 
 			}
-			
+
 			for (int secindex = 1; secindex < count; ++secindex) {
 
-				Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> testpair = bestdelta.get(secindex);
+				Pair<ArrayList<Curvatureobject>, ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> testpair = bestdelta
+						.get(secindex);
 
 				ArrayList<Curvatureobject> testlocalCurvature = testpair.getA();
 
@@ -373,7 +367,6 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 					if (X[index] == Xtest[testindex] && Y[index] == Ytest[testindex]) {
 
 						CurveXY.add(Ztest[testindex]);
-						
 
 					}
 
@@ -383,7 +376,6 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 			double frequdeltaperi = localCurvature.get(0).perimeter;
 			double frequdelta = Z[index];
-			
 
 			Iterator<Double> setiter = CurveXY.iterator();
 			while (setiter.hasNext()) {
@@ -396,27 +388,21 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 			frequdelta /= CurveXY.size();
 
-			
-
-			Curvatureobject newobject = new Curvatureobject((float) frequdelta, (float) frequdeltadist, frequdeltaperi, intensitydelta,
-					intensitySecdelta, localCurvature.get(index).Label, localCurvature.get(index).cord,
+			Curvatureobject newobject = new Curvatureobject((float) frequdelta, (float) frequdeltadist, frequdeltaperi,
+					intensitydelta, intensitySecdelta, localCurvature.get(index).Label, localCurvature.get(index).cord,
 					localCurvature.get(index).t);
 
 			RefinedCurvature.add(newobject);
 		}
 
-
 		return RefinedCurvature;
 	}
-	
-	
-	
-	
 
-	public ArrayList<Curvatureobject> GetSingle(InteractiveEmbryo parent,
-			RealLocalizable centerpoint, ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> bestdelta) {
+	public ArrayList<Curvatureobject> GetSingle(InteractiveEmbryo parent, RealLocalizable centerpoint,
+			ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>, ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> bestdelta) {
 
-		Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> resultpair  = bestdelta.get(0);
+		Pair<ArrayList<Curvatureobject>, ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> resultpair = bestdelta
+				.get(0);
 		ArrayList<Curvatureobject> RefinedCurvature = new ArrayList<Curvatureobject>();
 		ArrayList<Curvatureobject> localCurvature = resultpair.getA();
 
@@ -475,62 +461,59 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 			}
 
-			Curvatureobject newobject = new Curvatureobject((float) frequdelta, (float) frequdelta, frequdeltaperi, intensitydelta,
-					intensitySecdelta, localCurvature.get(index).Label, localCurvature.get(index).cord,
+			Curvatureobject newobject = new Curvatureobject((float) frequdelta, (float) frequdelta, frequdeltaperi,
+					intensitydelta, intensitySecdelta, localCurvature.get(index).Label, localCurvature.get(index).cord,
 					localCurvature.get(index).t);
 
 			RefinedCurvature.add(newobject);
 		}
 
-
-
 		return RefinedCurvature;
 	}
-	
 
-	
-	public void MakeSegments(InteractiveEmbryo parent, final List<RealLocalizable> candidates, int boxSize,
-			int celllabel, int time) {
+	public void MakeSegments(InteractiveEmbryo parent, final List<RealLocalizable> truths, int boxSize,
+			int celllabel, int t) {
 
-		List<RealLocalizable> copycandidates = new ArrayList<RealLocalizable>(candidates);
-		if (candidates.size() < 3)
+		List<RealLocalizable> copytruths = new ArrayList<RealLocalizable>(truths);
+		if (truths.size() < 3)
 			return;
 		else {
-			int size = candidates.size();
+			int size = truths.size();
 
 			int maxpoints = (int) (boxSize/parent.calibration);
 			if (maxpoints <= 2)
 				maxpoints = 3;
+			int biggestsize = maxpoints;
 			int segmentLabel = 1;
 
-			int index = candidates.size() - 1;
+			int index = truths.size() - 1;
 			do {
 
-				if (index >= candidates.size())
+				if (index >= truths.size())
 					index = 0;
 
-				copycandidates.add(candidates.get(index));
+				copytruths.add(truths.get(index));
 
 				index++;
 
-			} while (copycandidates.size() % maxpoints != 0);
+			} while (copytruths.size() % maxpoints != 0);
 
-			size = copycandidates.size();
 		
 
 			List<RealLocalizable> sublist = new ArrayList<RealLocalizable>();
 
 			int startindex = 0;
+			
 			int endindex = startindex + maxpoints;
 
 			while (true) {
 
-				sublist = copycandidates.subList(startindex, Math.min(endindex, size));
+				sublist = copytruths.subList(startindex, Math.min(endindex, size));
 				parent.Listmap.put(segmentLabel, sublist);
 
-			
-                String ID = Integer.toString(celllabel) + Integer.toString(time);
-				parent.CellLabelsizemap.put(ID, candidates.size());
+
+				String ID = Integer.toString(celllabel) + Integer.toString(t);
+				parent.CellLabelsizemap.put(ID, size);
 				segmentLabel++;
 
 				startindex = endindex;
@@ -552,8 +535,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 	 * @return
 	 */
 
-	public Pair<Double, Double> getIntensity(InteractiveEmbryo parent, Localizable point,
-			Localizable centerpoint) {
+	public Pair<Double, Double> getIntensity(InteractiveEmbryo parent, Localizable point, Localizable centerpoint) {
 
 		RandomAccess<FloatType> ranac = parent.CurrentView.randomAccess();
 
@@ -598,12 +580,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 		return new ValuePair<Double, Double>(Intensity / Area, IntensitySec / Area);
 	}
 
-	
-	
-	public static Circle LocalCircle(
-			final ArrayList<RealLocalizable> points, int ndims) 
-	{
-		
+	public static Circle LocalCircle(final ArrayList<RealLocalizable> points, int ndims) {
 
 		final ArrayList<RealLocalizable> remainingPoints = new ArrayList<RealLocalizable>();
 		if (points != null)
@@ -612,35 +589,26 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 		final double[] pointA = new double[ndims];
 		final double[] pointB = new double[ndims];
 		final double[] pointC = new double[ndims];
-		
+
 		int splitindex;
 		if (size % 2 == 0)
 			splitindex = size / 2;
 		else
 			splitindex = (size - 1) / 2;
-		
-			for (int i = 0; i < ndims; ++i) {
+
+		for (int i = 0; i < ndims; ++i) {
 			pointA[i] = points.get(0).getDoublePosition(i);
 			pointB[i] = points.get(splitindex).getDoublePosition(i);
 			pointC[i] = points.get(size - 1).getDoublePosition(i);
-			
-			}
-			
-		
-		
-		
+
+		}
+
 		final Circle circle = Circle.FitCircleMb(pointA, pointB, pointC);
-				
-		
-		
+
 		return circle;
-		
-		
-		
-		
+
 	}
-	
-	
+
 	/**
 	 * 
 	 * Fit a local circle to a bunch of points
@@ -652,7 +620,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 	public Pair<Embryoobject, ClockDisplayer> BlockCircle(final InteractiveEmbryo parent,
 			final ArrayList<RealLocalizable> pointlist, RealLocalizable centerpoint, int ndims, int strideindex,
-			boolean linescan) {
+			boolean linescan, String name) {
 
 		final Circle localcircle = LocalCircle(pointlist, ndims);
 		double Kappa = 0;
@@ -663,8 +631,8 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 		double[] newpos = new double[ndims];
 		long[] longnewpos = new long[ndims];
 
-			perimeter = pointlist.size() * parent.calibration;
-		
+		perimeter = pointlist.size() * parent.calibration;
+
 		int size = pointlist.size();
 		final double[] pointA = new double[ndims];
 		final double[] pointB = new double[ndims];
@@ -686,49 +654,37 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 		long[] centerloc = new long[] { (long) centerpoint.getDoublePosition(0),
 				(long) centerpoint.getDoublePosition(1) };
 		net.imglib2.Point centpos = new net.imglib2.Point(centerloc);
-		
+
 		ArrayList<LineProfileCircle> LineScanIntensity = new ArrayList<LineProfileCircle>();
 		ClockDisplayer Clock = new ClockDisplayer("", null);
 		if (strideindex == 0) {
 
-			if (linescan) {
-
-				
-				Pair<ArrayList<LineProfileCircle>,ClockDisplayer> PairLineScanIntensity = getLineScanIntensity(parent, centerloc, localcircle, pointB, ndims);
-				LineScanIntensity = PairLineScanIntensity.getA();
-				Clock = PairLineScanIntensity.getB();
-			}
+			Pair<ArrayList<LineProfileCircle>, ClockDisplayer> PairLineScanIntensity = getLineScanIntensity(parent,
+					centerloc, localcircle, pointB, ndims, name);
+			LineScanIntensity = PairLineScanIntensity.getA();
+			Clock = PairLineScanIntensity.getB();
 
 		}
 
+		Kappa = 1.0 / (radii * parent.calibration);
+		if (parent.combomethod)
+			Kappadistance = getDistance(pointB, centerpoint) * parent.calibration;
+		for (int d = 0; d < newpos.length; ++d)
+			longnewpos[d] = (long) pointB[d];
+		net.imglib2.Point intpoint = new net.imglib2.Point(longnewpos);
 
+		Pair<Double, Double> Intensity = new ValuePair<Double, Double>(0.0, 0.0);
 
-			Kappa = 1.0 / (radii * parent.calibration);
-			if(parent.combomethod)
-				Kappadistance = getDistance(pointB, centerpoint) * parent.calibration;
-			for (int d = 0; d < newpos.length; ++d)
-				longnewpos[d] = (long) pointB[d];
-			net.imglib2.Point intpoint = new net.imglib2.Point(longnewpos);
+		Intensity = getIntensity(parent, intpoint, centpos);
 
-			Pair<Double, Double> Intensity = new ValuePair<Double, Double>(0.0, 0.0);
-
-			Intensity = getIntensity(parent, intpoint, centpos);
-
-			Embryoobject currentprofile = 
-new Embryoobject(new long[] {(long) pointB[0], (long) pointB[1]}, centerloc, LineScanIntensity, pointlist, Math.max(0, Kappa), Math.max(0, Kappadistance), Intensity.getA(), Intensity.getB(), perimeter);
-					
-			
-	
-
-
-
-		
+		Embryoobject currentprofile = new Embryoobject(new long[] { (long) pointB[0], (long) pointB[1] }, centerloc,
+				LineScanIntensity, pointlist, Math.max(0, Kappa), Math.max(0, Kappadistance), Intensity.getA(),
+				Intensity.getB(), perimeter);
 
 		return new ValuePair<Embryoobject, ClockDisplayer>(currentprofile, Clock);
 
 	}
-	
-	
+
 	/**
 	 * 
 	 * Fit a local circle to a bunch of points
@@ -740,7 +696,7 @@ new Embryoobject(new long[] {(long) pointB[0], (long) pointB[1]}, centerloc, Lin
 
 	public Pair<Embryoobject, ClockDisplayer> BlockDistance(final InteractiveEmbryo parent,
 			final ArrayList<RealLocalizable> pointlist, RealLocalizable centerpoint, int ndims, int strideindex,
-			boolean linescan) {
+			boolean linescan, String name) {
 
 		double Kappadistance = 0;
 		double perimeter = 0;
@@ -748,8 +704,8 @@ new Embryoobject(new long[] {(long) pointB[0], (long) pointB[1]}, centerloc, Lin
 		double[] newpos = new double[ndims];
 		long[] longnewpos = new long[ndims];
 
-			perimeter = pointlist.size() * parent.calibration;
-		
+		perimeter = pointlist.size() * parent.calibration;
+
 		int size = pointlist.size();
 		final double[] pointA = new double[ndims];
 		final double[] pointB = new double[ndims];
@@ -771,40 +727,30 @@ new Embryoobject(new long[] {(long) pointB[0], (long) pointB[1]}, centerloc, Lin
 		long[] centerloc = new long[] { (long) centerpoint.getDoublePosition(0),
 				(long) centerpoint.getDoublePosition(1) };
 		net.imglib2.Point centpos = new net.imglib2.Point(centerloc);
-		
+
 		ArrayList<LineProfileCircle> LineScanIntensity = new ArrayList<LineProfileCircle>();
 		ClockDisplayer Clock = new ClockDisplayer("", null);
-	
 
+		Kappadistance = getDistance(pointB, centerpoint) * parent.calibration;
+		for (int d = 0; d < newpos.length; ++d)
+			longnewpos[d] = (long) pointB[d];
+		net.imglib2.Point intpoint = new net.imglib2.Point(longnewpos);
 
+		Pair<Double, Double> Intensity = new ValuePair<Double, Double>(0.0, 0.0);
 
-			Kappadistance = getDistance(pointB, centerpoint) * parent.calibration;
-			for (int d = 0; d < newpos.length; ++d)
-				longnewpos[d] = (long) pointB[d];
-			net.imglib2.Point intpoint = new net.imglib2.Point(longnewpos);
+		Intensity = getIntensity(parent, intpoint, centpos);
 
-			Pair<Double, Double> Intensity = new ValuePair<Double, Double>(0.0, 0.0);
-
-			Intensity = getIntensity(parent, intpoint, centpos);
-
-			Embryoobject currentprofile = 
-new Embryoobject(new long[] {(long) pointB[0], (long) pointB[1]}, centerloc, LineScanIntensity, pointlist, Math.max(0, Kappadistance), Math.max(0, Kappadistance), Intensity.getA(), Intensity.getB(), perimeter);
-					
-			
-	
-
-
-
-		
+		Embryoobject currentprofile = new Embryoobject(new long[] { (long) pointB[0], (long) pointB[1] }, centerloc,
+				LineScanIntensity, pointlist, Math.max(0, Kappadistance), Math.max(0, Kappadistance), Intensity.getA(),
+				Intensity.getB(), perimeter);
 
 		return new ValuePair<Embryoobject, ClockDisplayer>(currentprofile, Clock);
 
 	}
 
-	
 	@SuppressWarnings("deprecation")
-	public Pair<ArrayList<LineProfileCircle>,ClockDisplayer> getLineScanIntensity(final InteractiveEmbryo parent,
-			final long[] centerpos, Circle localcircle, final double[] pointB, final int ndims) {
+	public Pair<ArrayList<LineProfileCircle>, ClockDisplayer> getLineScanIntensity(final InteractiveEmbryo parent,
+			final long[] centerpos, Circle localcircle, final double[] pointB, final int ndims, final String name) {
 
 		int count = 0;
 
@@ -836,11 +782,10 @@ new Embryoobject(new long[] {(long) pointB[0], (long) pointB[1]}, centerloc, Lin
 
 		double[] endNormal = { endNormalX, endNormalY };
 
-		
 		Line line = new Line((int) startNormal[0], (int) startNormal[1], (int) endNormal[0], (int) endNormal[1],
 				parent.imp);
 		parent.overlay.add(line);
-		TextRoi newellipse = new TextRoi(startNormal[0], startNormal[1], "");
+		TextRoi newellipse = new TextRoi(startNormal[0], startNormal[1], name + "_OZ");
 
 		Pair<double[], double[]> linescanpair = new ValuePair<double[], double[]>(startNormal, endNormal);
 		ClockDisplayer masterclock = new ClockDisplayer("", linescanpair);
@@ -851,13 +796,9 @@ new Embryoobject(new long[] {(long) pointB[0], (long) pointB[1]}, centerloc, Lin
 		parent.overlay.drawLabels(true);
 		parent.overlay.drawNames(true);
 		parent.imp.updateAndDraw();
-		
+
 		if (parent.thirdDimension == 1) {
 
-		
-			
-			
-			
 			parent.clockoverlay.add(newellipse);
 			parent.clockoverlay.add(line);
 
@@ -938,7 +879,7 @@ new Embryoobject(new long[] {(long) pointB[0], (long) pointB[1]}, centerloc, Lin
 
 		} while (count < (int) parent.insidedistance * 2);
 
-		return new ValuePair<ArrayList<LineProfileCircle>, ClockDisplayer>(LineScanIntensity, masterclock );
+		return new ValuePair<ArrayList<LineProfileCircle>, ClockDisplayer>(LineScanIntensity, masterclock);
 
 	}
 
@@ -958,7 +899,7 @@ new Embryoobject(new long[] {(long) pointB[0], (long) pointB[1]}, centerloc, Lin
 		return Math.sqrt(distance);
 
 	}
-	
+
 	public double getDistance(double[] point, RealLocalizable centerpoint) {
 
 		double distance = 0;
@@ -967,8 +908,7 @@ new Embryoobject(new long[] {(long) pointB[0], (long) pointB[1]}, centerloc, Lin
 
 		for (int i = 0; i < ndims; ++i) {
 
-			distance += (point[i] - centerpoint.getDoublePosition(i))
-					* (point[i]- centerpoint.getDoublePosition(i));
+			distance += (point[i] - centerpoint.getDoublePosition(i)) * (point[i] - centerpoint.getDoublePosition(i));
 
 		}
 
