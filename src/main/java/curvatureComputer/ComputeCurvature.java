@@ -74,6 +74,8 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
+import pluginTools.EmbryoTrack;
+import pluginTools.InteractiveEmbryo;
 import pluginTools.InteractiveSimpleEllipseFit.ValueChange;
 import track.TrackingFunctions;
 import utility.CreateTable;
@@ -85,14 +87,14 @@ import utility.ThreeDRoiobject;
 
 public class ComputeCurvature extends SwingWorker<Void, Void> {
 
-	final IOn parent;
+	final InteractiveEmbryo parent;
 	final JProgressBar jpb;
 	final boolean batchmode;
 	final File savefile;
 
 	static int extradimension = 50;
 
-	public ComputeCurvature(final InteractiveSimpleEllipseFit parent, final JProgressBar jpb, final boolean batchmode,
+	public ComputeCurvature(final InteractiveEmbryo parent, final JProgressBar jpb, final boolean batchmode,
 			final File savefile) {
 
 		this.parent = parent;
@@ -107,11 +109,10 @@ public class ComputeCurvature extends SwingWorker<Void, Void> {
 	@Override
 	protected Void doInBackground() throws Exception {
 
+		
+
 		HashMap<String, Integer> map = SortTimeorZ.sortByValues(parent.Accountedframes);
 		parent.Accountedframes = map;
-
-		HashMap<String, Integer> mapZ = SortTimeorZ.sortByValues(parent.AccountedZ);
-		parent.AccountedZ = mapZ;
 
 		parent.inputField.setEnabled(false);
 		parent.inputtrackField.setEnabled(false);
@@ -120,26 +121,22 @@ public class ComputeCurvature extends SwingWorker<Void, Void> {
 		parent.ChooseDirectory.setEnabled(false);
 		parent.Combomode.setEnabled(false);
 		parent.regioninteriorfield.setEnabled(false);
-		parent.CurrentCurvaturebutton.setEnabled(false);
 		parent.Curvaturebutton.setEnabled(false);
 		parent.timeslider.setEnabled(false);
 		parent.inputFieldT.setEnabled(false);
 		parent.distancemode.setEnabled(false);
-		parent.Pixelcelltrackcirclemode.setEnabled(false);
 		//parent.resolutionField.setEnabled(false);
 		parent.interiorfield.setEnabled(false);
 		parent.Displaybutton.setEnabled(false);
-		parent.minInlierslider.setEnabled(false);
-		parent.minInlierField.setEnabled(false);
 		//parent.radiusField.setEnabled(false);
-		EllipseTrack newtrack = new EllipseTrack(parent, jpb);
-		newtrack.ComputeCurvature();
+		EmbryoTrack newtrack = new EmbryoTrack(parent, jpb);
+		newtrack.ShowEmbryoCurvatureTime();
 
 		return null;
 
 	}
 
-	public static void MakeLineKymo(InteractiveSimpleEllipseFit parent,
+	public static void MakeLineKymo(InteractiveEmbryo parent,
 			HashMap<String, ArrayList<Intersectionobject>> sortedMappair, long[] size, String TrackID) {
 
 		RandomAccessibleInterval<FloatType> IntensityAKymo = new ArrayImgFactory<FloatType>().create(size,

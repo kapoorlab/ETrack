@@ -26,17 +26,19 @@ public class Curvatureobject extends AbstractEuclideanSpace implements RealLocal
 	public final double perimeter;
 	public final int t;
 	public final long[] cord;
+	public final long[] centercord;
 	public final int Label;
 	public final double Intensity;
 	public final double SecIntensity;
 	
-	public Curvatureobject(final double radiusCurvature, final double distCurvature, final double perimeter, final double Intensity, final double SecIntensity, final int Label, final long[] cord, final int t) {
+	public Curvatureobject(final double radiusCurvature, final double distCurvature, final double perimeter, final double Intensity, final double SecIntensity, final int Label, final long[] cord, final long[] centercord, final int t) {
 		super(3);
 		this.radiusCurvature = radiusCurvature;
 		this.distCurvature = distCurvature;
 		this.perimeter = perimeter;
 		this.SecIntensity = SecIntensity;
 		this.cord = cord;
+		this.centercord = centercord;
 		this.Intensity = Intensity;
 		this.t = t;
 		this.Label = Label;
@@ -57,7 +59,7 @@ public class Curvatureobject extends AbstractEuclideanSpace implements RealLocal
 	 *            <code>null</code> will have unpredicted outcomes.
 	 */
 	
-	public static final String Radius = "Radius";
+	
 
 	public static final String Perimeter = "Perimeter";
 	
@@ -65,6 +67,17 @@ public class Curvatureobject extends AbstractEuclideanSpace implements RealLocal
 
 	public static final String Time = "Time";
 	
+	public static final String CenterX = "CenterX";
+	
+	public static final String CenterY = "CenterY";
+	
+	public static final String IntensityA = "IntensityA";
+	
+	public static final String IntensityB = "IntensityB";
+	
+	public static final String CurvatureCircle = "CircleCurv";
+	
+	public static final String Deformation = "Deform";
 	
 	public static final String LocationX = "LocationX";
 	

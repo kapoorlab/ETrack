@@ -192,10 +192,11 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 			double distCurvature = localfunction.DistCurvature;
 			double IntensityA = localfunction.IntensityA;
 			double IntensityB = localfunction.IntensityB;
+			long[] Embryocenter = localfunction.center;
 			long[] Curvaturepoint = localfunction.Location;
 
 			Curvatureobject currentobject = new Curvatureobject(Curvature, distCurvature, perimeter, IntensityA,
-					IntensityB, Label, Curvaturepoint, t);
+					IntensityB, Label, Curvaturepoint, Embryocenter,  t);
 
 			curveobject.add(currentobject);
 
@@ -258,10 +259,11 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 					double distCurvature = localfunction.getA().DistCurvature;
 					double IntensityA = localfunction.getA().IntensityA;
 					double IntensityB = localfunction.getA().IntensityB;
+					long[] Embryocenter = localfunction.getA().center;
 					long[] Curvaturepoint = localfunction.getA().Location;
 
 					Curvatureobject currentobject = new Curvatureobject(Curvature, distCurvature, perimeter, IntensityA,
-							IntensityB, Label, Curvaturepoint, t);
+							IntensityB, Label, Curvaturepoint,Embryocenter, t);
 
 					curveobject.add(currentobject);
 				}
@@ -389,7 +391,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 			frequdelta /= CurveXY.size();
 
 			Curvatureobject newobject = new Curvatureobject((float) frequdelta, (float) frequdeltadist, frequdeltaperi,
-					intensitydelta, intensitySecdelta, localCurvature.get(index).Label, localCurvature.get(index).cord,
+					intensitydelta, intensitySecdelta, localCurvature.get(index).Label, localCurvature.get(index).cord,localCurvature.get(index).centercord,
 					localCurvature.get(index).t);
 
 			RefinedCurvature.add(newobject);
@@ -462,7 +464,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 			}
 
 			Curvatureobject newobject = new Curvatureobject((float) frequdelta, (float) frequdelta, frequdeltaperi,
-					intensitydelta, intensitySecdelta, localCurvature.get(index).Label, localCurvature.get(index).cord,
+					intensitydelta, intensitySecdelta, localCurvature.get(index).Label, localCurvature.get(index).cord, localCurvature.get(index).centercord,
 					localCurvature.get(index).t);
 
 			RefinedCurvature.add(newobject);
@@ -483,7 +485,6 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 			int maxpoints = (int) (boxSize/parent.calibration);
 			if (maxpoints <= 2)
 				maxpoints = 3;
-			int biggestsize = maxpoints;
 			int segmentLabel = 1;
 
 			int index = truths.size() - 1;
@@ -498,8 +499,8 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 			} while (copytruths.size() % maxpoints != 0);
 
-		
-
+		  
+			int newsize = copytruths.size();
 			List<RealLocalizable> sublist = new ArrayList<RealLocalizable>();
 
 			int startindex = 0;
@@ -508,7 +509,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 
 			while (true) {
 
-				sublist = copytruths.subList(startindex, Math.min(endindex, size));
+				sublist = copytruths.subList(startindex, Math.min(endindex, newsize));
 				parent.Listmap.put(segmentLabel, sublist);
 
 
@@ -519,7 +520,7 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 				startindex = endindex;
 				endindex = startindex + maxpoints;
 
-				if (endindex >= size + 1)
+				if (endindex >= newsize + 1)
 					break;
 
 			}
