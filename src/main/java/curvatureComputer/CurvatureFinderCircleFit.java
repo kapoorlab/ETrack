@@ -234,7 +234,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 
 	@Override
 	public Pair<Embryoobject, ClockDisplayer> getLocalcurvature(ArrayList<double[]> Cordlist,
-			RealLocalizable centerpoint, int strideindex, String name) {
+			RealLocalizable centerpoint, int Label, int strideindex, String name) {
 		double[] x = new double[Cordlist.size()];
 		double[] y = new double[Cordlist.size()];
 
@@ -254,7 +254,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 
 		// Here you choose which method is used to detect curvature
 
-		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockCircle(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, false, name);
+		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockCircle(parent, list, centerpoint, Label, centerpoint.numDimensions(), strideindex, false, name);
 
 		
 		return finalfunctionandList;
@@ -262,7 +262,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 	
 	@Override
 	public Pair<Embryoobject, ClockDisplayer>  getCircleLocalcurvature(ArrayList<double[]> Cordlist,
-			RealLocalizable centerpoint, int strideindex, String name) {
+			RealLocalizable centerpoint, int Label, int strideindex, String name) {
 		double[] x = new double[Cordlist.size()];
 		double[] y = new double[Cordlist.size()];
 
@@ -280,7 +280,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 
 		}
 
-		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockCircle(parent, list, centerpoint, centerpoint.numDimensions(), strideindex, false, name);
+		Pair<Embryoobject, ClockDisplayer> finalfunctionandList = BlockCircle(parent, list, centerpoint, Label, centerpoint.numDimensions(), strideindex, false, name);
 
 		
 		return finalfunctionandList;

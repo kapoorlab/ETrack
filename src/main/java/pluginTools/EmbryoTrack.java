@@ -58,15 +58,15 @@ public class EmbryoTrack {
 
 
 
-	public void ShowEmbryoCurvature(double percent, int t) throws Exception {
+	public void ShowEmbryoCurvature() throws Exception {
 
+		int percent = 0;
 		
-		parent.thirdDimension = t;
 
 		percent++;
 
 	
-		RandomAccessibleInterval<IntType> CurrentViewInt = utility.Slicer.getCurrentViewInt(parent.Segoriginalimg, t,
+		RandomAccessibleInterval<IntType> CurrentViewInt = utility.Slicer.getCurrentViewInt(parent.Segoriginalimg, parent.thirdDimension,
 				parent.thirdDimensionSize);
 		
 		
@@ -77,7 +77,7 @@ public class EmbryoTrack {
 		computeMinMax(Views.iterable(CurrentViewInt), min, max);
 
 		
-		CurvatureEachEmbryo compute = new CurvatureEachEmbryo(parent, CurrentViewInt, t, max.get(), (int) percent);
+		CurvatureEachEmbryo compute = new CurvatureEachEmbryo(parent, CurrentViewInt, parent.thirdDimension, max.get(), percent);
 		compute.displayCurvature();
 		
 		
@@ -306,13 +306,10 @@ public class EmbryoTrack {
 	
 	public void ComputeCurvatureCurrent() throws Exception {
 
-		double percent = 0;
-
-		int t = parent.thirdDimension;
 		
 
 
-		ShowEmbryoCurvature(percent, t);
+		ShowEmbryoCurvature();
 
 
 	}

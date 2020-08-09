@@ -22,11 +22,11 @@ public interface CurvatureFinders<T extends RealType<T> & NativeType<T>>
 	
 	
 	public Pair<Embryoobject, ClockDisplayer>  getLocalcurvature(ArrayList<double[]> Cordlist,
-			RealLocalizable centerpoint, int strideindex, String name);
+			RealLocalizable centerpoint, int Label, int strideindex, String name);
 
 	
 	public Pair<Embryoobject, ClockDisplayer>  getCircleLocalcurvature(ArrayList<double[]> Cordlist,
-			RealLocalizable centerpoint, int strideindex, String name);
+			RealLocalizable centerpoint, int Label, int strideindex, String name);
 	/*
 	 * 
 	 * InteractiveEmbryo is the parent class of the function

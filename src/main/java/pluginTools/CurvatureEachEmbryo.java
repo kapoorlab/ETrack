@@ -1,14 +1,17 @@
 package pluginTools;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JProgressBar;
 
 import curvatureComputer.AnalyzeCurvature;
 import embryoDetector.Curvatureobject;
 import embryoDetector.Embryoregionobject;
+import embryoDetector.LineProfileCircle;
 import net.imglib2.Cursor;
 import net.imglib2.Point;
 import net.imglib2.RandomAccess;
@@ -19,6 +22,7 @@ import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.util.Pair;
 import net.imglib2.view.Views;
 
 public class CurvatureEachEmbryo {
@@ -82,7 +86,8 @@ public class CurvatureEachEmbryo {
 						CurrentViewInt, label);
 				
 				AnalyzeCurvature CurvatureMe = new AnalyzeCurvature(parent,Embryo.Boundaryimage, t, parent.jpb, percent, label);
-				CurvatureMe.call();
+				HashMap<String,Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> CurvatureMap  = CurvatureMe.call();
+				
 				
 			}
 			

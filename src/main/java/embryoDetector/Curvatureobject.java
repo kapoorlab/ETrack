@@ -21,68 +21,21 @@ public class Curvatureobject extends AbstractEuclideanSpace implements RealLocal
 
 	
 	
-	public final double radiusCurvature;
-	public final double distCurvature;
-	public final double perimeter;
-	public final int t;
-	public final long[] cord;
-	public final long[] centercord;
-	public final int Label;
-	public final double Intensity;
-	public final double SecIntensity;
+	public final ArrayList<Embryoobject> Regionobject;
 	
-	public Curvatureobject(final double radiusCurvature, final double distCurvature, final double perimeter, final double Intensity, final double SecIntensity, final int Label, final long[] cord, final long[] centercord, final int t) {
+	public final ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>> LineScanobject;
+	
+	public Curvatureobject(final ArrayList<Embryoobject> Regionobject, final ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>> LineScanobject) {
 		super(3);
-		this.radiusCurvature = radiusCurvature;
-		this.distCurvature = distCurvature;
-		this.perimeter = perimeter;
-		this.SecIntensity = SecIntensity;
-		this.cord = cord;
-		this.centercord = centercord;
-		this.Intensity = Intensity;
-		this.t = t;
-		this.Label = Label;
+		this.Regionobject = Regionobject;
+		this.LineScanobject = LineScanobject;
+	
 		
 	};
 		
 	
 	
 
-
-	/**
-	 * Stores the specified feature value for this spot.
-	 *
-	 * @param feature
-	 *            the name of the feature to store, as a {@link String}.
-	 * @param value
-	 *            the value to store, as a {@link Double}. Using
-	 *            <code>null</code> will have unpredicted outcomes.
-	 */
-	
-	
-
-	public static final String Perimeter = "Perimeter";
-	
-	public static final String LABEL = "LABEL";
-
-	public static final String Time = "Time";
-	
-	public static final String CenterX = "CenterX";
-	
-	public static final String CenterY = "CenterY";
-	
-	public static final String IntensityA = "IntensityA";
-	
-	public static final String IntensityB = "IntensityB";
-	
-	public static final String CurvatureCircle = "CircleCurv";
-	
-	public static final String Deformation = "Deform";
-	
-	public static final String LocationX = "LocationX";
-	
-	public static final String LocationY = "LocationY";
-	
 
 	
 	
