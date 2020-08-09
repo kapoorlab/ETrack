@@ -17,7 +17,7 @@ import net.imglib2.util.Pair;
 import pluginTools.InteractiveEmbryo;
 
 public interface CurvatureFinders<T extends RealType<T> & NativeType<T>>
-		extends OutputAlgorithm< Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> > {
+		extends OutputAlgorithm< Curvatureobject > {
 
 	
 	

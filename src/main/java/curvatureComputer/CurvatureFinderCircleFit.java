@@ -37,9 +37,8 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 	public final int thirdDimension;
 	public final int percent;
 	public final int celllabel;
-	ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> Bestdelta = new ConcurrentHashMap<Integer, Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>>();
-	
-	Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> CurvatureAndLineScan;
+	ConcurrentHashMap<Integer, Curvatureobject> Bestdelta = new ConcurrentHashMap<Integer, Curvatureobject>();	
+	Curvatureobject CurvatureAndLineScan;
 	public final RandomAccessibleInterval<BitType> ActualRoiimg;
 	private final String BASE_ERROR_MSG = "[CircleFit-]";
 	protected String errorMessage;
@@ -56,7 +55,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 		this.percent = percent;
 	}
 
-	public class ParallelCalls implements Callable<ArrayList<Curvatureobject>> {
+	public class ParallelCalls implements Callable<Curvatureobject> {
 
 		
 		public final InteractiveEmbryo parent;
@@ -90,9 +89,9 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 		}
 		
 		@Override
-		public ArrayList<Curvatureobject> call() throws Exception {
+		public Curvatureobject call() throws Exception {
 			
-			ArrayList<Curvatureobject>  result = getCurvature(parent, allorderedcandidates, centerpoint, ndims, celllabel, t, index);
+			Curvatureobject  result = getCurvature(parent, allorderedcandidates, centerpoint, ndims, celllabel, t, index);
 			
 			
 			return result;
@@ -103,7 +102,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 
 	
 	@Override
-	public Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> getResult() {
+	public Curvatureobject getResult() {
 
 		return CurvatureAndLineScan;
 	}
@@ -158,7 +157,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 
 
 		int i = parent.increment;
-		Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> resultpair = CommonLoop(parent, Ordered, centerpoint, ndims, celllabel, t);
+		Curvatureobject resultpair = CommonLoop(parent, Ordered, centerpoint, ndims, celllabel, t);
 		
 		Bestdelta.put(count, resultpair);
 		count++;
@@ -173,7 +172,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 		int nThreads = Runtime.getRuntime().availableProcessors();
 		final ExecutorService taskExecutor = Executors.newFixedThreadPool(nThreads);
 		
-		List<Future<ArrayList<Curvatureobject>>> list = new ArrayList<Future<ArrayList<Curvatureobject>>>();
+		List<Future<Curvatureobject>> list = new ArrayList<Future<Curvatureobject>>();
 		
 		for (int index = 0; index < maxstride; ++index) {
 			List<RealLocalizable> allorderedcandidates = Listordereing.getList(Ordered, i + index);
@@ -185,20 +184,19 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 
 			
 			ParallelCalls call = new ParallelCalls(parent, allorderedcandidates, centerpoint, ndims, celllabel, t, index);
-			Future<ArrayList<Curvatureobject>> Futureresultpair = taskExecutor.submit(call);
+			Future<Curvatureobject> Futureresultpair = taskExecutor.submit(call);
 			list.add(Futureresultpair);
 		}
 		
 		taskExecutor.shutdown();
-		for(Future<ArrayList<Curvatureobject>> fut : list){
+		for(Future<Curvatureobject> fut : list){
 			
 			
 			
 			
 			try {
 				
-				ArrayList<Curvatureobject> Rover = fut.get();
-				Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> newresultpair = new ValuePair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>(Rover, resultpair.getB());
+				Curvatureobject newresultpair = fut.get();
 				
 				Bestdelta.put(count, newresultpair);
 				count++;
@@ -214,10 +212,9 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 		}
 		
 
-		ArrayList<Curvatureobject> FinalEmbryoCurvature = GetAverage(parent, centerpoint, Bestdelta,count);
+		CurvatureAndLineScan = GetAverage(parent, centerpoint, Bestdelta,count);
 		
 
-		CurvatureAndLineScan = new ValuePair<ArrayList<Curvatureobject>, ConcurrentHashMap<Integer,ArrayList<LineProfileCircle>>>(FinalEmbryoCurvature, resultpair.getB());
 
 	}
 	
