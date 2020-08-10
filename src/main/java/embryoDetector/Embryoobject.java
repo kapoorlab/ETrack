@@ -4,15 +4,9 @@ package embryoDetector;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import ij.gui.EllipseRoi;
-import ij.gui.Line;
-import ij.gui.OvalRoi;
-import ij.gui.Roi;
 import net.imglib2.AbstractEuclideanSpace;
 import net.imglib2.RealLocalizable;
 
@@ -30,6 +24,9 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 	public final double DistCurvature;
 	public final double IntensityA;
 	public final double IntensityB;
+	private final int ID;
+	private String name;
+	public static AtomicInteger IDcounter = new AtomicInteger( -1 );
 	private final ConcurrentHashMap< String, Double > features = new ConcurrentHashMap< String, Double >();
 	
 	public Embryoobject(final long[] Location, 
@@ -54,6 +51,8 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 		this.IntensityA = IntensityA;
 		this.IntensityB = IntensityB;
 		this.perimeter = perimeter;
+		this.ID = IDcounter.incrementAndGet();
+		this.name = "ID" + ID;
 		this.LineScanIntensity = LineScanIntensity;
 		this.t = t;
 		this.Label = Label;
@@ -68,7 +67,15 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 		putFeature(INTENSITYA, IntensityA);
 		putFeature(INTENSITYB, IntensityB);
 	}
+	public void setName( final String name )
+	{
+		this.name = name;
+	}
 
+	public int ID()
+	{
+		return ID;
+	}
 
 	public static final String POSITION_X = "POSITION_X";
 
@@ -218,7 +225,12 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 		final double f2 = s.getFeature(feature).doubleValue();
 		return f1 - f2;
 	}
+	public double diffTo(final Embryoobject target, int n) {
 
+		final double thisBloblocation = Location[n];
+		final double targetBloblocation = target.Location[n];
+		return thisBloblocation - targetBloblocation;
+	}
 	/**
 	 * Returns the squared distance between two clouds.
 	 *

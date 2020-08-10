@@ -32,7 +32,6 @@ public class CurvatureEachEmbryo {
 	
 	final RandomAccessibleInterval<IntType> CurrentViewInt;
 	
-	final int t;
 	
 	final int maxlabel;
 	
@@ -40,12 +39,11 @@ public class CurvatureEachEmbryo {
 	
 	final ArrayList<Embryoobject> Embryolist;
 	
-	public CurvatureEachEmbryo(final InteractiveEmbryo parent, final RandomAccessibleInterval<IntType> CurrentViewInt, final int t,
+	public CurvatureEachEmbryo(final InteractiveEmbryo parent, final RandomAccessibleInterval<IntType> CurrentViewInt,
 			final int maxlabel, final int percent) {
 		
 		this.parent = parent;
 		this.CurrentViewInt = CurrentViewInt;
-		this.t = t;
 		this.maxlabel = maxlabel;
 		this.percent = percent;
         this.Embryolist = null;		
@@ -53,12 +51,11 @@ public class CurvatureEachEmbryo {
 	}
 	
 	public CurvatureEachEmbryo(final InteractiveEmbryo parent, final RandomAccessibleInterval<IntType> CurrentViewInt, 
-			final ArrayList<Embryoobject> Embryolist, final int t,
+			final ArrayList<Embryoobject> Embryolist, 
 			final int maxlabel, final int percent) {
 		
 		this.parent = parent;
 		this.CurrentViewInt = CurrentViewInt;
-		this.t = t;
 		this.maxlabel = maxlabel;
 		this.percent = percent;
         this.Embryolist = Embryolist;		
@@ -82,10 +79,12 @@ public class CurvatureEachEmbryo {
 			int label = setiter.next();
 
 			if (label > 0) {
+				
+				
 				Embryoregionobject Embryo = EmbryoCurrentLabelBinaryImage(
 						CurrentViewInt, label);
 				
-				AnalyzeCurvature CurvatureMe = new AnalyzeCurvature(parent,Embryo.Boundaryimage, t, parent.jpb, percent, label);
+				AnalyzeCurvature CurvatureMe = new AnalyzeCurvature(parent,Embryo.Boundaryimage, parent.jpb, percent, label);
 				HashMap<String,ArrayList<Embryoobject>> CurvatureMap  = CurvatureMe.call();
 				
 				

@@ -1,7 +1,8 @@
 package utility;
 
 import java.util.Comparator;
-import ellipsoidDetector.Distance;
+
+import curvatureComputer.Distance;
 import net.imglib2.RealLocalizable;
 
 public class AngleComparator implements Comparator<RealLocalizable> {

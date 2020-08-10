@@ -19,34 +19,45 @@ public class AnalyzeCurvature implements Callable< HashMap<String,ArrayList<Embr
 	final JProgressBar jpb;
 	final int percent;
 	final int celllabel;
-	final int time;
+	
 
 	
 	public AnalyzeCurvature(final InteractiveEmbryo parent,
 			final RandomAccessibleInterval<BitType> ActualRoiimg, 
-			final int time, final JProgressBar jpb, final int percent, final int celllabel) {
+			final JProgressBar jpb, final int percent, final int celllabel) {
 		
 		this.parent = parent;
 		this.ActualRoiimg = ActualRoiimg;
 		this.jpb = jpb;
 		this.percent = percent;
 		this.celllabel = celllabel;
-		this.time = time;
+		
 		
 		
 	}
 
+	/**
+	 * 
+	 * Compute the curvature using user chosen method to get a list of Embryoobject, 
+	 * Embryoobject is computing curvature/intensity/line scan intensity in a region for each cell.
+	 * The method stores these results as a hashmap.
+	 * 
+	 * 
+	 * @return
+	 */
+	
 	private HashMap<String,ArrayList<Embryoobject>> CurvatureFinderChoice() {
 		
 		 HashMap<String,ArrayList<Embryoobject>>  AlldenseCurveintersection = 
 				 new HashMap<String,ArrayList<Embryoobject>>();
 		 
 	 
-		 String ID = Integer.toString(celllabel) + Integer.toString(time);
+		 String ID = Integer.toString(celllabel) + Integer.toString(parent.thirdDimension);
+		 
 		if (parent.circlefits) {
 			
      		CurvatureFinderCircleFit<FloatType> curvecircle = new CurvatureFinderCircleFit<FloatType>(parent,  
-				 ActualRoiimg, jpb, percent, celllabel, time);
+				 ActualRoiimg, jpb, percent, celllabel, parent.thirdDimension);
 		
 		    curvecircle.process();
 		
@@ -58,7 +69,7 @@ public class AnalyzeCurvature implements Callable< HashMap<String,ArrayList<Embr
 		if(parent.distancemethod) {
 			
 		    CurvatureFinderDistance<FloatType> curvedistance = new CurvatureFinderDistance<FloatType>(parent, 
-				ActualRoiimg, jpb, percent, celllabel, time);
+				ActualRoiimg, jpb, percent, celllabel, parent.thirdDimension);
 		
 		    curvedistance.process();
 		
@@ -70,7 +81,7 @@ public class AnalyzeCurvature implements Callable< HashMap<String,ArrayList<Embr
 		if(parent.combomethod) {
 			
 			CurvatureFinderCircleFit<FloatType> curvedistance = new CurvatureFinderCircleFit<FloatType>(parent,  
-					ActualRoiimg, jpb, percent, celllabel, time);
+					ActualRoiimg, jpb, percent, celllabel, parent.thirdDimension);
 			
 			curvedistance.process();
 			
@@ -85,7 +96,7 @@ public class AnalyzeCurvature implements Callable< HashMap<String,ArrayList<Embr
 	public  HashMap<String,ArrayList<Embryoobject>>  call() throws Exception {
 
 			utility.ProgressBar.SetProgressBar(jpb, 100 * percent / (parent.pixellist.size() + 1), "Computing Curvature = "
-					+ time + "/" + (parent.thirdDimensionSize + 1) );
+					+ parent.thirdDimension + "/" + (parent.thirdDimensionSize + 1) );
 		
 
 		

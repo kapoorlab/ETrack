@@ -11,10 +11,10 @@ import java.util.Map;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import ellipsoidDetector.Intersectionobject;
+import embryoDetector.Embryoobject;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
-import pluginTools.InteractiveSimpleEllipseFit;
+import pluginTools.InteractiveEmbryo;
 
 public class CreateTable {
 
@@ -23,36 +23,49 @@ public class CreateTable {
 	
 	
 	
-	public static void CreateTableView(final InteractiveSimpleEllipseFit parent) {
+	public static void CreateTableView(final InteractiveEmbryo parent) {
 
-		parent.resultAngle = new ArrayList<Pair<String, double[]>>();
+		parent.resultPerimeter = new ArrayList<Pair<String, double[]>>();
 
-		for (Pair<String, Intersectionobject> currentangle : parent.Tracklist) {
-			if(parent.originalimg.numDimensions() > 3)
-			parent.resultAngle.add(new ValuePair<String, double[]>(currentangle.getA(),
-					new double[] { currentangle.getB().t, currentangle.getB().angle }));
-			else
-				parent.resultAngle.add(new ValuePair<String, double[]>(currentangle.getA(),
-						new double[] { currentangle.getB().z, currentangle.getB().angle }));
+		for (Pair<String, ArrayList<Embryoobject>> TrackCelltime : parent.Tracklist) {
+
+			ArrayList<Embryoobject> Celltime = TrackCelltime.getB();
+			
+			
+			double perimeter = 0;
+			double time = Celltime.get(0).t;
+			for (Embryoobject Cell: Celltime)
+			
+				perimeter += Cell.perimeter;
+				
+			String ID = TrackCelltime.getA();
+			
+			parent.resultPerimeter.add(new ValuePair<String, double[]>(ID,
+					new double[] { time, perimeter }));
+	
 
 		}
-		Object[] colnames = new Object[] { "Track Id", "Location X", "Location Y", "Angle" };
+		Object[] colnames = new Object[] { "Track Id", "Location X", "Location Y", "Perimeter" };
 
 		Object[][] rowvalues = new Object[0][colnames.length];
 
-		rowvalues = new Object[parent.Finalresult.size()][colnames.length];
+		rowvalues = new Object[parent.Finalcurvatureresult.size()][colnames.length];
 
 		parent.table = new JTable(rowvalues, colnames);
 		parent.row = 0;
 		NumberFormat f = NumberFormat.getInstance();
-		for (Map.Entry<String, Intersectionobject> entry : parent.Finalresult.entrySet()) {
+		for (Map.Entry<String, ArrayList<Embryoobject>> entry : parent.Finalcurvatureresult.entrySet()) {
 
-			Intersectionobject currentangle = entry.getValue();
-			parent.table.getModel().setValueAt(entry.getKey(), parent.row, 0);
-			parent.table.getModel().setValueAt(f.format(currentangle.Intersectionpoint[0]), parent.row, 1);
-			parent.table.getModel().setValueAt(f.format(currentangle.Intersectionpoint[1]), parent.row, 2);
-			parent.table.getModel().setValueAt(f.format(currentangle.angle), parent.row, 3);
+			ArrayList<Embryoobject> Celltime = entry.getValue();
+			double perimeter = 0;
+			double time = Celltime.get(0).t;
+			for (Embryoobject Cell: Celltime)
 			
+				perimeter += Cell.perimeter;
+			parent.table.getModel().setValueAt(entry.getKey(), parent.row, 0);
+			parent.table.getModel().setValueAt(f.format(Celltime.get(0).center[0]), parent.row, 1);
+			parent.table.getModel().setValueAt(f.format(Celltime.get(0).center[1]), parent.row, 2);
+			parent.table.getModel().setValueAt(f.format(perimeter), parent.row, 3);
 
 			parent.row++;
 

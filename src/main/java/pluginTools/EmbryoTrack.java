@@ -77,7 +77,7 @@ public class EmbryoTrack {
 		computeMinMax(Views.iterable(CurrentViewInt), min, max);
 
 		
-		CurvatureEachEmbryo compute = new CurvatureEachEmbryo(parent, CurrentViewInt, parent.thirdDimension, max.get(), percent);
+		CurvatureEachEmbryo compute = new CurvatureEachEmbryo(parent, CurrentViewInt,  max.get(), percent);
 		compute.displayCurvature();
 		
 		
@@ -127,20 +127,14 @@ public class EmbryoTrack {
 						IntType min = new IntType();
 						IntType max = new IntType();
 						computeMinMax(Views.iterable(CurrentViewInt), min, max);
-						CurvatureEachEmbryo compute = new CurvatureEachEmbryo(parent, CurrentViewInt,Embryolist, t, max.get(), (int) percent);
+						CurvatureEachEmbryo compute = new CurvatureEachEmbryo(parent, CurrentViewInt,Embryolist, max.get(), (int) percent);
 						compute.displayCurvature();
 						
 						
 						parent.AllEmbryos.put(Integer.toString(t), Embryolist);
 						
-					
 				}
 
-
-			
-
-		
-		
 	}
 
 	

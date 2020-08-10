@@ -134,10 +134,6 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 
 		MarsRover(parent, Ordered.getB(), centerpoint,  ndims, celllabel, thirdDimension);
 		
-		
-		
-		
-		
 		return true;
 	}
 
@@ -150,10 +146,8 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 			int ndims, int celllabel, int t) {
 
 		// Get the sparse list of points
-	     
 
 		int count = 0;
-
 
 		int i = parent.increment;
 		ArrayList<Embryoobject> resultpair = CommonLoop(parent, Ordered, centerpoint, ndims, celllabel, t);
@@ -231,6 +225,7 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 	@Override
 	public Pair<Embryoobject, ClockDisplayer> getLocalcurvature(ArrayList<double[]> Cordlist,
 			RealLocalizable centerpoint, int Label, int strideindex, String name) {
+		
 		double[] x = new double[Cordlist.size()];
 		double[] y = new double[Cordlist.size()];
 
