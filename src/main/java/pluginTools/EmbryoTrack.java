@@ -19,7 +19,7 @@ import kalmanGUI.CovistoKalmanPanel;
 
 import javax.swing.JProgressBar;
 
-import embryoDetector.Curvatureobject;
+import embryoDetector.Embryoobject;
 import net.imglib2.Cursor;
 import net.imglib2.KDTree;
 import net.imglib2.RandomAccess;
@@ -119,7 +119,7 @@ public class EmbryoTrack {
 						parent.panelFirst.validate();
 						parent.panelFirst.repaint();
 						
-						ArrayList<Curvatureobject> Embryolist = new ArrayList<Curvatureobject>();
+						ArrayList<Embryoobject> Embryolist = new ArrayList<Embryoobject>();
 						RandomAccessibleInterval<IntType> CurrentViewInt = utility.Slicer.getCurrentViewInt(parent.Segoriginalimg, t,
 								parent.thirdDimensionSize);
 						GetPixelList(CurrentViewInt);

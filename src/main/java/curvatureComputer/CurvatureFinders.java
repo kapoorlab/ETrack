@@ -2,13 +2,8 @@ package curvatureComputer;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
-import embryoDetector.Curvatureobject;
 import embryoDetector.Embryoobject;
-import embryoDetector.LineProfileCircle;
 import net.imglib2.RealLocalizable;
 import net.imglib2.algorithm.OutputAlgorithm;
 import net.imglib2.type.NativeType;
@@ -17,7 +12,7 @@ import net.imglib2.util.Pair;
 import pluginTools.InteractiveEmbryo;
 
 public interface CurvatureFinders<T extends RealType<T> & NativeType<T>>
-		extends OutputAlgorithm< Curvatureobject > {
+		extends OutputAlgorithm< ArrayList<Embryoobject> > {
 
 	
 	

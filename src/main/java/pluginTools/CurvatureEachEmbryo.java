@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.JProgressBar;
 
 import curvatureComputer.AnalyzeCurvature;
-import embryoDetector.Curvatureobject;
+import embryoDetector.Embryoobject;
 import embryoDetector.Embryoregionobject;
 import embryoDetector.LineProfileCircle;
 import net.imglib2.Cursor;
@@ -38,7 +38,7 @@ public class CurvatureEachEmbryo {
 	
 	final int percent;
 	
-	final ArrayList<Curvatureobject> Embryolist;
+	final ArrayList<Embryoobject> Embryolist;
 	
 	public CurvatureEachEmbryo(final InteractiveEmbryo parent, final RandomAccessibleInterval<IntType> CurrentViewInt, final int t,
 			final int maxlabel, final int percent) {
@@ -53,7 +53,7 @@ public class CurvatureEachEmbryo {
 	}
 	
 	public CurvatureEachEmbryo(final InteractiveEmbryo parent, final RandomAccessibleInterval<IntType> CurrentViewInt, 
-			final ArrayList<Curvatureobject> Embryolist, final int t,
+			final ArrayList<Embryoobject> Embryolist, final int t,
 			final int maxlabel, final int percent) {
 		
 		this.parent = parent;
@@ -66,7 +66,7 @@ public class CurvatureEachEmbryo {
 	}
 	
 	
-	public ArrayList<Curvatureobject> returnEmbryoList() {
+	public ArrayList<Embryoobject> returnEmbryoList() {
 		
 		return Embryolist;
 	}
@@ -86,7 +86,7 @@ public class CurvatureEachEmbryo {
 						CurrentViewInt, label);
 				
 				AnalyzeCurvature CurvatureMe = new AnalyzeCurvature(parent,Embryo.Boundaryimage, t, parent.jpb, percent, label);
-				HashMap<String,Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> CurvatureMap  = CurvatureMe.call();
+				HashMap<String,ArrayList<Embryoobject>> CurvatureMap  = CurvatureMe.call();
 				
 				
 			}

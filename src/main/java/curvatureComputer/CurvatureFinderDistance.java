@@ -14,7 +14,6 @@ import javax.swing.JProgressBar;
 
 import bdv.util.Bdv;
 import curvatureComputer.CurvatureFinderCircleFit.ParallelCalls;
-import embryoDetector.Curvatureobject;
 import embryoDetector.Embryoobject;
 import embryoDetector.LineProfileCircle;
 import net.imglib2.Point;
@@ -38,8 +37,8 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 	public final int thirdDimension;
 	public final int percent;
 	public final int celllabel;
-	Curvatureobject CurvatureAndLineScan;
-	ConcurrentHashMap<Integer, Curvatureobject> Bestdelta = new ConcurrentHashMap<Integer, Curvatureobject>();
+	ArrayList<Embryoobject> CurvatureAndLineScan;
+	ConcurrentHashMap<Integer, ArrayList<Embryoobject>> Bestdelta = new ConcurrentHashMap<Integer, ArrayList<Embryoobject>>();
 	public final RandomAccessibleInterval<BitType> ActualRoiimg;
 	private final String BASE_ERROR_MSG = "[DistanceMethod-]";
 	protected String errorMessage;
@@ -58,7 +57,7 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 	}
 
 
-	public class ParallelCalls implements Callable<Curvatureobject> {
+	public class ParallelCalls implements Callable<ArrayList<Embryoobject>> {
 
 		
 		public final InteractiveEmbryo parent;
@@ -92,9 +91,9 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 		}
 		
 		@Override
-		public Curvatureobject call() throws Exception {
+		public ArrayList<Embryoobject> call() throws Exception {
 			
-			Curvatureobject  result = getCurvature(parent, allorderedcandidates, centerpoint, ndims, celllabel, t, index);
+			ArrayList<Embryoobject>  result = getCurvature(parent, allorderedcandidates, centerpoint, ndims, celllabel, t, index);
 			
 			
 			return result;
@@ -103,7 +102,7 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 	}
 
 	@Override
-	public Curvatureobject getResult() {
+	public ArrayList<Embryoobject> getResult() {
 
 		return CurvatureAndLineScan;
 	}
@@ -215,7 +214,7 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 
 
 		int i = parent.increment;
-		Curvatureobject resultpair = CommonLoop(parent, Ordered, centerpoint, ndims, celllabel, t);
+		ArrayList<Embryoobject> resultpair = CommonLoop(parent, Ordered, centerpoint, ndims, celllabel, t);
 		
 		Bestdelta.put(count, resultpair);
 		count++;
@@ -230,7 +229,7 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 		int nThreads = Runtime.getRuntime().availableProcessors();
 		final ExecutorService taskExecutor = Executors.newFixedThreadPool(nThreads);
 		
-		List<Future<Curvatureobject>> list = new ArrayList<Future<Curvatureobject>>();
+		List<Future<ArrayList<Embryoobject>>> list = new ArrayList<Future<ArrayList<Embryoobject>>>();
 		
 		for (int index = 0; index < maxstride; ++index) {
 			List<RealLocalizable> allorderedcandidates = Listordereing.getList(Ordered, i + index);
@@ -242,19 +241,19 @@ public class CurvatureFinderDistance<T extends RealType<T> & NativeType<T>> exte
 
 			
 			ParallelCalls call = new ParallelCalls(parent, allorderedcandidates, centerpoint, ndims, celllabel, t, index);
-			Future<Curvatureobject> Futureresultpair = taskExecutor.submit(call);
+			Future<ArrayList<Embryoobject>> Futureresultpair = taskExecutor.submit(call);
 			list.add(Futureresultpair);
 		}
 		
 		taskExecutor.shutdown();
-		for(Future<Curvatureobject> fut : list){
+		for(Future<ArrayList<Embryoobject>> fut : list){
 			
 			
 			
 			
 			try {
 				
-				Curvatureobject newresultpair = fut.get();
+				ArrayList<Embryoobject> newresultpair = fut.get();
 				
 				Bestdelta.put(count, newresultpair);
 				count++;

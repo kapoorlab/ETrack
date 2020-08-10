@@ -2,28 +2,19 @@ package curvatureComputer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javax.swing.JProgressBar;
-
-import embryoDetector.Curvatureobject;
 import embryoDetector.Embryoobject;
-import embryoDetector.LineProfileCircle;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.RealLocalizable;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.real.FloatType;
-import net.imglib2.util.Pair;
 import pluginTools.InteractiveEmbryo;
 
-public class AnalyzeCurvature implements Callable< HashMap<String,Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> >{
+public class AnalyzeCurvature implements Callable< HashMap<String,ArrayList<Embryoobject>>>{
 	
 	
 	final InteractiveEmbryo parent;
-	 HashMap<Integer, Curvatureobject> AlldenseCurveintersection;
+	 HashMap<Integer, ArrayList<Embryoobject>> AlldenseCurveintersection;
 	final RandomAccessibleInterval<BitType> ActualRoiimg;
 	final JProgressBar jpb;
 	final int percent;
@@ -45,35 +36,34 @@ public class AnalyzeCurvature implements Callable< HashMap<String,Pair<ArrayList
 		
 	}
 
-	private HashMap<String,Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>> CurvatureFinderChoice() {
+	private HashMap<String,ArrayList<Embryoobject>> CurvatureFinderChoice() {
 		
-		 HashMap<String,Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>>  AlldenseCurveintersection = 
-				 new HashMap<String,Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>>();
+		 HashMap<String,ArrayList<Embryoobject>>  AlldenseCurveintersection = 
+				 new HashMap<String,ArrayList<Embryoobject>>();
 		 
 	 
 		 String ID = Integer.toString(celllabel) + Integer.toString(time);
 		if (parent.circlefits) {
 			
-		CurvatureFinderCircleFit<FloatType> curvecircle = new CurvatureFinderCircleFit<FloatType>(parent,  
+     		CurvatureFinderCircleFit<FloatType> curvecircle = new CurvatureFinderCircleFit<FloatType>(parent,  
 				 ActualRoiimg, jpb, percent, celllabel, time);
 		
-		curvecircle.process();
+		    curvecircle.process();
 		
-		
-		Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> CurvatureAndLineScan = curvecircle.getResult(); 
-		AlldenseCurveintersection.put(ID, CurvatureAndLineScan);
+		    ArrayList<Embryoobject> CurvatureAndLineScan = curvecircle.getResult(); 
+		    AlldenseCurveintersection.put(ID, CurvatureAndLineScan);
 		
 		}
 		
 		if(parent.distancemethod) {
 			
-		CurvatureFinderDistance<FloatType> curvedistance = new CurvatureFinderDistance<FloatType>(parent, 
+		    CurvatureFinderDistance<FloatType> curvedistance = new CurvatureFinderDistance<FloatType>(parent, 
 				ActualRoiimg, jpb, percent, celllabel, time);
 		
-		curvedistance.process();
+		    curvedistance.process();
 		
-		Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> CurvatureAndLineScan = curvedistance.getResult(); 
-		AlldenseCurveintersection.put(ID, CurvatureAndLineScan);
+		    ArrayList<Embryoobject> CurvatureAndLineScan = curvedistance.getResult(); 
+	     	AlldenseCurveintersection.put(ID, CurvatureAndLineScan);
 		
 	     }
 		
@@ -84,7 +74,7 @@ public class AnalyzeCurvature implements Callable< HashMap<String,Pair<ArrayList
 			
 			curvedistance.process();
 			
-			Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>> CurvatureAndLineScan = curvedistance.getResult(); 
+			ArrayList<Embryoobject> CurvatureAndLineScan = curvedistance.getResult(); 
 			AlldenseCurveintersection.put(ID, CurvatureAndLineScan);
 			
 		}
@@ -92,14 +82,14 @@ public class AnalyzeCurvature implements Callable< HashMap<String,Pair<ArrayList
 		return AlldenseCurveintersection;
 	}
 	@Override
-	public  HashMap<String,Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>>  call() throws Exception {
+	public  HashMap<String,ArrayList<Embryoobject>>  call() throws Exception {
 
 			utility.ProgressBar.SetProgressBar(jpb, 100 * percent / (parent.pixellist.size() + 1), "Computing Curvature = "
 					+ time + "/" + (parent.thirdDimensionSize + 1) );
 		
 
 		
-		 HashMap<String,Pair<ArrayList<Curvatureobject>,ConcurrentHashMap<Integer, ArrayList<LineProfileCircle>>>>  AlldenseCurveintersection = 	CurvatureFinderChoice();
+		 HashMap<String,ArrayList<Embryoobject>>  AlldenseCurveintersection = 	CurvatureFinderChoice();
 		
 		
 		

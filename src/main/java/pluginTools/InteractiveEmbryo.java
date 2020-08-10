@@ -60,7 +60,6 @@ import bdv.util.BdvOverlay;
 import bdv.util.BdvSource;
 import comboSliderTextbox.SliderBoxGUI;
 import curvatureComputer.ComputeCurvatureCurrent;
-import embryoDetector.Curvatureobject;
 import embryoDetector.Embryoobject;
 import ij.IJ;
 import ij.ImagePlus;
@@ -236,7 +235,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public ArrayList<RealLocalizable> AllEmbryocenter;
 	public ArrayList<RealLocalizable> ChosenEmbryocenter;
 	public HashMap<String, RealLocalizable> SelectedAllRefcords;
-	public HashMap<String, ArrayList<Curvatureobject>> AllEmbryos;
+	public HashMap<String, ArrayList<Embryoobject>> AllEmbryos;
 	public HashMap<String, Integer> EmbryoLastTime;
 	public ArrayList<OvalRoi> EmbryoOvalRois;
 	public ArrayList<Pair<String, double[]>> resultAngle;
@@ -257,7 +256,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public HashMap<Integer, Double> HashresultSegIntensityB;
 	public HashMap<Integer, Double> HashresultSegPerimeter;
 	public Set<Integer> pixellist;
-	public HashMap<String, Curvatureobject> Finalcurvatureresult;
+	public HashMap<String, Embryoobject> Finalcurvatureresult;
 	public boolean isCreated = false;
 	public RoiManager roimanager;
 	public String uniqueID, TID;
@@ -347,8 +346,8 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		Clickedpoints = new int[2];
 		pixellist = new HashSet<Integer>();
 		EmbryoTracklist = new ArrayList<ValuePair<String, Embryoobject>>();
-		AllEmbryos = new HashMap<String, ArrayList<Curvatureobject>>();
-		Finalcurvatureresult = new HashMap<String, Curvatureobject>();
+		AllEmbryos = new HashMap<String, ArrayList<Embryoobject>>();
+		Finalcurvatureresult = new HashMap<String, Embryoobject>();
 		ij = new ImageJ();
 		ij.ui().showUI();
 		if (ndims == 3) {
