@@ -34,15 +34,6 @@ import org.jgrapht.graph.SimpleWeightedGraph;
 
 import com.google.common.math.Quantiles.Scale;
 
-import batchMode.BatchKymoSave;
-import costMatrix.PixelratiowDistCostFunction;
-import curvatureFinder.LineProfileCircle;
-import curvatureUtils.DisplaySelected;
-import drawUtils.DrawFunction;
-import ellipsoidDetector.Distance;
-import ellipsoidDetector.Intersectionobject;
-import ellipsoidDetector.KymoSaveobject;
-import embryoDetector.Curvatureobject;
 import hashMapSorter.SortTimeorZ;
 import ij.IJ;
 import ij.ImagePlus;
@@ -51,14 +42,8 @@ import ij.gui.Line;
 import ij.gui.Overlay;
 import ij.io.FileSaver;
 import ij.measure.Calibration;
-import imageAxis.AxisRendering;
-import kalmanForSegments.Segmentobject;
-import kalmanForSegments.TrackSegmentModel;
 import kalmanTracker.ETrackCostFunction;
-import kalmanTracker.IntersectionobjectCollection;
 import kalmanTracker.KFsearch;
-import kalmanTracker.NearestNeighbourSearch;
-import kalmanTracker.NearestNeighbourSearch2D;
 import kalmanTracker.TrackModel;
 import listeners.DisplayVisualListener;
 import net.imglib2.Cursor;
@@ -76,14 +61,11 @@ import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 import pluginTools.EmbryoTrack;
 import pluginTools.InteractiveEmbryo;
-import pluginTools.InteractiveSimpleEllipseFit.ValueChange;
-import track.TrackingFunctions;
 import utility.CreateTable;
 import utility.FlagNode;
 import utility.Listordereing;
 import utility.NNFlagsearchKDtree;
 import utility.Roiobject;
-import utility.ThreeDRoiobject;
 
 public class ComputeCurvature extends SwingWorker<Void, Void> {
 

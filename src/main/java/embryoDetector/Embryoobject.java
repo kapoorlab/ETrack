@@ -261,7 +261,7 @@ public class Embryoobject extends AbstractEuclideanSpace implements RealLocaliza
 		final long[] sourceLocation = Location;
 		final long[] targetLocation = target.Location;
 
-		double distance = 1.0E-5;
+		double distance = 0;
 
 		for (int d = 0; d < sourceLocation.length; ++d) {
 

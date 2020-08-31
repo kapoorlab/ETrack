@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.JProgressBar;
 
 import curvatureComputer.AnalyzeCurvature;
+import embryoDetector.Cellobject;
 import embryoDetector.Embryoobject;
 import embryoDetector.Embryoregionobject;
 import embryoDetector.LineProfileCircle;
@@ -37,7 +38,7 @@ public class CurvatureEachEmbryo {
 	
 	final int percent;
 	
-	final ArrayList<Embryoobject> Embryolist;
+	final ArrayList<Cellobject> Embryolist;
 	
 	public CurvatureEachEmbryo(final InteractiveEmbryo parent, final RandomAccessibleInterval<IntType> CurrentViewInt,
 			final int maxlabel, final int percent) {
@@ -51,7 +52,7 @@ public class CurvatureEachEmbryo {
 	}
 	
 	public CurvatureEachEmbryo(final InteractiveEmbryo parent, final RandomAccessibleInterval<IntType> CurrentViewInt, 
-			final ArrayList<Embryoobject> Embryolist, 
+			final ArrayList<Cellobject> Embryolist, 
 			final int maxlabel, final int percent) {
 		
 		this.parent = parent;
@@ -63,7 +64,7 @@ public class CurvatureEachEmbryo {
 	}
 	
 	
-	public ArrayList<Embryoobject> returnEmbryoList() {
+	public ArrayList<Cellobject> returnEmbryoList() {
 		
 		return Embryolist;
 	}
@@ -85,30 +86,15 @@ public class CurvatureEachEmbryo {
 						CurrentViewInt, label);
 				
 				AnalyzeCurvature CurvatureMe = new AnalyzeCurvature(parent,Embryo.Boundaryimage, parent.jpb, percent, label);
-				HashMap<String,ArrayList<Embryoobject>> CurvatureMap  = CurvatureMe.call();
-				
+				Cellobject CurvatureMap  = CurvatureMe.call();
+				Embryolist.add(CurvatureMap);
 				
 			}
 			
 		}
 		
 	}
-	
-	public void Common() {
-		
-		if(parent.Curvaturebutton.isEnabled()) {
-			
-			// We are still not making the object, just testing
-			
-		}
-		
-		else {
-			
-			// We are now taking over and making objects
-			
-		}
-		
-	}
+
 	
 	public static Embryoregionobject EmbryoCurrentLabelBinaryImage(
 			RandomAccessibleInterval<IntType> Intimg, int currentLabel) {

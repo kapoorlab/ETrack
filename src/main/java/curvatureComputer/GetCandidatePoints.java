@@ -6,20 +6,12 @@ import java.util.List;
 import javax.swing.JProgressBar;
 
 import net.imglib2.Cursor;
-import net.imglib2.Interval;
-import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealLocalizable;
 import net.imglib2.RealPoint;
-import net.imglib2.algorithm.neighborhood.DiamondShape;
 import net.imglib2.type.logic.BitType;
-import net.imglib2.type.numeric.real.FloatType;
-import net.imglib2.util.Intervals;
-import net.imglib2.util.Pair;
-import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 import pluginTools.InteractiveEmbryo;
-import skeleton.SkeletonCreator;
 import net.imagej.ops.OpService;
 
 public class GetCandidatePoints {

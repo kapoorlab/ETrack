@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import javax.swing.JProgressBar;
+
+import embryoDetector.Cellobject;
 import embryoDetector.Embryoobject;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.logic.BitType;
 import net.imglib2.type.numeric.real.FloatType;
 import pluginTools.InteractiveEmbryo;
 
-public class AnalyzeCurvature implements Callable< HashMap<String,ArrayList<Embryoobject>>>{
+public class AnalyzeCurvature implements Callable< Cellobject>{
 	
 	
 	final InteractiveEmbryo parent;
@@ -46,13 +48,14 @@ public class AnalyzeCurvature implements Callable< HashMap<String,ArrayList<Embr
 	 * @return
 	 */
 	
-	private HashMap<String,ArrayList<Embryoobject>> CurvatureFinderChoice() {
+	private Cellobject CurvatureFinderChoice() {
 		
-		 HashMap<String,ArrayList<Embryoobject>>  AlldenseCurveintersection = 
-				 new HashMap<String,ArrayList<Embryoobject>>();
+		
+				
 		 
 	 
-		 String ID = Integer.toString(celllabel) + Integer.toString(parent.thirdDimension);
+		 
+		 ArrayList<Embryoobject> CurvatureAndLineScan = new ArrayList<Embryoobject>();
 		 
 		if (parent.circlefits) {
 			
@@ -61,8 +64,8 @@ public class AnalyzeCurvature implements Callable< HashMap<String,ArrayList<Embr
 		
 		    curvecircle.process();
 		
-		    ArrayList<Embryoobject> CurvatureAndLineScan = curvecircle.getResult(); 
-		    AlldenseCurveintersection.put(ID, CurvatureAndLineScan);
+		   CurvatureAndLineScan = curvecircle.getResult(); 
+		    
 		
 		}
 		
@@ -73,8 +76,7 @@ public class AnalyzeCurvature implements Callable< HashMap<String,ArrayList<Embr
 		
 		    curvedistance.process();
 		
-		    ArrayList<Embryoobject> CurvatureAndLineScan = curvedistance.getResult(); 
-	     	AlldenseCurveintersection.put(ID, CurvatureAndLineScan);
+		   CurvatureAndLineScan = curvedistance.getResult(); 
 		
 	     }
 		
@@ -85,22 +87,25 @@ public class AnalyzeCurvature implements Callable< HashMap<String,ArrayList<Embr
 			
 			curvedistance.process();
 			
-			ArrayList<Embryoobject> CurvatureAndLineScan = curvedistance.getResult(); 
-			AlldenseCurveintersection.put(ID, CurvatureAndLineScan);
+			CurvatureAndLineScan = curvedistance.getResult(); 
 			
 		}
+		
+	
+		
+		Cellobject AlldenseCurveintersection = new Cellobject(CurvatureAndLineScan);
 		
 		return AlldenseCurveintersection;
 	}
 	@Override
-	public  HashMap<String,ArrayList<Embryoobject>>  call() throws Exception {
+	public  Cellobject call() throws Exception {
 
 			utility.ProgressBar.SetProgressBar(jpb, 100 * percent / (parent.pixellist.size() + 1), "Computing Curvature = "
 					+ parent.thirdDimension + "/" + (parent.thirdDimensionSize + 1) );
 		
 
 		
-		 HashMap<String,ArrayList<Embryoobject>>  AlldenseCurveintersection = 	CurvatureFinderChoice();
+			Cellobject AlldenseCurveintersection = 	CurvatureFinderChoice();
 		
 		
 		

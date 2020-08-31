@@ -44,6 +44,7 @@ import javax.swing.border.TitledBorder;
 import org.jfree.chart.JFreeChart;
 import comboSliderTextbox.SliderBoxGUI;
 import curvatureComputer.ComputeCurvatureCurrent;
+import embryoDetector.Cellobject;
 import embryoDetector.Embryoobject;
 import ij.IJ;
 import ij.ImagePlus;
@@ -205,7 +206,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public ArrayList<RealLocalizable> AllEmbryocenter;
 	public ArrayList<RealLocalizable> ChosenEmbryocenter;
 	public HashMap<String, RealLocalizable> SelectedAllRefcords;
-	public HashMap<String, ArrayList<Embryoobject>> AllEmbryos;
+	public HashMap<String, ArrayList<Cellobject>> AllEmbryos;
 	public HashMap<String, Integer> EmbryoLastTime;
 	public ArrayList<OvalRoi> EmbryoOvalRois;
 	public ArrayList<Pair<String, double[]>> resultPerimeter;
@@ -318,7 +319,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		Clickedpoints = new int[2];
 		pixellist = new HashSet<Integer>();
 		EmbryoTracklist = new ArrayList<ValuePair<String, Embryoobject>>();
-		AllEmbryos = new HashMap<String, ArrayList<Embryoobject>>();
+		AllEmbryos = new HashMap<String, ArrayList<Cellobject>>();
 		Finalcurvatureresult = new HashMap<String, ArrayList<Embryoobject>>();
 		
 		resultPerimeter = new ArrayList<Pair<String, double[]>>();

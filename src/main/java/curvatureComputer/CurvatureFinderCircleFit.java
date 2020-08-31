@@ -185,8 +185,6 @@ public class CurvatureFinderCircleFit<T extends RealType<T> & NativeType<T>> ext
 		for(Future<ArrayList<Embryoobject>> fut : list){
 			
 			
-			
-			
 			try {
 				
 				ArrayList<Embryoobject> newresultpair = fut.get();

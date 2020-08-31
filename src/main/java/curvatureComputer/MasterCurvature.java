@@ -173,8 +173,6 @@ public abstract class MasterCurvature<T extends RealType<T> & NativeType<T>> imp
 	 */
 	public ArrayList<Embryoobject>  getCurvature(InteractiveEmbryo parent, List<RealLocalizable> candidates,
 			RealLocalizable centerpoint, int ndims, int Label, int t, int strideindex) {
-
-		
 		
 		ArrayList<Embryoobject> currentobject =  getCurvatureLineScan(parent, candidates, centerpoint,  ndims,Label, t); 
 
