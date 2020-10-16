@@ -71,21 +71,15 @@ public class ComputeCurvature extends SwingWorker<Void, Void> {
 
 	final InteractiveEmbryo parent;
 	final JProgressBar jpb;
-	final boolean batchmode;
-	final File savefile;
 
 	static int extradimension = 50;
 
-	public ComputeCurvature(final InteractiveEmbryo parent, final JProgressBar jpb, final boolean batchmode,
-			final File savefile) {
+	public ComputeCurvature(final InteractiveEmbryo parent, final JProgressBar jpb) {
 
 		this.parent = parent;
 
 		this.jpb = jpb;
 
-		this.batchmode = batchmode;
-
-		this.savefile = savefile;
 	}
 
 	@Override
@@ -111,6 +105,7 @@ public class ComputeCurvature extends SwingWorker<Void, Void> {
 		parent.interiorfield.setEnabled(false);
 		parent.Displaybutton.setEnabled(false);
 		//parent.radiusField.setEnabled(false);
+		
 		EmbryoTrack newtrack = new EmbryoTrack(parent, jpb);
 		newtrack.ShowEmbryoCurvatureTime();
 

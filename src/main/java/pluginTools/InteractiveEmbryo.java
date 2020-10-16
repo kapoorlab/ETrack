@@ -104,7 +104,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public HashMap<String, Integer> CellLabelsizemap = new HashMap<String, Integer>();
 	public Overlay overlay, clockoverlay;
 	public int numSeg = 1;
-	public ImageJ ij; 
+	public ImageJ ij;
 	public Overlay emptyoverlay;
 	public int thirdDimensionslider = 1;
 	public int thirdDimensionsliderInit = 1;
@@ -119,14 +119,12 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public int maxsize = 100;
 	public int minsize = 10;
 
-
 	public ImagePlus clockimp;
 	public boolean circlefits = false;
 	public boolean distancemethod = false;
 	public boolean combomethod = true;
 
 	public RealLocalizable globalMaxcord;
-
 
 	public int KymoDimension = 0;
 	public int AutostartTime, AutoendTime;
@@ -191,6 +189,7 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public float maxSearchradiusMinS = 1;
 	public float maxSearchradiusMaxS = maxSearchradius;
 	public RandomAccessibleInterval<FloatType> CurrentView;
+	public RandomAccessibleInterval<IntType> CurrentViewInt;
 	public RandomAccessibleInterval<FloatType> CurrentViewSecOrig;
 	public int maxlabel;
 	public Color colorLineA = Color.YELLOW;
@@ -242,28 +241,27 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	public int maxframegap = 10;
 	public boolean twochannel;
 	public int insidedistance = 10;
+
 	public static enum ValueChange {
-		
+
 		THIRDDIMmouse, All;
-		
+
 	}
-	
+
 	public void setTime(final int value) {
 		thirdDimensionslider = value;
 		thirdDimensionsliderInit = 1;
 		thirdDimension = 1;
 	}
-	
-	
+
 	public int getTimeMax() {
 
 		return thirdDimensionSize;
 	}
 
 	public InteractiveEmbryo(RandomAccessibleInterval<FloatType> originalimg,
-			RandomAccessibleInterval<IntType> Segoriginalimg,
-			final double calibration, final double timecal, String inputdirectory,
-			boolean twochannel, String inputstring) {
+			RandomAccessibleInterval<IntType> Segoriginalimg, final double calibration, final double timecal,
+			String inputdirectory, boolean twochannel, String inputstring) {
 		this.inputfile = null;
 		this.inputdirectory = inputdirectory;
 		this.originalimg = originalimg;
@@ -280,8 +278,8 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 
 	public InteractiveEmbryo(RandomAccessibleInterval<FloatType> originalimg,
 			RandomAccessibleInterval<FloatType> Secoriginalimg, RandomAccessibleInterval<IntType> Segoriginalimg,
-			final double calibration, final double timecal, String inputdirectory,
-			boolean twochannel, String inputstring) {
+			final double calibration, final double timecal, String inputdirectory, boolean twochannel,
+			String inputstring) {
 		this.inputfile = null;
 		this.inputdirectory = inputdirectory;
 		this.originalimg = originalimg;
@@ -296,10 +294,6 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		this.twochannel = twochannel;
 		this.inputstring = inputstring;
 	}
-
-
-
-
 
 	public void run(String arg0) {
 
@@ -321,9 +315,9 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		EmbryoTracklist = new ArrayList<ValuePair<String, Embryoobject>>();
 		AllEmbryos = new HashMap<String, ArrayList<Cellobject>>();
 		Finalcurvatureresult = new HashMap<String, ArrayList<Embryoobject>>();
-		
+
 		resultPerimeter = new ArrayList<Pair<String, double[]>>();
-		
+
 		ij = new ImageJ();
 		ij.ui().showUI();
 		if (ndims == 3) {
@@ -337,27 +331,23 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 		}
 		setTime(thirdDimension);
 		CurrentView = utility.EmbryoSlicer.getCurrentEmbryoView(originalimg, thirdDimension, thirdDimensionSize);
-
+		CurrentViewInt = utility.Slicer.getCurrentViewInt(Segoriginalimg, thirdDimension, thirdDimensionSize);
 		imp = ImageJFunctions.show(CurrentView, "Original Image");
 		imp.setTitle("Active Image" + " " + "time point : " + thirdDimension);
-	
+
 		clockimp = ImageJFunctions.show(CurrentView, "Wizard Clock");
-		clockimp.setTitle("Wizard Clock" );
+		clockimp.setTitle("Wizard Clock");
 		Cardframe.repaint();
 		Cardframe.validate();
 		panelFirst.repaint();
 		panelFirst.validate();
 		saveFile = new java.io.File(".");
-		
-		
+
 		Card();
 		updatePreview(ValueChange.THIRDDIMmouse);
 		StartDisplayer();
 
 	}
-
-	
-
 
 	public void repaintView(ImagePlus Activeimp, RandomAccessibleInterval<FloatType> Activeimage) {
 		if (Activeimp == null || !Activeimp.isVisible()) {
@@ -380,84 +370,71 @@ public class InteractiveEmbryo extends JPanel implements PlugIn {
 	}
 
 	public void updatePreview(final ValueChange change) {
-		
-		
-      
+
 		if (overlay == null) {
 
 			overlay = new Overlay();
 			imp.setOverlay(overlay);
-			
+
 		}
-		
+
 		if (clockoverlay == null) {
 
 			clockoverlay = new Overlay();
 			clockimp.setOverlay(clockoverlay);
-			
+
 		}
-		
-		if (change == ValueChange.THIRDDIMmouse)
-		{
-			
-			
+
+		if (change == ValueChange.THIRDDIMmouse) {
+
 			imp.setTitle("Active Image" + " " + "time point : " + thirdDimension);
-			String TID = Integer.toString( thirdDimension);
-			AccountedT.put(TID,  thirdDimension);
+			String TID = Integer.toString(thirdDimension);
+			AccountedT.put(TID, thirdDimension);
 			CurrentView = utility.EmbryoSlicer.getCurrentEmbryoView(originalimg, thirdDimension, thirdDimensionSize);
-		repaintView(CurrentView);
-		if(Curvaturebutton.isEnabled()) {
-			imp.getOverlay().clear();
-			imp.updateAndDraw();
-			StartDisplayer();
-			
-		}
+			CurrentViewInt = utility.Slicer.getCurrentViewInt(Segoriginalimg, thirdDimension, thirdDimensionSize);
+			repaintView(CurrentView);
+			if (Curvaturebutton.isEnabled()) {
+				
+				imp.getOverlay().clear();
+				imp.updateAndDraw();
+				StartDisplayer();
+
+			}
 
 		}
 	}
 
-	
-
-	
-
 	public void StartDisplayer() {
-		
+
 		clockoverlay.clear();
 		clockimp.updateAndDraw();
+
 		ComputeCurvatureCurrent display = new ComputeCurvatureCurrent(this, jpb);
-
-
 		display.execute();
 
 	}
-	
-public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
-		
-		
-		
+
+	public void repaintView(RandomAccessibleInterval<FloatType> Activeimage) {
+
 		if (imp == null || !imp.isVisible()) {
 			imp = ImageJFunctions.show(Activeimage);
 
 		}
 
 		else {
-		
-				final float[] pixels = (float[]) imp.getProcessor().getPixels();
-				
-				final Cursor<FloatType> c = Views.iterable(Activeimage).cursor();
 
-				for (int i = 0; i < pixels.length; ++i)
-					pixels[i] = c.next().get();
+			final float[] pixels = (float[]) imp.getProcessor().getPixels();
 
-		}
-			
-			imp.updateAndDraw();
+			final Cursor<FloatType> c = Views.iterable(Activeimage).cursor();
+
+			for (int i = 0; i < pixels.length; ++i)
+				pixels[i] = c.next().get();
 
 		}
 
-	
+		imp.updateAndDraw();
 
-	
+	}
 
 	public JFrame Cardframe = new JFrame("Embryo Deformation Measuring Tool");
 	public JPanel panelCont = new JPanel();
@@ -469,8 +446,8 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 	public JPanel KalmanPanel = new JPanel();
 
 	public TextField inputFieldT, inputtrackField, minperimeterField, maxperimeterField, gaussfield, numsegField,
-			cutoffField, minSegDistField, degreeField, secdegreeField;//, resolutionField;
-			//radiusField,  SpecialminInlierField;
+			cutoffField, minSegDistField, degreeField, secdegreeField;// , resolutionField;
+	// radiusField, SpecialminInlierField;
 
 	public TextField inputFieldZ, startT, endT, maxSizeField, minSizeField;
 	public TextField inputFieldmaxtry, interiorfield, exteriorfield, regioninteriorfield;
@@ -504,8 +481,6 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 	public Label minSegDistText = new Label(minSegDiststring + " = " + minSegDist, Label.CENTER);
 
-
-
 	public final Insets insets = new Insets(10, 0, 0, 0);
 	public final GridBagLayout layout = new GridBagLayout();
 	public final GridBagConstraints c = new GridBagConstraints();
@@ -515,8 +490,7 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 	public String choosertitleA;
 	public JScrollBar timeslider = new JScrollBar(Scrollbar.HORIZONTAL, thirdDimensionsliderInit, 10, 0,
 			scrollbarSize + 10);
-	public JScrollBar minSegDistslider= new JScrollBar(Scrollbar.HORIZONTAL, minSegDist, 10, 0,
-			scrollbarSize + 10);
+	public JScrollBar minSegDistslider = new JScrollBar(Scrollbar.HORIZONTAL, minSegDist, 10, 0, scrollbarSize + 10);
 
 	public JPanel PanelSelectFile = new JPanel();
 	public JPanel PanelBatch = new JPanel();
@@ -535,10 +509,9 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 	JPanel controlnext = new JPanel();
 	CheckboxGroup curvaturemode = new CheckboxGroup();
 
-
 	final Checkbox circlemode = new Checkbox("Use Circle Fits", curvaturemode, circlefits);
 	public final Checkbox distancemode = new Checkbox("Use Distance Method", curvaturemode, distancemethod);
-	
+
 	public final Checkbox Combomode = new Checkbox("Use Combo Circle-Distance Method", curvaturemode, combomethod);
 
 	public boolean displayIntermediate = true;
@@ -549,8 +522,6 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 	public Border circletools = new CompoundBorder(new TitledBorder("Curvature computer"), new EmptyBorder(c.insets));
 
-
-
 	int textwidth = 5;
 
 	public void Card() {
@@ -559,7 +530,6 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 		lostlabel = new Label("Number of frames for loosing the track");
 		lostframe = new TextField(1);
 		lostframe.setText(Integer.toString(maxframegap));
-
 
 		autoTstart = new Label("Start time for automation");
 		startT = new TextField(textwidth);
@@ -592,10 +562,8 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 		inputFieldT = new TextField(textwidth);
 		inputFieldT.setText(Integer.toString(thirdDimension));
 
-
 		minSegDistField = new TextField(textwidth);
 		minSegDistField.setText(Integer.toString(minSegDist));
-
 
 		inputtrackField = new TextField(textwidth);
 		regioninteriorfield = new TextField(textwidth);
@@ -613,12 +581,8 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 		inputLabelIter = new Label("Max. attempts to find ellipses");
 		final JScrollBar maxSearchS = new JScrollBar(Scrollbar.HORIZONTAL, maxSearchInit, 10, 0, 10 + scrollbarSize);
 
-
 		maxSearchradius = (int) utility.ETrackScrollbarUtils.computeValueFromScrollbarPosition(maxSearchS.getValue(),
 				maxSearchradiusMin, maxSearchradiusMax, scrollbarSize);
-
-
-
 
 		inputtrackLabel = new Label("Enter trackID to save");
 		inputcellLabel = new Label("Enter CellLabel to save");
@@ -630,7 +594,6 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 		rowvalues = new Object[0][colnames.length];
 
-	
 		if (Finalcurvatureresult != null && Finalcurvatureresult.size() > 0) {
 
 			rowvalues = new Object[Finalcurvatureresult.size()][colnames.length];
@@ -660,52 +623,40 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 		Timeselect.setBorder(timeborder);
 		Timeselect.add(timeText, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-					GridBagConstraints.HORIZONTAL, insets, 0, 0));
+				GridBagConstraints.HORIZONTAL, insets, 0, 0));
 		panelFirst.add(Timeselect, new GridBagConstraints(0, 0, 5, 1, 0.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
+		SliderBoxGUI combominInlier = new SliderBoxGUI(minSegDiststring, minSegDistslider, minSegDistField,
+				minSegDistText, scrollbarSize, minSegDist, maxSegDist);
 
+		Curvatureselect.add(distancemode, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, insets, 0, 0));
+		Curvatureselect.add(circlemode, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
-	
+		Curvatureselect.add(Combomode, new GridBagConstraints(2, 2, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
-	
+		Curvatureselect.add(combominInlier.BuildDisplay(), new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0,
+				GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
-				SliderBoxGUI combominInlier = new SliderBoxGUI(minSegDiststring, minSegDistslider, minSegDistField,
-						minSegDistText, scrollbarSize, minSegDist, maxSegDist);
+		Curvatureselect.add(regionText, new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
-				Curvatureselect.add(distancemode, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
-						GridBagConstraints.HORIZONTAL, insets, 0, 0));
-				Curvatureselect.add(circlemode, new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0,
-						GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
+		Curvatureselect.add(regioninteriorfield, new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
-				
-				Curvatureselect.add(Combomode, new GridBagConstraints(2, 2, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
-						GridBagConstraints.HORIZONTAL, insets, 0, 0));
+		Curvatureselect.add(Curvaturebutton, new GridBagConstraints(2, 4, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
-				Curvatureselect.add(combominInlier.BuildDisplay(), new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0,
-						GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
+		Curvatureselect.add(Displaybutton, new GridBagConstraints(2, 5, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
+		Curvatureselect.setBorder(circletools);
+		panelFirst.add(Curvatureselect, new GridBagConstraints(0, 1, 5, 1, 0.0, 0.0, GridBagConstraints.CENTER,
+				GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
-				Curvatureselect.add(regionText, new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
-						GridBagConstraints.HORIZONTAL, insets, 0, 0));
-
-				Curvatureselect.add(regioninteriorfield, new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0,
-						GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
-
-				Curvatureselect.add(Curvaturebutton, new GridBagConstraints(2, 4, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
-						GridBagConstraints.HORIZONTAL, insets, 0, 0));
-
-
-				Curvatureselect.add(Displaybutton, new GridBagConstraints(2, 5, 2, 1, 0.0, 0.0, GridBagConstraints.WEST,
-						GridBagConstraints.HORIZONTAL, insets, 0, 0));
-
-				Curvatureselect.setBorder(circletools);
-				panelFirst.add(Curvatureselect, new GridBagConstraints(0, 1, 5, 1, 0.0, 0.0, GridBagConstraints.CENTER,
-						GridBagConstraints.HORIZONTAL, insets, 0, 0));
-
-
-
-		
 		controlprev.add(new JButton(new AbstractAction("\u22b2Prev") {
 
 			@Override
@@ -726,8 +677,6 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 
 		panelSecond.add(controlprev, new GridBagConstraints(0, 6, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER,
 				GridBagConstraints.RELATIVE, new Insets(10, 10, 0, 10), 0, 0));
-
-		
 
 		table.setFillsViewportHeight(true);
 
@@ -789,8 +738,8 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 		timeslider.addAdjustmentListener(new TimeListener(this, timeText, timestring, thirdDimensionsliderInit,
 				thirdDimensionSize, scrollbarSize, timeslider));
 
-		minSegDistslider.addAdjustmentListener(new MinSegDistListener(this, minSegDistText, minSegDiststring,
-				0, scrollbarSize, minSegDistslider));
+		minSegDistslider.addAdjustmentListener(
+				new MinSegDistListener(this, minSegDistText, minSegDiststring, 0, scrollbarSize, minSegDistslider));
 
 		distancemode.addItemListener(new DistancemodeListener(this));
 		circlemode.addItemListener(new CirclemodeListener(this));
@@ -819,32 +768,28 @@ public void repaintView( RandomAccessibleInterval<FloatType> Activeimage) {
 		Cardframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		Cardframe.pack();
 		Cardframe.setVisible(true);
-		
+
 		imp.getCanvas().addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void keyPressed(KeyEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == 27)
 					EscapePressed = true;
-				
+
 			}
-			
-			
-			
-			
-			
+
 		});
 
 	}

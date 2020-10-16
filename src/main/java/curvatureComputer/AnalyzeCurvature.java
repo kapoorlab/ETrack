@@ -93,7 +93,7 @@ public class AnalyzeCurvature implements Callable< Cellobject>{
 		
 	
 		
-		Cellobject AlldenseCurveintersection = new Cellobject(CurvatureAndLineScan);
+		Cellobject AlldenseCurveintersection = new Cellobject(CurvatureAndLineScan, celllabel);
 		
 		return AlldenseCurveintersection;
 	}

@@ -234,7 +234,6 @@ public class EmbryoFileChooser extends JPanel {
 		@Override
 		public void itemStateChanged(ItemEvent e) {
 			
-			  System.setProperty("scijava.log.level", "None");
            panelFirst.removeAll();
 		   Panelfileoriginal.removeAll();	
 		

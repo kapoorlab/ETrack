@@ -10,7 +10,7 @@
 	</parent>
 
 	<groupId>net.kapoor</groupId>
-	<artifactId>E_Track</artifactId>
+	<artifactId>Wizard_of_OZ</artifactId>
 	<version>1.0.0</version>
 	
 	<name>Embryo deformation measuring tool</name>

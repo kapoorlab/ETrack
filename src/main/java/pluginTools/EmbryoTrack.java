@@ -66,19 +66,15 @@ public class EmbryoTrack {
 
 		percent++;
 
-	
-		RandomAccessibleInterval<IntType> CurrentViewInt = utility.Slicer.getCurrentViewInt(parent.Segoriginalimg, parent.thirdDimension,
-				parent.thirdDimensionSize);
 		
-		
-		GetPixelList(CurrentViewInt);
+		GetPixelList(parent.CurrentViewInt);
 	
 		IntType min = new IntType();
 		IntType max = new IntType();
-		computeMinMax(Views.iterable(CurrentViewInt), min, max);
+		computeMinMax(Views.iterable(parent.CurrentViewInt), min, max);
 
 		
-		CurvatureEachEmbryo compute = new CurvatureEachEmbryo(parent, CurrentViewInt,  max.get(), percent);
+		CurvatureEachEmbryo compute = new CurvatureEachEmbryo(parent,  max.get(), percent);
 		compute.displayCurvature();
 		
 		
@@ -121,14 +117,13 @@ public class EmbryoTrack {
 						parent.panelFirst.repaint();
 						
 						ArrayList<Cellobject> Embryolist = new ArrayList<Cellobject>();
-						RandomAccessibleInterval<IntType> CurrentViewInt = utility.Slicer.getCurrentViewInt(parent.Segoriginalimg, t,
-								parent.thirdDimensionSize);
-						GetPixelList(CurrentViewInt);
+						
+						GetPixelList(parent.CurrentViewInt);
 					
 						IntType min = new IntType();
 						IntType max = new IntType();
-						computeMinMax(Views.iterable(CurrentViewInt), min, max);
-						CurvatureEachEmbryo compute = new CurvatureEachEmbryo(parent, CurrentViewInt,Embryolist, max.get(), (int) percent);
+						computeMinMax(Views.iterable(parent.CurrentViewInt), min, max);
+						CurvatureEachEmbryo compute = new CurvatureEachEmbryo(parent,Embryolist, max.get(), (int) percent);
 						compute.displayCurvature();
 						
 						

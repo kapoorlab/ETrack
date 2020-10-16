@@ -31,32 +31,27 @@ public class CurvatureEachEmbryo {
 	
 	final InteractiveEmbryo parent;
 	
-	final RandomAccessibleInterval<IntType> CurrentViewInt;
-	
-	
 	final int maxlabel;
 	
 	final int percent;
 	
 	final ArrayList<Cellobject> Embryolist;
 	
-	public CurvatureEachEmbryo(final InteractiveEmbryo parent, final RandomAccessibleInterval<IntType> CurrentViewInt,
+	public CurvatureEachEmbryo(final InteractiveEmbryo parent,
 			final int maxlabel, final int percent) {
 		
 		this.parent = parent;
-		this.CurrentViewInt = CurrentViewInt;
 		this.maxlabel = maxlabel;
 		this.percent = percent;
         this.Embryolist = null;		
 		
 	}
 	
-	public CurvatureEachEmbryo(final InteractiveEmbryo parent, final RandomAccessibleInterval<IntType> CurrentViewInt, 
+	public CurvatureEachEmbryo(final InteractiveEmbryo parent,  
 			final ArrayList<Cellobject> Embryolist, 
 			final int maxlabel, final int percent) {
 		
 		this.parent = parent;
-		this.CurrentViewInt = CurrentViewInt;
 		this.maxlabel = maxlabel;
 		this.percent = percent;
         this.Embryolist = Embryolist;		
@@ -83,7 +78,7 @@ public class CurvatureEachEmbryo {
 				
 				
 				Embryoregionobject Embryo = EmbryoCurrentLabelBinaryImage(
-						CurrentViewInt, label);
+						parent.CurrentViewInt, label);
 				
 				AnalyzeCurvature CurvatureMe = new AnalyzeCurvature(parent,Embryo.Boundaryimage, parent.jpb, percent, label);
 				Cellobject CurvatureMap  = CurvatureMe.call();
