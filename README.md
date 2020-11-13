@@ -1,13 +1,4 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Created by John Paul Minda, PhD			%%
-%% Professor of Psychology					%%
-%% The Brain and Mind Institute				%%
-%% The University of Western Ontario		%%	
-%% London, ON N6A 5C2						%%
-%%											%%
-%% Version 1.2								%%	
-%% Feb 13, 2018								%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \documentclass{article}
 \usepackage{fullpage}
